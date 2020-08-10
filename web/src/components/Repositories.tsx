@@ -2,6 +2,7 @@ import React from 'react'
 import axios, {AxiosResponse} from 'axios'
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
+import config from '../config';
 
 interface IProps {
     user: string;
@@ -37,7 +38,7 @@ export default class Repositories extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
-        const request = `https://localhost:44347/repo/${this.props.user}`;
+        const request = `${config.apiUrl}/repo/${this.props.user}`;
         console.log(`Requesting: ${request}`);
         axios.get<RepositoriesResponse>(request)
             .then((res: AxiosResponse<RepositoriesResponse>) => {

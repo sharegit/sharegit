@@ -13,7 +13,9 @@ namespace WebAPI
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            CreateHostBuilder(args)
+                .Build()
+                .Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -21,6 +23,8 @@ namespace WebAPI
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel();
+                    webBuilder.UseUrls("https://*:44801");
                 });
     }
 }

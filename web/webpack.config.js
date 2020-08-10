@@ -36,7 +36,7 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, 'public'),
     liveReload: true,
-    port: 9000,
+    port: 44800,
     historyApiFallback: true,
     writeToDisk: true,
   },

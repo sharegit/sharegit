@@ -3,6 +3,7 @@ import axios, {AxiosResponse, CancelTokenSource} from 'axios'
 import { RouteComponentProps } from 'react-router';
 import RepoListElement from './RepoListElement';
 import { Link } from 'react-router-dom';
+import config from '../config';
 
 interface IProps {
     user: string;
@@ -39,7 +40,7 @@ export default class Repository extends React.Component<IProps, IState> {
         console.log(this.props.token);
         console.log(`This is repo ${this.props.repo} of user ${this.props.user}`);
         const uri = this.props.uri == undefined ? '' : this.props.uri;
-        const request = `https://localhost:44347/repo/${this.props.user}/${this.props.repo}/tree/${this.props.sha}/${uri}`;
+        const request = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/tree/${this.props.sha}/${uri}`;
         console.log(`Requesting: ${request}`);
         axios.get<RepoObj[]>(request,  { cancelToken: this.state.cancelToken.token } )
             .then((res: AxiosResponse<RepoObj[]>) => {
