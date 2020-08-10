@@ -1,4 +1,5 @@
-﻿using Jose;
+﻿using Core.Util;
+using Jose;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
@@ -19,7 +20,7 @@ namespace ShareGithub.GithubAuth
             AsymmetricCipherKeyPair keyPair;
 
             // TODO: Add private key location configuration
-            using (var reader = System.IO.File.OpenText(Environment.GetEnvironmentVariable("SHARE_GITHUB_PRIV_KEY_LOC", EnvironmentVariableTarget.User)))
+            using (var reader = System.IO.File.OpenText(RollingEnv.Get("SHARE_GITHUB_PRIV_KEY_LOC")))
                 keyPair = (AsymmetricCipherKeyPair)new PemReader(reader).ReadObject();
 
             var payload = new
