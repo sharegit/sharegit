@@ -19,7 +19,7 @@ pipeline {
         }
         stage('Publish fronend') {
             steps {
-                dir("src_frontend") {
+                dir("web") {
                     sh '''
                         yarn install
                         yarn build
