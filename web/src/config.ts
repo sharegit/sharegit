@@ -1,8 +1,8 @@
 // TODO: consider moving to json: https://stackoverflow.com/questions/41482065/electron-my-custom-config-json-is-not-being-loaded
 
 import config_base from './config.json'
-import config_dev from './config.json'
-import config_prod from './config.json'
+import config_dev from './config.dev.json'
+import config_prod from './config.prod.json'
 
 const rawConf = config_base;
 
