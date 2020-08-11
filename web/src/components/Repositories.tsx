@@ -65,7 +65,7 @@ export default class Repositories extends React.Component<IProps, IState> {
                                                 name={r.name}
                                                 private={r.private}
                                                 description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                provider={"github"}></RepositoryCard>
+                                                provider='github'></RepositoryCard>
                             )
                     }
                 </List>

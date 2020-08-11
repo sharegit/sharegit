@@ -9,13 +9,14 @@ interface IProps {
     name: string;
     private: boolean;
     description: string;
-    provider: string;
+    provider: 'github' | 'gitlab' | 'bitbucket';
 }
 
 export default class RepositoryCard extends React.Component<IProps, IState> {
     render() {
         return (
             <List.Item>
+                <List.Icon name={this.props.provider} size='large' verticalAlign='middle'/>
                 <List.Content>
                     <List.Header as='a'>
                         <Link to={this.props.link}>{this.props.name}</Link>
