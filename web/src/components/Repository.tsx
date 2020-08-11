@@ -24,6 +24,9 @@ interface IState {
 interface RepoObj {
     type: string;
     path: string;
+    author: string;
+    lastmodifydate: string;
+    lastmodifycommitmessage: string;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -94,7 +97,15 @@ export default class Repository extends React.Component<IProps, IState> {
                         this.state.objects
                             .map((r : RepoObj) =>
                                 <li key={r.path + this.state.sha}>
-                                    <RepoListElement rooturi={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}`} updateParent={() => this.forceUpdate()} {...r}></RepoListElement>
+                                    <RepoListElement
+                                        rooturi={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}`}
+                                        updateParent={() => this.forceUpdate()}
+                                        lastCommitMessage={r.lastmodifycommitmessage}
+                                        lastModifyDate={r.lastmodifydate}
+                                        author={r.author}
+                                        path={r.path}
+                                        type={r.type}>
+                                    </RepoListElement>
                                 </li>
                             )
                     }

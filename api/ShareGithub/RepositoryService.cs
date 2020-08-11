@@ -41,6 +41,14 @@ namespace ShareGithub
         {
             return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/branches", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
         }
+        public async Task<GithubAPIResponse> GetCommits(string owner, string repo, string sha, string uri, string installationAccess)
+        {
+            return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/commits",
+            HttpMethod.Get,
+            new InstallationGithubAuth(installationAccess),
+            ("sha", sha),
+            ("path", uri));
+        }
 
         private async Task<GithubAPIResponse> FetchGithubAPI(string url, HttpMethod method, GithubAuthMode authMode, params (string key, string value)[] queryOptions)
         {

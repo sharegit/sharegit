@@ -25,7 +25,7 @@ namespace WebAPI.Controllers
         {
             RepositoryService = repositoryService;
         }
-        
+
         [HttpGet("{user}/{repo}/branches")]
         [Produces("application/json")]
         public async Task<ContentResult> GetRepoBranches(string user, string repo)
@@ -76,7 +76,31 @@ namespace WebAPI.Controllers
                         // It is in this folder
                         if (nextSlash == -1)
                         {
-                            results.Add(node);
+                            string type = node.type;
+                            string nodeSha = node.sha;
+
+                            var commitsResponse = await RepositoryService.GetCommits(user, repo, sha, path, accessToken);
+                            // TODO: not sure if commit response order is guarenteed or not!
+                            dynamic commitsJA = JArray.Parse(commitsResponse.RAW).OrderByDescending(x => (x as dynamic).commit.author.date);
+                            dynamic lastCommit = null;
+                            foreach(var commit in commitsJA) {
+                                lastCommit = commit;
+                                break;
+                            }
+                            string lastmodifydate = lastCommit.commit.author.date;
+                            string lastmodifycommitmessage = lastCommit.commit.message;
+                            string author = lastCommit.commit.author.name;
+
+                            results.Add(new
+                            {
+                                path = path,
+                                type = type,
+                                sha = nodeSha,
+                                author = author,
+                                lastmodifydate = lastmodifydate,
+                                lastmodifycommitmessage = lastmodifycommitmessage,
+                                //commit = lastCommit
+                            });
                         }
                         // There are more folders to go
                         else
