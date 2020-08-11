@@ -61,7 +61,8 @@ export default class Repositories extends React.Component<IProps, IState> {
                     {
                         this.state.repositories.repositories
                             .map((r : Repository) =>
-                                <RepositoryCard link={`/${this.props.user}/${r.name}/tree/master/`}
+                                <RepositoryCard key={r.name}
+                                                link={`/${this.props.user}/${r.name}/tree/master/`}
                                                 name={r.name}
                                                 private={r.private}
                                                 description={!!r.description ? r.description : "No description, website, or topics provided."}
