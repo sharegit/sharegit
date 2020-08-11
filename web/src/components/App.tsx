@@ -1,6 +1,6 @@
 import React from 'react';
 import Repositories, {IRepositoriesProps} from './Repositories';
-import Repository, {IRepositoryProps} from './Repository';
+import Repository, {IProps as IRepositoryProps} from './Repository';
 import {
   BrowserRouter as Router,
   RouteProps,
@@ -29,22 +29,16 @@ export default class App extends React.Component<IProps, IState> {
 
             <Route path="/:user/:repo" exact component={(props: IRepositoryProps) => (
               <Repository
-                user={props.match.params.user}
-                repo={props.match.params.repo}
-                sha="master"
-                uri=""
-                token={props.location.search} />
+                {...props}
+                {...props.match.params} />
             )}></Route>
 
             
             <Route path="/:user/:repo/tree/:sha/:uri*" exact component={(props: IRepositoryProps) => (
               <Repository
                 key={props.match.params.uri}
-                user={props.match.params.user}
-                repo={props.match.params.repo}
-                sha={props.match.params.sha}
-                uri={props.match.params.uri}
-                token={props.location.search} /> // ?a=b&c=d&e=f
+                {...props} 
+                {...props.match.params}/>
             )}></Route>
 
             <Route path="/:user" exact component={(props: IRepositoriesProps) => (

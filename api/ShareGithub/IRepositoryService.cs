@@ -9,5 +9,6 @@ namespace ShareGithub
         Task<string> GetInstallationRepositories(string url, string installationAccess);
         Task<string> GetInstallationRepository(string owner, string repo, string installationAccess);
         Task<string> GetRepositoryTree(string trees_url, string installationAccess, bool recursive);
+        Task<string> GetBranches(string owner, string repo, string installationAccess);
     }
 }

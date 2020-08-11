@@ -34,6 +34,10 @@ namespace ShareGithub
             
             return await FetchGithubAPI(trees_url, HttpMethod.Get, new InstallationGithubAuth(installationAccess), ("recursive", recursive ? "true" : "false"));
         }
+        public async Task<string> GetBranches(string owner, string repo, string installationAccess)
+        {
+            return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/branches", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
+        }
 
         private async Task<string> FetchGithubAPI(string url, HttpMethod method, GithubAuthMode authMode, params (string key, string value)[] queryOptions)
         {

@@ -25,6 +25,33 @@ namespace WebAPI.Controllers
         {
             RepositoryService = repositoryService;
         }
+        
+        [HttpGet("{user}/{repo}/branches")]
+        [Produces("application/json")]
+        public async Task<ContentResult> GetRepoBranches(string user, string repo)
+        {
+            var installationResponse = await RepositoryService.GetInstallation(user);
+            dynamic installation = JObject.Parse(installationResponse);
+            string accessTokensUrl = installation.access_tokens_url;
+
+            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
+            dynamic accessTokens = JObject.Parse(accessTokensResponse);
+            string accessToken = accessTokens.token;
+
+            var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
+            dynamic branches = JArray.Parse(branchesResponse);
+
+            List<string> results = new List<string>();
+            foreach (dynamic branch in branches)
+            {
+                string branchName = branch.name;
+                results.Add(branchName);
+            }
+
+            string rawresponse = JsonConvert.SerializeObject(results);
+            //string rawresponse = branchesResponse;
+            return Content(rawresponse, "application/json");
+        }
 
         [HttpGet("{user}/{repo}/tree/{sha}/{**uri}")]
         [Produces("application/json")]
