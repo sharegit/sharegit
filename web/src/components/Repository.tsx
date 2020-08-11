@@ -1,11 +1,10 @@
 import React from 'react'
 import axios, {AxiosResponse, CancelTokenSource} from 'axios'
-import { RouteComponentProps, useHistory } from 'react-router';
+import { RouteComponentProps } from 'react-router';
 import RepoListElement from './RepoListElement';
 import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
 import config from '../config';
-import {History, LocationState} from 'history';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
