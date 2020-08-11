@@ -30,16 +30,10 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepoBranches(string user, string repo)
         {
-            var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse);
-            string accessTokensUrl = installation.access_tokens_url;
-
-            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse);
-            string accessToken = accessTokens.token;
+            var accessToken = await GetAccessToken(user);
 
             var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
-            dynamic branches = JArray.Parse(branchesResponse);
+            dynamic branches = JArray.Parse(branchesResponse.RAW);
 
             List<string> results = new List<string>();
             foreach (dynamic branch in branches)
@@ -57,21 +51,15 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepo(string user, string repo, string sha, string uri)
         {
-            var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse);
-            string accessTokensUrl = installation.access_tokens_url;
-
-            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse);
-            string accessToken = accessTokens.token;
+            var accessToken = await GetAccessToken(user);
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
-            dynamic repository = JObject.Parse(repositoryResponse);
+            dynamic repository = JObject.Parse(repositoryResponse.RAW);
             string trees_url = repository.trees_url;
             trees_url = trees_url.Replace(@"{/sha}", $"/{sha}");
 
             var treeResponse = await RepositoryService.GetRepositoryTree(trees_url, accessToken, true);
-            dynamic tree = JObject.Parse(treeResponse);
+            dynamic tree = JObject.Parse(treeResponse.RAW);
             uri = uri?.TrimEnd('/') ?? "";
             List<dynamic> results = new List<dynamic>();
             foreach (dynamic node in tree.tree)
@@ -108,23 +96,17 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepo(string user, string repo)
         {
-            var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse);
-            string accessTokensUrl = installation.access_tokens_url;
-
-            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse);
-            string accessToken = accessTokens.token;
+            var accessToken = await GetAccessToken(user);
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
-            dynamic repository = JObject.Parse(repositoryResponse);
+            dynamic repository = JObject.Parse(repositoryResponse.RAW);
             string trees_url = repository.trees_url;
             trees_url = trees_url.Replace(@"{/sha}", @"/master");
 
             var treeResponse = await RepositoryService.GetRepositoryTree(trees_url, accessToken, false);
 
             //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            string rawresponse = treeResponse;
+            string rawresponse = treeResponse.RAW;
             return Content(rawresponse, "application/json");
         }
 
@@ -133,16 +115,16 @@ namespace WebAPI.Controllers
         public async Task<ContentResult> GetReposOf(string user)
         {
             var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse);
+            dynamic installation = JObject.Parse(installationResponse.RAW);
             string accessTokensUrl = installation.access_tokens_url;
             string repositoriesUrl = installation.repositories_url;
 
             var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse);
+            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
             string accessToken = accessTokens.token;
 
             var repositoriesResponse = await RepositoryService.GetInstallationRepositories(repositoriesUrl, accessToken);
-            dynamic repositories = JObject.Parse(repositoriesResponse);
+            dynamic repositories = JObject.Parse(repositoriesResponse.RAW);
             List<string> repositoryUrls = new List<string>();
             foreach (dynamic rep in repositories.repositories)
             {
@@ -151,9 +133,21 @@ namespace WebAPI.Controllers
             }
 
             //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            string rawresponse = repositoriesResponse;
+            string rawresponse = repositoriesResponse.RAW;
             return Content(rawresponse, "application/json");
         }
 
+        private async Task<string> GetAccessToken(string user)
+        {
+            var installationResponse = await RepositoryService.GetInstallation(user);
+            dynamic installation = JObject.Parse(installationResponse.RAW);
+            string accessTokensUrl = installation.access_tokens_url;
+
+            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
+            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
+            string accessToken = accessTokens.token;
+
+            return accessToken;
+        }
     }
 }
