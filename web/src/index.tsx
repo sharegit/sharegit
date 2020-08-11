@@ -3,6 +3,8 @@ import React from 'react';
 
 import App from './components/App';
 
+import 'semantic-ui-css/semantic.min.css';
+
 ReactDOM.render(<App/>, document.querySelector('#container'));
 
 if (module && module.hot) {

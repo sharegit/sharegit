@@ -2,6 +2,7 @@ import React from 'react'
 import axios, {AxiosResponse, CancelTokenSource} from 'axios'
 import { RouteComponentProps } from 'react-router';
 import RepoListElement from './RepoListElement';
+import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
 import config from '../config';
 
@@ -60,6 +61,8 @@ export default class Repository extends React.Component<IProps, IState> {
         return (
             <div>
                 <h2>This is repo {this.props.repo} of user {this.props.user}</h2>
+                <BranchSelector branches={[this.props.sha]}></BranchSelector>
+
                 <ul>
                     {
                         this.props.uri == undefined ?
