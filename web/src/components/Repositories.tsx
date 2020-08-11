@@ -1,8 +1,9 @@
 import React from 'react'
 import axios, {AxiosResponse} from 'axios'
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
+import { List } from 'semantic-ui-react'
 import config from '../config';
+import RepositoryCard from './RepositoryCard';
 
 interface IProps {
     user: string;
@@ -20,6 +21,7 @@ interface RepositoriesResponse {
 interface Repository {
     name: string;
     private: boolean;
+    description: string;
 }
 
 
@@ -55,16 +57,18 @@ export default class Repositories extends React.Component<IProps, IState> {
         return (
             <div>
                 <h2>Repository list of user 'g-jozsef'</h2>
-                <ul>
+                <List divided relaxed>
                     {
                         this.state.repositories.repositories
                             .map((r : Repository) =>
-                                <li key={r.name}>
-                                    <Link to={`/${this.props.user}/${r.name}/tree/master/`}>{r.name}</Link> 
-                                </li>
+                                <RepositoryCard link={`/${this.props.user}/${r.name}/tree/master/`}
+                                                name={r.name}
+                                                private={r.private}
+                                                description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                provider={"github"}></RepositoryCard>
                             )
                     }
-                </ul>
+                </List>
             </div>
         )
     }
