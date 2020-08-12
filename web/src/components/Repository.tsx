@@ -6,6 +6,7 @@ import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
 import config from '../config';
 import FileViewer, { DisplayedFile } from './FileViewer/FileViewer';
+import { List } from 'semantic-ui-react';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
@@ -56,7 +57,16 @@ export default class Repository extends React.Component<IProps, IState> {
         axios.get<RepoObj[]>(request,  { cancelToken: this.state.cancelToken.token } )
         .then((res: AxiosResponse<RepoObj[]>) => {
             console.log('Got result!');
-            this.state.objects = res.data;
+            this.state.objects = res.data.sort((a: RepoObj, b: RepoObj) => {
+                if (a.type == b.type)
+                    return a.path.localeCompare(b.path);
+                else if (a.type == 'tree' && b.type == 'blob')
+                    return -1;
+                else if (a.type == 'blob' && b.type == 'tree')
+                    return 1;
+
+                return 0;
+            });
             this.setState(this.state);
             
             const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
@@ -136,34 +146,40 @@ export default class Repository extends React.Component<IProps, IState> {
             return null;
         }
     }
+    renderStepUpLink() {
+        if (this.props.uri != undefined) {
+            return (
+                <List.Item>
+                    <Link to={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>
+                        ..
+                    </Link>
+                </List.Item>
+            )
+        } else {
+            return null;
+        }
+    }
     renderTree() {
         if(this.props.type == 'tree') {
             return (
-                <ul>
-                {
-                    this.props.uri == undefined ?
-                    null :
-                    <li><Link to={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>..</Link></li>
-                }
-                
-                {
-                    this.state.objects
-                    .map((r : RepoObj) =>
-                    <li key={r.path + this.state.sha}>
-                                <RepoListElement
-                                    user={this.props.user}
-                                    repo={this.props.repo}
-                                    sha={this.state.sha}
-                                    lastCommitMessage={r.lastmodifycommitmessage}
-                                    lastModifyDate={r.lastmodifydate}
-                                    author={r.author}
-                                    path={r.path}
-                                    type={r.type}>
-                                </RepoListElement>
-                            </li>
-                        )
-                }
-                </ul>
+                <div>
+                    <List divided relaxed>
+                    {this.renderStepUpLink()}
+                    {this.state.objects.map((r : RepoObj) =>
+                        <RepoListElement
+                            key={r.path + this.state.sha}
+                            user={this.props.user}
+                            repo={this.props.repo}
+                            sha={this.state.sha}
+                            lastCommitMessage={r.lastmodifycommitmessage}
+                            lastModifyDate={r.lastmodifydate}
+                            author={r.author}
+                            path={r.path}
+                            type={r.type}>
+                        </RepoListElement>
+                    )}
+                    </List>
+                </div>
             )
         } else {
             return null;
