@@ -5,6 +5,7 @@ import RepoListElement from './RepoListElement';
 import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
 import config from '../config';
+import FileViewer, { DisplayedFile } from './FileViewer/FileViewer';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
@@ -12,16 +13,19 @@ export interface IProps extends RouteComponentProps<any> {
     sha: string;
     uri: string;
     token: string;
+    type: string;
 }
 
 interface IState {
     objects: RepoObj[];
     cancelToken: CancelTokenSource;
     sha: string;
+    blob? : DisplayedFile;
+    readme? : DisplayedFile;
 }
 
 interface RepoObj {
-    type: string;
+    type: 'tree' | 'blob';
     path: string;
     author: string;
     lastmodifydate: string;
@@ -48,20 +52,54 @@ export default class Repository extends React.Component<IProps, IState> {
         this.queryServer();
     }
 
-    queryServer() {
-        const uri = this.props.uri == undefined ? '' : this.props.uri;
-        console.log(uri);
-        const request = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${uri}`;
-        console.log(`Requesting: ${request}`);
+    queryTree(request: string) {
         axios.get<RepoObj[]>(request,  { cancelToken: this.state.cancelToken.token } )
         .then((res: AxiosResponse<RepoObj[]>) => {
             console.log('Got result!');
             this.state.objects = res.data;
             this.setState(this.state);
+            
+            const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
+            if(readme != undefined) {
+                const readmeRequest = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/blob/${this.state.sha}/${readme.path}`;
+                console.log("Requesting README on " + readmeRequest);
+                axios.get<DisplayedFile>(readmeRequest,
+                    { cancelToken: this.state.cancelToken.token } )
+                    .then((res: AxiosResponse<DisplayedFile>) => {
+                        console.log(`Got Blob data for ${res.data.file}!`);
+                        this.state.readme = res.data;
+                        this.setState(this.state);
+                    }).catch(() => {
+                        console.log("This tree does not contain a README file!");
+                    });
+            }
         })
         .catch(() => {
             console.log('Error!');
         });
+    }
+    queryBlob(request: string) {
+        axios.get<DisplayedFile>(request,  { cancelToken: this.state.cancelToken.token } )
+        .then((res: AxiosResponse<DisplayedFile>) => {
+            console.log(`Got Blob data for ${res.data.file}!`);
+            this.state.blob = res.data;
+            this.setState(this.state);
+        })
+        .catch(() => {
+            console.log('Error!');
+        });
+    }
+
+    queryServer() {
+        const uri = this.props.uri == undefined ? '' : this.props.uri;
+        console.log(uri);
+        const request = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${uri}`;
+        console.log(`Requesting: ${request}`);
+        if(this.props.type == 'tree') {
+            this.queryTree(request);
+        } else if (this.props.type == 'blob') {
+            this.queryBlob(request);
+        }
     }
 
     componentWillUnmount() {
@@ -80,36 +118,62 @@ export default class Repository extends React.Component<IProps, IState> {
                         this.state.sha = newValue;
                         this.setState(this.state);
 
-                        this.props.history.push(`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                        this.props.history.push(`/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
                         this.queryServer();
                     }}>
                 </BranchSelector>
 
-                <ul>
-                    {
-                        this.props.uri == undefined ?
-                            null :
-                            <li><Link to={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>..</Link></li>
-                    }
-                    
-                    {
-                        this.state.objects
-                            .map((r : RepoObj) =>
-                                <li key={r.path + this.state.sha}>
-                                    <RepoListElement
-                                        rooturi={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}`}
-                                        updateParent={() => this.forceUpdate()}
-                                        lastCommitMessage={r.lastmodifycommitmessage}
-                                        lastModifyDate={r.lastmodifydate}
-                                        author={r.author}
-                                        path={r.path}
-                                        type={r.type}>
-                                    </RepoListElement>
-                                </li>
-                            )
-                    }
-                </ul>
+                {this.renderTree()}
+                {this.renderFileContents()}
+                {this.renderREADMEIfPresent()}
             </div>
         )
+    }
+    renderFileContents() {
+        if(this.props.type == 'blob' && this.state.blob != undefined) {
+            return <FileViewer key={this.state.blob.file} displayed={this.state.blob} />
+        } else {
+            return null;
+        }
+    }
+    renderTree() {
+        if(this.props.type == 'tree') {
+            return (
+                <ul>
+                {
+                    this.props.uri == undefined ?
+                    null :
+                    <li><Link to={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>..</Link></li>
+                }
+                
+                {
+                    this.state.objects
+                    .map((r : RepoObj) =>
+                    <li key={r.path + this.state.sha}>
+                                <RepoListElement
+                                    user={this.props.user}
+                                    repo={this.props.repo}
+                                    sha={this.state.sha}
+                                    lastCommitMessage={r.lastmodifycommitmessage}
+                                    lastModifyDate={r.lastmodifydate}
+                                    author={r.author}
+                                    path={r.path}
+                                    type={r.type}>
+                                </RepoListElement>
+                            </li>
+                        )
+                }
+                </ul>
+            )
+        } else {
+            return null;
+        }
+    }
+    renderREADMEIfPresent() {
+        if(this.state.readme != undefined) {
+            return <FileViewer key={this.state.readme.file} displayed={this.state.readme} />
+        } else {
+            return null;
+        }
     }
 }

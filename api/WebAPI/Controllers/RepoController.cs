@@ -47,8 +47,29 @@ namespace WebAPI.Controllers
             return Content(rawresponse, "application/json");
         }
 
+        [HttpGet("{user}/{repo}/blob/{sha}/{**uri}")]
+        [Produces("application/json")]
+        public async Task<ContentResult> GetRepoBlob(string user, string repo, string sha, string uri)
+        {
+            var accessToken = await GetAccessToken(user);
+
+            var contentResponse = await RepositoryService.GetContent(user, repo, sha, uri, accessToken);
+            dynamic content = JObject.Parse(contentResponse.RAW);
+
+            var result = new
+            {
+                file = content.path,
+                content = content.content
+            };
+
+            string rawresponse = JsonConvert.SerializeObject(result);
+            //string rawresponse = contentResponse.RAW;
+            return Content(rawresponse, "application/json");
+        }
+
         [HttpGet("{user}/{repo}/tree/{sha}/{**uri}")]
         [Produces("application/json")]
+        // TODO: Refactor with https://docs.github.com/en/rest/reference/repos#contents
         public async Task<ContentResult> GetRepo(string user, string repo, string sha, string uri)
         {
             var accessToken = await GetAccessToken(user);

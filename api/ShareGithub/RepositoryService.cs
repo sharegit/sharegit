@@ -49,6 +49,13 @@ namespace ShareGithub
             ("sha", sha),
             ("path", uri));
         }
+        public async Task<GithubAPIResponse> GetContent(string owner, string repo, string sha, string uri, string installationAccess)
+        {
+            return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/contents/{uri}",
+                HttpMethod.Get,
+                new InstallationGithubAuth(installationAccess),
+                ("ref", sha));
+        }
 
         private async Task<GithubAPIResponse> FetchGithubAPI(string url, HttpMethod method, GithubAuthMode authMode, params (string key, string value)[] queryOptions)
         {
