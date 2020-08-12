@@ -35,6 +35,9 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@types/dompurify": "^2.0.3",
+    "@types/highlight.js": "^9.12.4",
+    "@types/marked": "^1.1.0",
     "@types/react": "16.9.19",
     "@types/react-dom": "16.9.5",
     "@types/react-router-dom": "^5.1.5",
@@ -44,7 +47,10 @@
     "@typescript-eslint/parser": "2.19.2",
     "axios": "^0.19.2",
     "css-loader": "^4.2.1",
+    "dompurify": "^2.0.12",
     "file-loader": "^6.0.0",
+    "highlight.js": "^10.1.2",
+    "marked": "^1.1.1",
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-dom": "16.8.6",

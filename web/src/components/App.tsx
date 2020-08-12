@@ -9,6 +9,12 @@ import {
   RouteComponentProps
 } from 'react-router-dom';
 
+import highlight from 'highlight.js'
+highlight.configure({
+  tabReplace: '    '
+})
+highlight.initHighlightingOnLoad();
+
 interface IProps {
 }
 interface IState {
