@@ -20,7 +20,7 @@ export default class Path extends React.Component<IProps, IState> {
             return [<Breadcrumb.Section active>{path[0]}</Breadcrumb.Section>]
         }
 
-        let link = `/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
+        let link = `/repo/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
         let crums: ReactElement<typeof Breadcrumb.Section>[] = [<Breadcrumb.Section link href={link}>{path[0]}</Breadcrumb.Section>]
 
         path = path.slice(1)
