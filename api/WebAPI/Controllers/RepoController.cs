@@ -84,6 +84,8 @@ namespace WebAPI.Controllers
             var treeResponse = await RepositoryService.GetRepositoryTree(trees_url, accessToken, true);
             dynamic tree = JObject.Parse(treeResponse.RAW);
             uri = uri?.TrimEnd('/') ?? "";
+            if(uri.Any())
+                uri += '/';
             List<dynamic> results = new List<dynamic>();
             var commitFetshes = new List<Task<GithubAPIResponse>>();
             foreach (dynamic node in tree.tree)
@@ -94,8 +96,6 @@ namespace WebAPI.Controllers
                     var prefixRemoved = path.Remove(0, uri.Length);
                     if (prefixRemoved.Length > 0)
                     {
-                        // Remove first '/'
-                        prefixRemoved = prefixRemoved.Remove(0, 1);
                         int nextSlash = prefixRemoved.IndexOf('/');
 
                         // It is in this folder
