@@ -24,9 +24,9 @@ namespace ShareGithub
         {
             return await FetchGithubAPI(url, HttpMethod.Post, new AppGithubAuth());
         }
-        public async Task<GithubAPIResponse> GetInstallationRepositories(string url, string installationAccess)
+        public async Task<GithubAPIResponse> GetInstallationRepositories(string installationAccess)
         {
-            return await FetchGithubAPI(url, HttpMethod.Get, new InstallationGithubAuth(installationAccess));
+            return await FetchGithubAPI("https://api.github.com/installation/repositories", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
         }
         public async Task<GithubAPIResponse> GetInstallationRepository(string owner, string repo, string installationAccess)
         {
@@ -97,6 +97,25 @@ namespace ShareGithub
             }
 
             return githubAPIResponse;
+        }
+
+
+        public async Task<GithubAppAccess> GetAccess(string user)
+        {
+            var installationResponse = await GetInstallation(user);
+            dynamic installation = Newtonsoft.Json.Linq.JObject.Parse(installationResponse.RAW);
+            string accessTokensUrl = installation.access_tokens_url;
+            int installationid = installation.id;
+
+            var accessTokensResponse = await GetAccessToken(accessTokensUrl);
+            dynamic accessTokens = Newtonsoft.Json.Linq.JObject.Parse(accessTokensResponse.RAW);
+            string accessToken = accessTokens.token;
+
+            return new GithubAppAccess()
+            {
+                InstallationId = installationid,
+                AccessToken = accessToken
+            };
         }
 
     }

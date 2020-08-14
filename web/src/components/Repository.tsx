@@ -135,7 +135,7 @@ export default class Repository extends React.Component<IProps, IState> {
         if (this.props.uri != undefined) {
             return (
                 <List.Item>
-                    <Link to={`/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>
+                    <Link to={`/repo/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>
                         ..
                     </Link>
                 </List.Item>

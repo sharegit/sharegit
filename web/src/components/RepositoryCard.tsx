@@ -7,7 +7,6 @@ interface IState {}
 interface IProps {
     link: string;
     name: string;
-    private: boolean;
     description: string;
     provider: 'github' | 'gitlab' | 'bitbucket';
 }

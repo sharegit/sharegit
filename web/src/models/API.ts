@@ -10,6 +10,12 @@ export interface CancelToken {
     cancel: () => void
 }
 
+export interface SharedRepository {
+    owner: string;
+    repo: string;
+    provider: 'github';
+    description: string;
+}
 export interface Repository {
     name: string;
     private: boolean;
@@ -114,6 +120,18 @@ export default class API {
                 resolve(res.data);
             })
             .catch(()=> {
+                reject();
+            })
+        })
+    }
+    static getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepository[]> {
+        const request = `${config.apiUrl}/share/${token}`;
+        return new Promise<SharedRepository[]>((resolve, reject) => {
+            this.get<SharedRepository[]>(request, cancelToken)
+            .then((res) => {
+                resolve(res.data);
+            })
+            .catch(() => {
                 reject();
             })
         })

@@ -175,13 +175,12 @@ namespace WebAPI.Controllers
             var installationResponse = await RepositoryService.GetInstallation(user);
             dynamic installation = JObject.Parse(installationResponse.RAW);
             string accessTokensUrl = installation.access_tokens_url;
-            string repositoriesUrl = installation.repositories_url;
 
             var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
             dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
             string accessToken = accessTokens.token;
 
-            var repositoriesResponse = await RepositoryService.GetInstallationRepositories(repositoriesUrl, accessToken);
+            var repositoriesResponse = await RepositoryService.GetInstallationRepositories(accessToken);
             dynamic repositories = JObject.Parse(repositoriesResponse.RAW);
             List<string> repositoryUrls = new List<string>();
             foreach (dynamic rep in repositories.repositories)
@@ -195,6 +194,7 @@ namespace WebAPI.Controllers
             return Content(rawresponse, "application/json");
         }
 
+        [Obsolete("Use RepositoryService's GetAccess!")]
         private async Task<string> GetAccessToken(string user)
         {
             var installationResponse = await RepositoryService.GetInstallation(user);

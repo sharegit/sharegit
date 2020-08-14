@@ -9,6 +9,9 @@ using System;
 using System.Reflection;
 using System.IO;
 using WebAPI.Authentication;
+using WebAPI.Settings;
+using Microsoft.Extensions.Options;
+using ShareGithub.Repositories;
 
 namespace WebAPI
 {
@@ -50,6 +53,10 @@ namespace WebAPI
                 })
                 .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationHandler>("token", op => { });
 
+            services.Configure<AccountDatabaseSettings>(Configuration.GetSection(nameof(AccountDatabaseSettings)));
+            services.Configure<ShareDatabaseSettings>(Configuration.GetSection(nameof(ShareDatabaseSettings)));
+
+            services.AddTransient(typeof(IRepository<,>), typeof(RepositoryBase<,>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

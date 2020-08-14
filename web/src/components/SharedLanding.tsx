@@ -1,17 +1,24 @@
 import React from 'react'
 import { RouteComponentProps } from 'react-router';
+import API, { SharedRepository } from '../models/API';
+import { BaseState } from '../models/BaseComponent';
+import { List } from 'semantic-ui-react';
+import RepositoryCard from './RepositoryCard';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
 }
 
-interface IState {
+interface IState extends BaseState {
     tokenValid?: boolean;
+    repositories: SharedRepository[];
 }
 
 export default class SharedLanding extends React.Component<IProps, IState> {
     state: IState = {
-        tokenValid: undefined
+        tokenValid: undefined,
+        cancelToken: API.aquireNewCancelToken(),
+        repositories: []
     }
     constructor(props: IProps) {
         super(props)
@@ -22,29 +29,41 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         
         this.validateToken();
     }
+    componentWillUnmount() {
+        this.state.cancelToken.cancel();
+    }
 
     validateToken() {
-        // TODO query server
-        setTimeout(() => {
-            this.state.tokenValid = this.props.token == '563b952ec30fb6ebd48a598f4246ab0334cf70c90d93f48b1f410d814436438a';
+        API.getSharedRepositories(this.props.token, this.state.cancelToken)
+        .then((res) => {
+            this.state.tokenValid = true;
+            this.state.repositories = res;
             this.setState(this.state);
             
             localStorage.setItem('token', this.props.token)
-
-            const tokenRedirect = `/g-jozsef`;
-
-            if (this.state.tokenValid) {
-                setTimeout(() => {
-                    this.props.history.push(tokenRedirect);
-                }, 1000);
-            }
-        }, 1000);
+        })
+        .catch(()=>{
+            this.state.tokenValid = false;
+            this.setState(this.state);
+        });
     }
 
     render() {
         return (
             <div>
                 {this.renderTokenValidity()}
+                <List divided relaxed>
+                    {
+                        this.state.repositories
+                            .map((r : SharedRepository) =>
+                                <RepositoryCard key={r.repo}
+                                                link={`/repo/${r.owner}/${r.repo}/tree/master/`}
+                                                name={r.repo}
+                                                description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                provider={r.provider}></RepositoryCard>
+                            )
+                    }
+                </List>
             </div>
         )
     }
@@ -52,7 +71,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         if(this.state.tokenValid == undefined) {
             return <p>Checking Token ... </p>
         } else if (this.state.tokenValid) {
-            return <p>Token valid, redirecting... </p>
+            return null;
         } else {
             return <p>Token expired or invalid, please contact your source </p>
         }

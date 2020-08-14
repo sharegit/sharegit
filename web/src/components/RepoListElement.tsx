@@ -43,7 +43,7 @@ export default class RepoListElement extends React.Component<IProps, IState> {
                 <List.Icon name={this.typeToIcon(this.props.type)} size='large' verticalAlign='middle'>
                 </List.Icon>
                 <List.Content>
-                    <Link to={`/${this.props.user}/${this.props.repo}/${this.props.type}/${this.props.sha}/${this.props.path}/`} >
+                    <Link to={`/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.props.sha}/${this.props.path}/`} >
                     <List.Header>
                         <span>{path}</span>
                         &nbsp;

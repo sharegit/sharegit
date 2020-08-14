@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Core.APIModels
+namespace ShareGithub.Models
 {
-    public class SharedRepository
+    public class Repository : DbItemBase
     {
         public string Owner { get; set; }
         public string Repo { get; set; }
         public string Provider { get; set; }
-        public string Description { get; set; }
     }
 }

@@ -2,11 +2,14 @@
 using Jose;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
+using ShareGithub.Models;
+using ShareGithub.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WebAPI.Settings;
 
 namespace WebAPI.Controllers
 {
@@ -14,30 +17,61 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ShareController
     {
+        private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
+        private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
+        private IRepositoryService RepositoryService { get; }
+
+        public ShareController(IRepositoryService repositoryService,
+            IRepository<Account, AccountDatabaseSettings> accountRepository,
+            IRepository<Share, ShareDatabaseSettings> shareRepository)
+        {
+            AccountRepository = accountRepository;
+            ShareRepository = shareRepository;
+            RepositoryService = repositoryService;
+        }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="token"></param>
         [HttpGet("{token}")]
         [Produces("application/json")]
-        public async Task<IEnumerable<SharedRepository>> GetList(string token)
+        public async Task<ActionResult<IEnumerable<SharedRepository>>> GetList(string token)
         {
-            // TODO: look up entries that this token has access to
-            if (token == "563b952ec30fb6ebd48a598f4246ab0334cf70c90d93f48b1f410d814436438a")
+            var share = ShareRepository.Find(x => x.Token == token);
+            if (share != null)
             {
-                // Let's say this token has access to 'g-jozsef' user's 'test-repository' from 'github'
-                return new SharedRepository[1] {
-                    new SharedRepository()
-                    {
-                        Owner = "g-jozsef",
-                        Provider = "github",
-                        Repo = "test-repository",
-                    }
-                };
+                var accessibleRepositories = share.AccessibleRepositories;
+
+                // TOOD: collect users and providers that this token gives access to
+                // For now just the the user and assume github
+                var owner = accessibleRepositories.GroupBy(x => x.Owner).Select(x => x.Key).Distinct().FirstOrDefault();
+
+                var ownerAccess = await RepositoryService.GetAccess(owner);
+
+                var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess.AccessToken);
+                dynamic repositories = Newtonsoft.Json.Linq.JObject.Parse(repositoriesResponse.RAW);
+                List<SharedRepository> sharedRepositories = new List<SharedRepository>();
+                foreach (dynamic rep in repositories.repositories)
+                {
+                    string n = rep.name;
+                    string o = rep.owner.login;
+                    string d = rep.description;
+
+                    if (accessibleRepositories.Any(x => x.Repo == n && x.Provider == "github" && x.Owner == o))
+                        sharedRepositories.Add(new SharedRepository()
+                        {
+                            Description = d,
+                            Owner = o,
+                            Provider = "github",
+                            Repo = n
+                        });
+                }
+
+                return new OkObjectResult(sharedRepositories);
             }
             else
             {
-                return new SharedRepository[0];
+                return new ForbidResult("token");
             }
         }
     }
