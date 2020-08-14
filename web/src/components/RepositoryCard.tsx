@@ -17,8 +17,10 @@ export default class RepositoryCard extends React.Component<IProps, IState> {
             <List.Item>
                 <List.Icon name={this.props.provider} size='large' verticalAlign='middle' />
                 <List.Content>
-                    <List.Header link href={this.props.link}>
-                        {this.props.name}
+                    <List.Header>
+                        <Link to={this.props.link}>
+                            {this.props.name}
+                        </Link>
                     </List.Header>
                     <List.Description>{this.props.description}</List.Description>
                 </List.Content>
