@@ -3,11 +3,11 @@ import { RouteComponentProps } from 'react-router';
 import RepoListElement from './RepoListElement';
 import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
-import config from '../config';
-import FileViewer, { DisplayedFile } from './FileViewer/FileViewer';
+import FileViewer from './FileViewer/FileViewer';
 import { List } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { RepoObj, BlobResult } from '../models/API';
+import Path from './Path';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
@@ -15,19 +15,19 @@ export interface IProps extends RouteComponentProps<any> {
     sha: string;
     uri: string;
     token: string;
-    type: string;
+    type: 'tree' | 'blob';
 }
 
 interface IState extends BaseState {
     objects: RepoObj[];
     sha: string;
-    blob? : BlobResult;
-    readme? : BlobResult;
+    blob?: BlobResult;
+    readme?: BlobResult;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
-    
-    state : IState = {
+
+    state: IState = {
         objects: [],
         cancelToken: API.aquireNewCancelToken(),
         sha: '',
@@ -47,50 +47,50 @@ export default class Repository extends React.Component<IProps, IState> {
 
     queryTree(uri: string) {
         API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-        .then((res: RepoObj[]) => {
-            this.state.objects = res.sort((a: RepoObj, b: RepoObj) => {
-                if (a.type == b.type)
-                    return a.path.localeCompare(b.path);
-                else if (a.type == 'tree' && b.type == 'blob')
-                    return -1;
-                else if (a.type == 'blob' && b.type == 'tree')
-                    return 1;
+            .then((res: RepoObj[]) => {
+                this.state.objects = res.sort((a: RepoObj, b: RepoObj) => {
+                    if (a.type == b.type)
+                        return a.path.localeCompare(b.path);
+                    else if (a.type == 'tree' && b.type == 'blob')
+                        return -1;
+                    else if (a.type == 'blob' && b.type == 'tree')
+                        return 1;
 
-                return 0;
-            });
-            this.setState(this.state);
-            
-            const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
-            if(readme != undefined) {
-                return API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readme.path, this.state.cancelToken);
-            } else {
-                return undefined;
-            }
-        })
-        .then((readme) => {
-            if(readme != undefined) {
-                this.state.readme = readme;
+                    return 0;
+                });
                 this.setState(this.state);
-            }
-        })
-        .catch(() => {
-        });
+
+                const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
+                if (readme != undefined) {
+                    return API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readme.path, this.state.cancelToken);
+                } else {
+                    return undefined;
+                }
+            })
+            .then((readme) => {
+                if (readme != undefined) {
+                    this.state.readme = readme;
+                    this.setState(this.state);
+                }
+            })
+            .catch(() => {
+            });
     }
     queryBlob(uri: string) {
         API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-        .then((res: BlobResult) => {
-            this.state.blob = res;
-            this.setState(this.state);
-        })
-        .catch(() => {
-            console.log('Error!');
-        });
+            .then((res: BlobResult) => {
+                this.state.blob = res;
+                this.setState(this.state);
+            })
+            .catch(() => {
+                console.log('Error!');
+            });
     }
 
     queryServer() {
         const uri = this.props.uri == undefined ? '' : this.props.uri;
         console.log(uri);
-        if(this.props.type == 'tree') {
+        if (this.props.type == 'tree') {
             this.queryTree(uri);
         } else if (this.props.type == 'blob') {
             this.queryBlob(uri);
@@ -118,51 +118,46 @@ export default class Repository extends React.Component<IProps, IState> {
                     }}>
                 </BranchSelector>
 
+                {<Path
+                    user={this.props.user}
+                    repo={this.props.repo}
+                    sha={this.state.sha}
+                    path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
+                    type={this.props.type}>
+                </Path>}
+
                 {this.renderTree()}
                 {this.renderFileContents()}
                 {this.renderREADMEIfPresent()}
-            </div>
+            </div >
         )
     }
     renderFileContents() {
-        if(this.props.type == 'blob' && this.state.blob != undefined) {
+        if (this.props.type == 'blob' && this.state.blob != undefined) {
             return <FileViewer key={this.state.blob.file} displayed={this.state.blob} />
         } else {
             return null;
         }
     }
-    renderStepUpLink() {
-        if (this.props.uri != undefined) {
-            return (
-                <List.Item>
-                    <Link to={`/repo/${this.props.user}/${this.props.repo}/tree/${this.state.sha}/${this.props.uri.substring(0, this.props.uri.lastIndexOf('/'))}`}>
-                        ..
-                    </Link>
-                </List.Item>
-            )
-        } else {
-            return null;
-        }
-    }
+
     renderTree() {
-        if(this.props.type == 'tree') {
+        if (this.props.type == 'tree') {
             return (
                 <div>
                     <List divided relaxed>
-                    {this.renderStepUpLink()}
-                    {this.state.objects.map((r : RepoObj) =>
-                        <RepoListElement
-                            key={r.path + this.state.sha}
-                            user={this.props.user}
-                            repo={this.props.repo}
-                            sha={this.state.sha}
-                            lastCommitMessage={r.lastmodifycommitmessage}
-                            lastModifyDate={r.lastmodifydate}
-                            author={r.author}
-                            path={r.path}
-                            type={r.type}>
-                        </RepoListElement>
-                    )}
+                        {this.state.objects.map((r: RepoObj) =>
+                            <RepoListElement
+                                key={r.path + this.state.sha}
+                                user={this.props.user}
+                                repo={this.props.repo}
+                                sha={this.state.sha}
+                                lastCommitMessage={r.lastmodifycommitmessage}
+                                lastModifyDate={r.lastmodifydate}
+                                author={r.author}
+                                path={r.path}
+                                type={r.type}>
+                            </RepoListElement>
+                        )}
                     </List>
                 </div>
             )
@@ -171,7 +166,7 @@ export default class Repository extends React.Component<IProps, IState> {
         }
     }
     renderREADMEIfPresent() {
-        if(this.state.readme != undefined) {
+        if (this.state.readme != undefined) {
             return <FileViewer key={this.state.readme.file} displayed={this.state.readme} />
         } else {
             return null;
