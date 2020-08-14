@@ -1,5 +1,4 @@
 import React from 'react'
-import axios, {AxiosResponse, CancelTokenSource} from 'axios'
 import { RouteComponentProps } from 'react-router';
 import RepoListElement from './RepoListElement';
 import BranchSelector from './BranchSelector';
@@ -7,6 +6,8 @@ import { Link } from 'react-router-dom';
 import config from '../config';
 import FileViewer, { DisplayedFile } from './FileViewer/FileViewer';
 import { List } from 'semantic-ui-react';
+import { BaseState } from '../models/BaseComponent';
+import API, { RepoObj, BlobResult } from '../models/API';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
@@ -17,27 +18,18 @@ export interface IProps extends RouteComponentProps<any> {
     type: string;
 }
 
-interface IState {
+interface IState extends BaseState {
     objects: RepoObj[];
-    cancelToken: CancelTokenSource;
     sha: string;
-    blob? : DisplayedFile;
-    readme? : DisplayedFile;
-}
-
-interface RepoObj {
-    type: 'tree' | 'blob';
-    path: string;
-    author: string;
-    lastmodifydate: string;
-    lastmodifycommitmessage: string;
+    blob? : BlobResult;
+    readme? : BlobResult;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
     
     state : IState = {
         objects: [],
-        cancelToken: axios.CancelToken.source(),
+        cancelToken: API.aquireNewCancelToken(),
         sha: '',
     }
 
@@ -53,11 +45,10 @@ export default class Repository extends React.Component<IProps, IState> {
         this.queryServer();
     }
 
-    queryTree(request: string) {
-        axios.get<RepoObj[]>(request,  { cancelToken: this.state.cancelToken.token } )
-        .then((res: AxiosResponse<RepoObj[]>) => {
-            console.log('Got result!');
-            this.state.objects = res.data.sort((a: RepoObj, b: RepoObj) => {
+    queryTree(uri: string) {
+        API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+        .then((res: RepoObj[]) => {
+            this.state.objects = res.sort((a: RepoObj, b: RepoObj) => {
                 if (a.type == b.type)
                     return a.path.localeCompare(b.path);
                 else if (a.type == 'tree' && b.type == 'blob')
@@ -71,28 +62,24 @@ export default class Repository extends React.Component<IProps, IState> {
             
             const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
             if(readme != undefined) {
-                const readmeRequest = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/blob/${this.state.sha}/${readme.path}`;
-                console.log("Requesting README on " + readmeRequest);
-                axios.get<DisplayedFile>(readmeRequest,
-                    { cancelToken: this.state.cancelToken.token } )
-                    .then((res: AxiosResponse<DisplayedFile>) => {
-                        console.log(`Got Blob data for ${res.data.file}!`);
-                        this.state.readme = res.data;
-                        this.setState(this.state);
-                    }).catch(() => {
-                        console.log("This tree does not contain a README file!");
-                    });
+                return API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readme.path, this.state.cancelToken);
+            } else {
+                return undefined;
+            }
+        })
+        .then((readme) => {
+            if(readme != undefined) {
+                this.state.readme = readme;
+                this.setState(this.state);
             }
         })
         .catch(() => {
-            console.log('Error!');
         });
     }
-    queryBlob(request: string) {
-        axios.get<DisplayedFile>(request,  { cancelToken: this.state.cancelToken.token } )
-        .then((res: AxiosResponse<DisplayedFile>) => {
-            console.log(`Got Blob data for ${res.data.file}!`);
-            this.state.blob = res.data;
+    queryBlob(uri: string) {
+        API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+        .then((res: BlobResult) => {
+            this.state.blob = res;
             this.setState(this.state);
         })
         .catch(() => {
@@ -103,12 +90,10 @@ export default class Repository extends React.Component<IProps, IState> {
     queryServer() {
         const uri = this.props.uri == undefined ? '' : this.props.uri;
         console.log(uri);
-        const request = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${uri}`;
-        console.log(`Requesting: ${request}`);
         if(this.props.type == 'tree') {
-            this.queryTree(request);
+            this.queryTree(uri);
         } else if (this.props.type == 'blob') {
-            this.queryBlob(request);
+            this.queryBlob(uri);
         }
     }
 

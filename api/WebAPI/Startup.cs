@@ -8,7 +8,7 @@ using ShareGithub;
 using System;
 using System.Reflection;
 using System.IO;
-
+using WebAPI.Authentication;
 
 namespace WebAPI
 {
@@ -43,11 +43,18 @@ namespace WebAPI
                     Description = "API for the Share-Github project"
                 });
             });
+
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultScheme = "token";
+                })
+                .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationHandler>("token", op => { });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        { 
+        {
             app.UseSwagger();
             if (env.IsDevelopment())
             {

@@ -1,28 +1,19 @@
 import React from 'react'
-import axios, {AxiosResponse} from 'axios'
 import { RouteComponentProps } from 'react-router';
 import { List } from 'semantic-ui-react'
-import config from '../config';
 import RepositoryCard from './RepositoryCard';
+import API, { RepositoriesResponse, Repository } from '../models/API';
+import { BaseState } from '../models/BaseComponent';
 
 interface IProps {
     user: string;
 }
 
-interface IState {
+interface IState extends BaseState {
     repositories: RepositoriesResponse;
 }
 
-interface RepositoriesResponse {
-    total_count: number;
-    repositories: Repository[];
-}
 
-interface Repository {
-    name: string;
-    private: boolean;
-    description: string;
-}
 
 
 export interface IRepositoriesProps extends RouteComponentProps<IProps> { }
@@ -32,7 +23,8 @@ export default class Repositories extends React.Component<IProps, IState> {
         repositories: {
             total_count: 0,
             repositories: [] 
-        }
+        },
+        cancelToken: API.aquireNewCancelToken()
     }
 
     constructor(props: IProps) {
@@ -40,17 +32,14 @@ export default class Repositories extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
-        const request = `${config.apiUrl}/repo/${this.props.user}`;
-        console.log(`Requesting: ${request}`);
-        axios.get<RepositoriesResponse>(request)
-            .then((res: AxiosResponse<RepositoriesResponse>) => {
-                console.log('Got result!');
-                this.state.repositories = res.data;
-                this.setState(this.state);
-            })
-            .catch(() => {
-                console.log('Error!');
-            });
+        API.getRepositories(this.props.user, this.state.cancelToken)
+        .then((res : RepositoriesResponse) => {
+            this.state.repositories = res;
+            this.setState(this.state);
+        })
+    }
+    componentWillUnmount() {
+        this.state.cancelToken.cancel();
     }
 
     render() {

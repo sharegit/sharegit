@@ -1,11 +1,10 @@
 import React from 'react'
 import { Dropdown, DropdownItemProps } from 'semantic-ui-react'
-import axios, {AxiosResponse, CancelTokenSource} from 'axios'
-import config from '../config';
+import API, { CancelToken } from '../models/API';
 
 interface IState {
     branches: String[];
-    cancelToken: CancelTokenSource;
+    cancelToken: CancelToken;
     current: string;
 }
 
@@ -20,7 +19,7 @@ export default class BranchSelector extends React.Component<IProps, IState> {
 
     state : IState = {
         branches: [],
-        cancelToken: axios.CancelToken.source(),
+        cancelToken: API.aquireNewCancelToken(),
         current:''
     }
 
@@ -28,16 +27,12 @@ export default class BranchSelector extends React.Component<IProps, IState> {
         super(props);
     }
     componentDidMount() {
-        const request = `${config.apiUrl}/repo/${this.props.user}/${this.props.repo}/branches`;
-        axios.get<String[]>(request,  { cancelToken: this.state.cancelToken.token } )
-            .then((res: AxiosResponse<String[]>) => {
-                this.state.branches = res.data;
-                this.state.current = this.props.current;
-                this.setState(this.state);
-            })
-            .catch(() => {
-                console.log('Error!');
-            });
+        API.getBranches(this.props.user, this.props.repo, this.state.cancelToken)
+        .then((res) => {
+            this.state.branches = res;
+            this.state.current = this.props.current;
+            this.setState(this.state);
+        })
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();
