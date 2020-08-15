@@ -18,22 +18,22 @@ export default class Path extends React.Component<IProps, IState> {
         let path = this.props.path.split('/')
 
         if (path.length == 1) {
-            return [<Breadcrumb.Section active>{path[0]}</Breadcrumb.Section>]
+            return [<Breadcrumb.Section key={path[0]} active>{path[0]}</Breadcrumb.Section>]
         }
 
         let link = `/repo/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
         let crums: ReactElement<typeof Breadcrumb.Section>[] =
-            [<Breadcrumb.Section><Link to={link}>{path[0]}</Link></Breadcrumb.Section>]
+            [<Breadcrumb.Section key={path[0]}><Link to={link}>{path[0]}</Link></Breadcrumb.Section>]
 
         path = path.slice(1)
 
         while (path.length > 0) {
             if (path.length == 1) {
-                crums.push(<Breadcrumb.Section active>{path[0]}</Breadcrumb.Section>)
+                crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`} active>{path[0]}</Breadcrumb.Section>)
                 path = path.slice(1)
             } else {
                 link = `${link}${path[0]}/`
-                crums.push(<Breadcrumb.Section><Link to={link}>{path[0]}</Link></Breadcrumb.Section>)
+                crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`}><Link to={link}>{path[0]}</Link></Breadcrumb.Section>)
                 path = path.slice(1)
             }
         }
@@ -44,8 +44,8 @@ export default class Path extends React.Component<IProps, IState> {
     render() {
         return (
             <Breadcrumb>
-                {this.build().map((content: any) =>
-                    <React.Fragment>
+                {this.build().map((content) =>
+                    <React.Fragment key={content.key}>
                         <Breadcrumb.Divider />
                         {content}
                     </React.Fragment>
