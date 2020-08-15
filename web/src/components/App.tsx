@@ -2,6 +2,7 @@ import React from 'react';
 import Repositories, {IRepositoriesProps} from './Repositories';
 import Repository, {IProps as IRepositoryProps} from './Repository';
 import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
+import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
 import {
   BrowserRouter as Router,
   RouteProps,
@@ -37,6 +38,8 @@ export default class App extends React.Component<IProps, IState> {
 
             <div id={styles.appContentContainer}>
 
+
+
               <Route path="/repo/:user/:repo" exact component={(props: IRepositoryProps) => (
                 <Repository
                 {...props}
@@ -60,9 +63,13 @@ export default class App extends React.Component<IProps, IState> {
                 <SharedLanding 
                 {...props}
                 {...props.match.params}/>
-                )}>
+                )}></Route>
 
-              </Route>
+              <Route path="/" exact component={(props: ISharedWithMeProps) => (
+                <SharedWithMe 
+                {...props}
+                {...props.match.params}/>
+                )}></Route>
 
             </div>
           </Router>
