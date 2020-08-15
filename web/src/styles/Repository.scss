@@ -1,0 +1,32 @@
+
+
+#repository {
+    #repositoryHeader {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        #currentRepository {
+            float: left;
+            margin-bottom: 5px;
+        }
+        #authorText {
+            float: right;
+            p {
+                font-size: 120%;
+            }
+        }
+        #branch{
+            float: left;
+        }
+        #path{
+            float: left;
+            padding-top: 5px;
+        }
+    }
+    #tree {
+        margin-bottom: 20px;
+    }
+    h2 {
+        text-align: center;
+    }
+
+}

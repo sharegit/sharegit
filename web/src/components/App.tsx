@@ -35,32 +35,36 @@ export default class App extends React.Component<IProps, IState> {
               </ul>
             </nav>
 
-            <Route path="/repo/:user/:repo" exact component={(props: IRepositoryProps) => (
-              <Repository
+            <div id={styles.appContentContainer}>
+
+              <Route path="/repo/:user/:repo" exact component={(props: IRepositoryProps) => (
+                <Repository
                 {...props}
                 {...props.match.params} />
-            )}></Route>
+                )}></Route>
 
-            
-            <Route path="/repo/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
-              <Repository
+              
+              <Route path="/repo/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
+                <Repository
                 key={props.match.params.uri}
                 {...props} 
                 {...props.match.params}/>
-            )}></Route>
+                )}></Route>
 
-            <Route path="/repo/:user" exact component={(props: IRepositoriesProps) => (
-              <Repositories
+              <Route path="/repo/:user" exact component={(props: IRepositoriesProps) => (
+                <Repositories
                 user={props.match.params.user} />
-            )}></Route>
+                )}></Route>
 
-            <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
-              <SharedLanding 
+              <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
+                <SharedLanding 
                 {...props}
                 {...props.match.params}/>
-            )}>
+                )}>
 
-            </Route>
+              </Route>
+
+            </div>
           </Router>
         </div>
 

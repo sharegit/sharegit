@@ -63,7 +63,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                     <div id={styles.authorText}>
                         <p> <b>Author:</b> <i>{this.state.author}</i></p>
                     </div>
-                    <div className={styles.clear}></div>
+                    <div className="clear"></div>
                 </div>
                 <div id={styles.tokenChecker}>
                     {this.renderTokenValidity()}

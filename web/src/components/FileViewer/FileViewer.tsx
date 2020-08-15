@@ -72,9 +72,6 @@ export default class FileViewer extends React.Component<IProps, IState> {
         return (
             <div>
                 <div>
-                    <span>{this.state.fileName}</span>
-                </div>
-                <div>
                     {this.renderContents()}
                 </div>
             </div>

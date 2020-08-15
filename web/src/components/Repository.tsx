@@ -8,6 +8,7 @@ import { List } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { RepoObj, BlobResult } from '../models/API';
 import Path from './Path';
+import styles from '../styles/Repository.scss';
 
 export interface IProps extends RouteComponentProps<any> {
     user: string;
@@ -103,28 +104,41 @@ export default class Repository extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <div>
-                <h2>This is repo {this.props.repo} of user {this.props.user}</h2>
-                <BranchSelector
-                    user={this.props.user}
-                    repo={this.props.repo}
-                    current={this.state.sha}
-                    onBranchSelectionChanged={(newValue: string) => {
-                        this.state.sha = newValue;
-                        this.setState(this.state);
-
-                        this.props.history.push(`/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
-                        this.queryServer();
-                    }}>
-                </BranchSelector>
-
-                {<Path
-                    user={this.props.user}
-                    repo={this.props.repo}
-                    sha={this.state.sha}
-                    path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
-                    type={this.props.type}>
-                </Path>}
+            <div id={styles.repository}>
+                <div id={styles.repositoryHeader}>
+                    <div id={styles.currentRepository}>
+                        <h3>{this.props.repo}</h3>
+                    </div>
+                    <div id={styles.authorText}>
+                        <p> <b>Author:</b> <i>{this.props.user}</i></p>
+                    </div>
+                    <div className="clear"></div>
+                    <div id={styles.branch}>
+                        <BranchSelector
+                            user={this.props.user}
+                            repo={this.props.repo}
+                            current={this.state.sha}
+                            onBranchSelectionChanged={(newValue: string) => {
+                                this.state.sha = newValue;
+                                this.setState(this.state);
+                                
+                                this.props.history.push(`/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                                this.queryServer();
+                            }}>
+                        </BranchSelector>
+                    </div>
+                    
+                    <div id={styles.path}>
+                        <Path
+                            user={this.props.user}
+                            repo={this.props.repo}
+                            sha={this.state.sha}
+                            path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
+                            type={this.props.type}>
+                        </Path>
+                    </div>
+                    <div className="clear"></div>
+                </div>
 
                 {this.renderTree()}
                 {this.renderFileContents()}
@@ -143,7 +157,7 @@ export default class Repository extends React.Component<IProps, IState> {
     renderTree() {
         if (this.props.type == 'tree') {
             return (
-                <div>
+                <div id={styles.tree}>
                     <List divided relaxed>
                         {this.state.objects.map((r: RepoObj) =>
                             <RepoListElement
