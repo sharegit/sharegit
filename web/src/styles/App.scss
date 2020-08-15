@@ -1,0 +1,47 @@
+$background-color: rgb(228, 228, 228);
+$nav-color: rgb(30, 241, 40);
+
+:global * {
+    margin: 0;
+    padding: 0;
+}
+
+#app {
+    background-color: $background-color;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    min-height: 100vh;
+}
+
+nav {
+    background-color: rgb(46, 46, 46);
+    width: 100%;
+    height: 45px;
+    color: $nav-color;
+    text-align: center;
+    padding: 10px;
+    text-decoration: none;
+    ul {
+        list-style: none;
+    }
+     /* unvisited link */
+    a:link {
+        color:$nav-color;
+    }
+    
+    /* visited link */
+    a:visited {
+        color: $nav-color;
+    }
+    
+    /* mouse over link */
+    a:hover {
+        color: $nav-color;
+    }
+    
+    /* selected link */
+    a:active {
+        color: $nav-color;
+    } 
+}

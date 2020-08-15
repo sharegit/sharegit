@@ -4,6 +4,7 @@ import API, { SharedRepository } from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
+import styles from '../styles/SharedLanding.scss';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -12,13 +13,15 @@ export interface IProps extends RouteComponentProps<any> {
 interface IState extends BaseState {
     tokenValid?: boolean;
     repositories: SharedRepository[];
+    author: string;
 }
 
 export default class SharedLanding extends React.Component<IProps, IState> {
     state: IState = {
         tokenValid: undefined,
         cancelToken: API.aquireNewCancelToken(),
-        repositories: []
+        repositories: [],
+        author: ''
     }
     constructor(props: IProps) {
         super(props)
@@ -38,6 +41,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         .then((res) => {
             this.state.tokenValid = true;
             this.state.repositories = res;
+            if(res.length > 0)
+                this.state.author = res[0].owner;
             this.setState(this.state);
             
             localStorage.setItem('token', this.props.token)
@@ -50,20 +55,33 @@ export default class SharedLanding extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <div>
-                {this.renderTokenValidity()}
-                <List divided relaxed>
-                    {
-                        this.state.repositories
-                            .map((r : SharedRepository) =>
-                                <RepositoryCard key={r.repo}
-                                                link={`/repo/${r.owner}/${r.repo}/tree/master/`}
-                                                name={r.repo}
-                                                description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                provider={r.provider}></RepositoryCard>
-                            )
-                    }
-                </List>
+            <div id={styles.sharelandingcontainer}>
+                <div id={styles.landingHeader}>
+                    <div id={styles.availableReposText}>
+                        <h3>Repositories shared with you</h3>
+                    </div>
+                    <div id={styles.authorText}>
+                        <p> <b>Author:</b> <i>{this.state.author}</i></p>
+                    </div>
+                    <div className={styles.clear}></div>
+                </div>
+                <div id={styles.tokenChecker}>
+                    {this.renderTokenValidity()}
+                </div>
+                <div className={styles.myclass}>
+                    <List divided relaxed>
+                        {
+                            this.state.repositories
+                                .map((r : SharedRepository) =>
+                                    <RepositoryCard key={r.repo}
+                                                    link={`/repo/${r.owner}/${r.repo}/tree/master/`}
+                                                    name={r.repo}
+                                                    description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                    provider={r.provider}></RepositoryCard>
+                                )
+                        }
+                    </List>
+                </div>
             </div>
         )
     }

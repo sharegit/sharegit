@@ -9,6 +9,7 @@ import {
   Link,
   RouteComponentProps
 } from 'react-router-dom';
+import styles from '../styles/App.scss';
 
 import highlight from 'highlight.js'
 highlight.configure({
@@ -24,13 +25,13 @@ interface IState {
 export default class App extends React.Component<IProps, IState> {
   render() {
     return (
-        <Router>
-          <div>
+        <div id={styles.app}>
+          <Router>
             <nav>
               <ul>
-                <li>
+                {/* <li>
                   <Link to="/repo/g-jozsef">Repositories of 'g-jozsef'</Link>
-                </li>
+                </li> */}
               </ul>
             </nav>
 
@@ -60,8 +61,8 @@ export default class App extends React.Component<IProps, IState> {
             )}>
 
             </Route>
-          </div>
-        </Router>
+          </Router>
+        </div>
 
       )
     }
