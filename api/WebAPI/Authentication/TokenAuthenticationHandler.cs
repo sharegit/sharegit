@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ShareGithub.Models;
+using ShareGithub.Repositories;
+using ShareGithub.Settings;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -13,13 +16,17 @@ namespace WebAPI.Authentication
     public class TokenAuthenticationHandler
         : AuthenticationHandler<TokenAuthenticationSchemeOptions>
     {
+
+        private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         public TokenAuthenticationHandler(
             IOptionsMonitor<TokenAuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
-            ISystemClock clock)
+            ISystemClock clock,
+            IRepository<Share, ShareDatabaseSettings> shareRepository)
             : base(options, logger, encoder, clock)
         {
+            ShareRepository = shareRepository;
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -31,7 +38,8 @@ namespace WebAPI.Authentication
 
             var token = Request.Headers["token"].ToString();
 
-            if (token == "563b952ec30fb6ebd48a598f4246ab0334cf70c90d93f48b1f410d814436438a")
+            var validatedToken = ShareRepository.Find(x => x.Token == token);
+            if (validatedToken != null)
             {
                 var claims = new[]
                 {
@@ -41,6 +49,8 @@ namespace WebAPI.Authentication
                 var claimsIdentity = new ClaimsIdentity(claims, nameof(TokenAuthenticationHandler));
 
                 var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), this.Scheme.Name);
+
+                Context.Items.Add("access", validatedToken.AccessibleRepositories);
 
                 return Task.FromResult(AuthenticateResult.Success(ticket));
             }
