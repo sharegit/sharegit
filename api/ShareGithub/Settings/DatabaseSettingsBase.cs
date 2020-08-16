@@ -1,6 +1,6 @@
 ﻿using ShareGithub;
 
-namespace WebAPI.Settings
+namespace ShareGithub.Settings
 {
     public class DatabaseSettingsBase
     {

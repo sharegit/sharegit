@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using ShareGithub.Models;
+using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using WebAPI.Settings;
 
 namespace ShareGithub.Repositories
 {

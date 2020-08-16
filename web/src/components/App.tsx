@@ -3,6 +3,8 @@ import Repositories, {IRepositoriesProps} from './Repositories';
 import Repository, {IProps as IRepositoryProps} from './Repository';
 import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
 import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
+import Dashboard, {IProps as IDashboardProps} from './Dashboard';
+import Authentication, {IProps as IAuthenticationProps} from './Authentication';
 import {
   BrowserRouter as Router,
   RouteProps,
@@ -71,6 +73,17 @@ export default class App extends React.Component<IProps, IState> {
                 {...props.match.params}/>
                 )}></Route>
 
+              <Route path="/dashboard" exact component={(props: IDashboardProps) => (
+                <Dashboard
+                {...props}
+                {...props.match.params}/>
+              )}></Route>
+
+              <Route path="/auth" exact component={(props: IAuthenticationProps) => (
+                <Authentication
+                {...props}
+                {...props.match.params}/>
+              )}></Route>
             </div>
           </Router>
         </div>

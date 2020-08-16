@@ -37,6 +37,12 @@ export interface BlobResult {
     file: string;
     content: string;
 }
+export interface AuthResult {
+    token: string;
+}
+export interface DashboardResponse {
+    name: string;
+}
 
 export default class API {
     static aquireNewCancelToken(): CancelToken {
@@ -46,7 +52,8 @@ export default class API {
         return {
             cancelToken: cancelToken.token,
             headers: {
-                token: localStorage.getItem('token')
+                token: localStorage.getItem('token'),
+                jwt: localStorage.getItem('OAuthJWT')
             }
         };
     }
@@ -128,6 +135,30 @@ export default class API {
         const request = `${config.apiUrl}/share/${token}`;
         return new Promise<SharedRepository[]>((resolve, reject) => {
             this.get<SharedRepository[]>(request, cancelToken)
+            .then((res) => {
+                resolve(res.data);
+            })
+            .catch(() => {
+                reject();
+            })
+        })
+    }
+    static auth(code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
+        const request = `${config.apiUrl}/auth/${code}/${state}`;
+        return new Promise<AuthResult>((resolve, reject) => {
+            this.get<AuthResult>(request, cancelToken)
+            .then((res) => {
+                resolve(res.data);
+            })
+            .catch(() => {
+                reject();
+            })
+        })
+    }
+    static fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
+        const request = `${config.apiUrl}/dashboard`;
+        return new Promise<DashboardResponse>((resolve, reject) => {
+            this.get<DashboardResponse>(request, cancelToken)
             .then((res) => {
                 resolve(res.data);
             })

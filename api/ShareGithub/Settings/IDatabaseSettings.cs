@@ -1,4 +1,4 @@
-﻿namespace ShareGithub
+﻿namespace ShareGithub.Settings
 {
 
     public interface IDatabaseSettings

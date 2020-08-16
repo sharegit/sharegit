@@ -1,3 +1,5 @@
 {
-    "apiUrl": "unknown"
+    "apiUrl": "unknown",
+    "client_id": "Iv1.d6a2ae76af24c59e",
+    "redirect_uri": "http://share.akromentos.studio/auth"
 }

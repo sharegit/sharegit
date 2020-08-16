@@ -2,6 +2,9 @@
 {
     public class Account : DbItemBase
     {
-        public string UserName { get; set; }
+        public int GithubId { get; set; }
+        public string Name { get; set; }
+        public string Login { get; set; }
+        public string AccessToken { get; set; }
     }
 }

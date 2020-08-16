@@ -14,6 +14,8 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
 
 export interface AkroGamesConfig{
     apiUrl: string;
+    client_id: string;
+    redirect_uri: string;
 }
 
 const config: AkroGamesConfig = rawConf;

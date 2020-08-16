@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
+using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WebAPI.Settings;
 
 namespace WebAPI.Controllers
 {
@@ -17,15 +17,12 @@ namespace WebAPI.Controllers
     [ApiController]
     public class ShareController
     {
-        private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         private IRepositoryService RepositoryService { get; }
 
         public ShareController(IRepositoryService repositoryService,
-            IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
-            AccountRepository = accountRepository;
             ShareRepository = shareRepository;
             RepositoryService = repositoryService;
         }

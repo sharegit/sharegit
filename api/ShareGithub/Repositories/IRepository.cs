@@ -1,7 +1,7 @@
 ﻿using ShareGithub.Models;
+using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
-using WebAPI.Settings;
 
 namespace ShareGithub.Repositories
 {

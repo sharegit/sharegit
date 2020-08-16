@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         [HttpGet("{user}/{repo}/tree/{sha}/{**uri}")]
         [Produces("application/json")]
         // TODO: Refactor with https://docs.github.com/en/rest/reference/repos#contents
-        public async Task<ContentResult> GetRepo(string user, string repo, string sha, string uri)
+        public async Task<ActionResult<object>> GetRepo(string user, string repo, string sha, string uri)
         {
             var accessToken = await GetAccessToken(user);
 
@@ -146,8 +146,8 @@ namespace WebAPI.Controllers
             }
 
             //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            string rawresponse = JsonConvert.SerializeObject(results);
-            return Content(rawresponse, "application/json");
+            //string rawresponse = JsonConvert.SerializeObject(results);
+            return new OkObjectResult(results);
         }
 
         [HttpGet("{user}/{repo}")]

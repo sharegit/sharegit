@@ -9,9 +9,10 @@ using System;
 using System.Reflection;
 using System.IO;
 using WebAPI.Authentication;
-using WebAPI.Settings;
 using Microsoft.Extensions.Options;
 using ShareGithub.Repositories;
+using ShareGithub.Services;
+using ShareGithub.Settings;
 
 namespace WebAPI
 {
@@ -29,6 +30,7 @@ namespace WebAPI
         {
             services.AddControllers();
             services.AddTransient<IRepositoryService, RepositoryService>();
+            services.AddTransient<IAccountService, AccountService>();
 
             services.AddCors(o => o.AddPolicy("ANY", builder =>
             {
@@ -75,13 +77,15 @@ namespace WebAPI
             });
 
             services.AddAuthentication(options =>
-                {
-                    options.DefaultScheme = "token";
-                })
-                .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationHandler>("token", op => { });
+            {
+                options.DefaultScheme = "token";
+            })
+                .AddScheme<TokenAuthenticationSchemeOptions, TokenAuthenticationHandler>("token", op => { })
+                .AddScheme<JWTAuthenticationSchemeOptions, JWTAuthenticationHandler>("jwt", op => { });
 
             services.Configure<AccountDatabaseSettings>(Configuration.GetSection(nameof(AccountDatabaseSettings)));
             services.Configure<ShareDatabaseSettings>(Configuration.GetSection(nameof(ShareDatabaseSettings)));
+            services.Configure<GithubAppSettings>(Configuration.GetSection(nameof(GithubAppSettings)));
 
             services.AddTransient(typeof(IRepository<,>), typeof(RepositoryBase<,>));
         }
