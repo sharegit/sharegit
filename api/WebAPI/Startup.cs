@@ -45,6 +45,33 @@ namespace WebAPI
                     Title = "Share-Github API",
                     Description = "API for the Share-Github project"
                 });
+                c.AddSecurityDefinition("token",
+                new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "token",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "token"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                  {
+                    {
+                      new OpenApiSecurityScheme
+                      {
+                        Reference = new OpenApiReference
+                          {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "token"
+                          },
+                          Scheme = "token",
+                          Name = "token",
+                          In = ParameterLocation.Header,
+
+                        },
+                        new System.Collections.Generic.List<string>()
+                      }
+                    });
             });
 
             services.AddAuthentication(options =>
