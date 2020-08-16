@@ -26,7 +26,7 @@ namespace ShareGithub.GithubAuth
             var payload = new
             {
                 iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                exp = DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds(),
+                exp = DateTimeOffset.UtcNow.AddMinutes(9).AddSeconds(30).ToUnixTimeSeconds(),
                 // TODO: Move app ID to configuration
                 iss = 76016
             };
