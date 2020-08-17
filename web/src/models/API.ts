@@ -83,10 +83,10 @@ export default class API {
             });
         });
     }
-    static getRepositories(owner: string, cancelToken: CancelToken): Promise<RepositoriesResponse> {
-        const request = `${config.apiUrl}/repo/${owner}`;
-        return new Promise((resolve, reject) => {
-            this.get<RepositoriesResponse>(request, cancelToken)
+
+    static getData<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+            this.get<T>(request, cancelToken)
             .then((res) => {
                 resolve(res.data);
             })
@@ -94,77 +94,34 @@ export default class API {
                 reject();
             });
         });
+    }
+
+    static getRepositories(owner: string, cancelToken: CancelToken): Promise<RepositoriesResponse> {
+        const request = `${config.apiUrl}/repo/${owner}`;
+        return this.getData<RepositoriesResponse>(request, cancelToken);
     }
     static getBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<String[]> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/branches`;
-        return new Promise<String[]>((resolve, reject) => {
-            this.get<String[]>(request,  cancelToken)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch(() => {
-                    reject();
-                });
-        })
+        return this.getData<String[]>(request, cancelToken);
     }
     static getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<RepoObj[]> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/tree/${sha}/${uri}`;
-        return new Promise<RepoObj[]>((resolve, reject) => {
-            this.get<RepoObj[]>(request,  cancelToken )
-            .then((res) => {
-                resolve(res.data);
-            })
-            .catch(() => {
-                reject();
-            });
-        });
+        return this.getData<RepoObj[]>(request, cancelToken);
     }
     static getRepoBlob(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/blob/${sha}/${uri}`;
-        return new Promise<BlobResult>((resolve, reject) => {
-            this.get<BlobResult>(request, cancelToken)
-            .then((res) => {
-                resolve(res.data);
-            })
-            .catch(()=> {
-                reject();
-            })
-        })
+        return this.getData<BlobResult>(request, cancelToken);
     }
     static getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepository[]> {
         const request = `${config.apiUrl}/share/${token}`;
-        return new Promise<SharedRepository[]>((resolve, reject) => {
-            this.get<SharedRepository[]>(request, cancelToken)
-            .then((res) => {
-                resolve(res.data);
-            })
-            .catch(() => {
-                reject();
-            })
-        })
+        return this.getData<SharedRepository[]>(request, cancelToken);
     }
     static auth(code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
         const request = `${config.apiUrl}/auth/${code}/${state}`;
-        return new Promise<AuthResult>((resolve, reject) => {
-            this.get<AuthResult>(request, cancelToken)
-            .then((res) => {
-                resolve(res.data);
-            })
-            .catch(() => {
-                reject();
-            })
-        })
+        return this.getData<AuthResult>(request, cancelToken);
     }
     static fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
         const request = `${config.apiUrl}/dashboard`;
-        return new Promise<DashboardResponse>((resolve, reject) => {
-            this.get<DashboardResponse>(request, cancelToken)
-            .then((res) => {
-                resolve(res.data);
-            })
-            .catch(() => {
-                reject();
-            })
-        })
+        return this.getData<DashboardResponse>(request, cancelToken);
     }
 }
