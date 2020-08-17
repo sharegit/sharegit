@@ -15,6 +15,7 @@ import {
 import styles from '../styles/App.scss';
 
 import highlight from 'highlight.js'
+import NavMenuItem from './NavMenuItem';
 highlight.configure({
   tabReplace: '    '
 })
@@ -31,14 +32,22 @@ export default class App extends React.Component<IProps, IState> {
         <div id={styles.app}>
           <Router>
             <nav>
-              <ul>
-                {/* <li>
-                  <Link to="/repo/g-jozsef">Repositories of 'g-jozsef'</Link>
-                </li> */}
-              </ul>
+              <div id={styles.leftMenu}>
+                <ul>
+                  <NavMenuItem uri="/">Shared with me</NavMenuItem>
+                  <NavMenuItem loginRequired uri="/dashboard">Dashboard</NavMenuItem>
+                </ul>
+              </div>
+              <div id={styles.rightMenu}>
+                <ul>
+                  <NavMenuItem logoutRequired uri="/auth">Login</NavMenuItem>
+                  <NavMenuItem loginRequired uri="/logout">Logout</NavMenuItem>
+                </ul>
+              </div>
+              <div className="clear"></div>
             </nav>
 
-            <div id={styles.appContentContainer}>
+            <div className={styles.appContentContainer}>
 
 
 
