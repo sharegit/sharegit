@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
                 ShareRepository.Create(share);
                 AccountRepository.Update(user.Id, user);
 
-                return new OkResult();
+                return new OkObjectResult(share.Token);
             }
         }
         [HttpPost("deletetoken/{token}")]

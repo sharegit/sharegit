@@ -68,6 +68,11 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         }
         this.setState(this.state)
     }
+    addToken(token: string) {
+        this.state.sharedTokens.push(token);
+        this.state.repositories[this.state.sharedTokens.length - 1] = []
+        this.setState(this.state);
+    }
     deleteToken(token: string) {
         API.deleteToken(token, this.state.cancelToken)
         .then(() => {
@@ -86,7 +91,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                     Dashboard
                 </h2>
                 <p>Hello {this.state.name}</p>
-               <NewTokenCreation></NewTokenCreation>
+               <NewTokenCreation tokenCreatedCallback={this.addToken.bind(this)}></NewTokenCreation>
                 <Accordion fluid styled>
                     {
                         this.state.sharedTokens

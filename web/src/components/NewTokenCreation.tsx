@@ -5,6 +5,7 @@ import { BaseState } from '../models/BaseComponent';
 import RepositoryCard from './RepositoryCard';
 
 interface IProps {
+    tokenCreatedCallback: (token: string) => void;
 }
 
 interface IState extends BaseState {
@@ -34,7 +35,10 @@ export default class NewTokenCreation extends React.Component<IProps> {
         API.createToken({
             Stamp: this.state.stamp,
             Repositories: this.state.selectedRepositories
-        }, this.state.cancelToken);
+        }, this.state.cancelToken)
+        .then((res) => {
+            this.props.tokenCreatedCallback(res.data);
+        });
         this.close()
     }
     componentDidMount() {

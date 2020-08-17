@@ -158,9 +158,9 @@ export default class API {
         const request = `${config.apiUrl}/dashboard/repos`;
         return this.getData<SharedRepository[]>(request, cancelToken);
     }
-    static createToken(tokenCreation: any, cancelToken: CancelToken): Promise<APIResponse<any>> {
+    static createToken(tokenCreation: any, cancelToken: CancelToken): Promise<APIResponse<string>> {
         const request = `${config.apiUrl}/dashboard/createtoken`;
-        return this.post<string[]>(request, tokenCreation, cancelToken);
+        return this.post<string>(request, tokenCreation, cancelToken);
     }
     static deleteToken(token: string, cancelToken: CancelToken): Promise<APIResponse<any>> {
         const request = `${config.apiUrl}/dashboard/deletetoken/${token}`;
