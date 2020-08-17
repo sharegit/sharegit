@@ -67,7 +67,18 @@ export default class Dashboard extends React.Component<IProps, IState>  {
             }
         }
         this.setState(this.state)
-      }
+    }
+    deleteToken(token: string) {
+        API.deleteToken(token, this.state.cancelToken)
+        .then(() => {
+            const index = this.state.sharedTokens.indexOf(token, 0);
+            if (index > -1) {
+                this.state.activeTokenIndex = -1;
+                this.state.sharedTokens.splice(index, 1);
+                this.setState(this.state);
+            }
+        });
+    }
     render() {
         return (
             <div>
@@ -90,7 +101,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                     </Accordion.Title>
                                     <Accordion.Content active={this.state.activeTokenIndex == index}>
                                         <Button onClick={()=>{
-                                            console.log('Deleting ' + token);
+                                            this.deleteToken(token)
                                         }}>Delete token</Button>
                                         <h3>Repositories shared with this token:</h3>
                                         <List divided relaxed>

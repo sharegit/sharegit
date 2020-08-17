@@ -114,5 +114,24 @@ namespace WebAPI.Controllers
                 return new OkResult();
             }
         }
+        [HttpPost("deletetoken/{token}")]
+        public async Task<IActionResult> DeleteToken(string token)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+            if (user.SharedTokens.Any(x => x.Token == token))
+            {
+                user.SharedTokens.RemoveAll(x => x.Token == token);
+                var share = ShareRepository.Find(x => x.Token == token);
+                if(share != null)
+                    ShareRepository.Remove(share.Id);
+                AccountRepository.Update(user.Id, user);
+                return new OkResult();
+            }
+            else
+            {
+                return new BadRequestResult();
+            }
+        }
     }
 }
