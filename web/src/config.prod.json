@@ -1,3 +1,4 @@
 {
-    "apiUrl": "https://www.api.share.akromentos.studio"
+    "apiUrl": "https://www.api.share.akromentos.studio",
+    "isDev": false
 }

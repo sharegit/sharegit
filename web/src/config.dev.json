@@ -1,3 +1,4 @@
 {
-    "apiUrl": "https://localhost:44801"
+    "apiUrl": "https://localhost:44801",
+    "isDev": true
 }
