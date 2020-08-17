@@ -29,44 +29,42 @@ export default class Authentication extends React.Component<IProps, IState>  {
         super(props);
     }
     componentDidMount() {
-        if (localStorage.getItem('OAuthJWT')) {
-            this.props.history.push(`/dashboard`);
-        } else {
-            const query = new URLSearchParams(this.props.location.search)
-            const code = query.get('code')
-            const state = query.get('state')
-            
-            let succ = false;
-            if(code != undefined && state != undefined) {
-                const parsedState = JSON.parse(atob(state));
-                if(parsedState.d && !window.location.href.startsWith('http://localhost:44800')) {
-                    const uri = `http://localhost:44800/auth?code=${code}&state=${state}`;
-                    window.location.replace(uri);
-                    window.location.href = uri;
-                    console.log('Replacing URL to localhost because this came from development')
-                    console.log(uri)
-                    console.log(window.location.href)
-                } else {
-                    if (code != undefined && state != undefined) {
-                        console.log("CODE_SATE_OK")
-                        const oauthPrevState = localStorage.getItem('oauthState');
-                        if (oauthPrevState != undefined && oauthPrevState == state) {
-                            console.log("GOING_TO_API")
-                            API.auth(code, state, this.state.cancelToken).then((res) =>{
-                                succ = true;
-                                localStorage.setItem('OAuthJWT', res.token);
-                                localStorage.removeItem('oauthState');
-                                this.props.login();
-                                this.props.history.push('/dashboard');
-                            });
-                        }
+        const query = new URLSearchParams(this.props.location.search)
+        const code = query.get('code')
+        const state = query.get('state')
+        
+        let succ = false;
+        if(code != undefined && state != undefined) {
+            const parsedState = JSON.parse(atob(state));
+            if(parsedState.d && !window.location.href.startsWith('http://localhost:44800')) {
+                const uri = `http://localhost:44800/auth?code=${code}&state=${state}`;
+                window.location.replace(uri);
+                window.location.href = uri;
+                console.log('Replacing URL to localhost because this came from development')
+                console.log(uri)
+                console.log(window.location.href)
+            } else if (localStorage.getItem('OauthJWT') == undefined) {
+                if (code != undefined && state != undefined) {
+                    console.log("CODE_SATE_OK")
+                    const oauthPrevState = localStorage.getItem('oauthState');
+                    if (oauthPrevState != undefined && oauthPrevState == state) {
+                        console.log("GOING_TO_API")
+                        API.auth(code, state, this.state.cancelToken).then((res) =>{
+                            succ = true;
+                            localStorage.setItem('OAuthJWT', res.token);
+                            localStorage.removeItem('oauthState');
+                            this.props.login();
+                            this.props.history.push('/dashboard');
+                        });
                     }
                 }
+            } else {
+                this.props.history.push(`/dashboard`);
             }
-            if(!succ) {
-                localStorage.setItem('oauthState', this.state.state);
-                console.log("SETTING_OAUTH_STATE " + this.state.state);
-            }
+        }
+        if(!succ) {
+            localStorage.setItem('oauthState', this.state.state);
+            console.log("SETTING_OAUTH_STATE " + this.state.state);
         }
     }
     componentWillUnmount() {
