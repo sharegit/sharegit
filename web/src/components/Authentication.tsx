@@ -11,6 +11,7 @@ interface IState extends BaseState {
 }
 
 export interface IProps  extends RouteComponentProps<any> {
+    login: () => void;
 }
 
 export default class Authentication extends React.Component<IProps, IState>  {
@@ -36,6 +37,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     API.auth(code, state, this.state.cancelToken).then((res) =>{
                         succ = true;
                         localStorage.setItem('OAuthJWT', res.token);
+                        this.props.login();
                         this.props.history.push('/dashboard');
                     });
                 }

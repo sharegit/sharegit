@@ -16,6 +16,7 @@ import styles from '../styles/App.scss';
 
 import highlight from 'highlight.js'
 import NavMenuItem from './NavMenuItem';
+import Logout from './Logout';
 highlight.configure({
   tabReplace: '    '
 })
@@ -24,9 +25,21 @@ highlight.initHighlightingOnLoad();
 interface IProps {
 }
 interface IState {
+  isLoggedIn: boolean;
 }
 
 export default class App extends React.Component<IProps, IState> {
+  state: IState = {
+    isLoggedIn: localStorage.getItem('OAuthJWT') != undefined
+  }
+  login() {
+    this.state.isLoggedIn = true;
+    this.setState(this.state);
+  }
+  logout() {
+    this.state.isLoggedIn = false;
+    this.setState(this.state);
+  }
   render() {
     return (
         <div id={styles.app}>
@@ -34,14 +47,14 @@ export default class App extends React.Component<IProps, IState> {
             <nav>
               <div id={styles.leftMenu}>
                 <ul>
-                  <NavMenuItem uri="/">Shared with me</NavMenuItem>
-                  <NavMenuItem loginRequired uri="/dashboard">Dashboard</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/">Shared with me</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
                 </ul>
               </div>
               <div id={styles.rightMenu}>
                 <ul>
-                  <NavMenuItem logoutRequired uri="/auth">Login</NavMenuItem>
-                  <NavMenuItem loginRequired uri="/logout">Logout</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/auth">Login</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
                 </ul>
               </div>
               <div className="clear"></div>
@@ -88,8 +101,15 @@ export default class App extends React.Component<IProps, IState> {
                 {...props.match.params}/>
               )}></Route>
 
-              <Route path="/auth" exact component={(props: IAuthenticationProps) => (
+              <Route path="/auth" exact component={(props: RouteComponentProps<any>) => (
                 <Authentication
+                login={this.login.bind(this)}
+                {...props}
+                {...props.match.params}/>
+              )}></Route>
+
+              <Route path="/logout" exact component={(props: RouteComponentProps<any>) => (
+                <Logout logout={this.logout.bind(this)}
                 {...props}
                 {...props.match.params}/>
               )}></Route>
