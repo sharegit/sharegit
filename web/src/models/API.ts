@@ -83,6 +83,32 @@ export default class API {
             });
         });
     }
+    static post<T = any>(request: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        console.log(`Requesting: ${request}`);
+
+        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
+        if (additionalConfig != undefined)
+            Object.assign(config, additionalConfig);
+        return new Promise<APIResponse<T>>((resolve, reject) => {
+            axios.post<T>(request, data, config)
+            .then((res: AxiosResponse<T>) => {
+                if(res.status >= 200 && res.status < 400) {
+                    console.log(`Got a response for ${request} (${res.status})`)
+                    resolve({
+                        data: res.data,
+                        statusCode: res.status
+                    })
+                } else {
+                    console.error(`Error while requesting ${request} ${res.status}`)
+                    reject();
+                }
+            })
+            .catch((error) => {
+                console.error(`Error while requesting ${request} ${error}`)
+                reject();
+            });
+        });
+    }
 
     static getData<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
         return new Promise<T>((resolve, reject) => {
@@ -123,5 +149,17 @@ export default class API {
     static fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
         const request = `${config.apiUrl}/dashboard`;
         return this.getData<DashboardResponse>(request, cancelToken);
+    }
+    static getSharedTokens(cancelToken: CancelToken): Promise<string[]> {
+        const request = `${config.apiUrl}/dashboard/tokens`;
+        return this.getData<string[]>(request, cancelToken);
+    }
+    static getMyRepos(cancelToken: CancelToken): Promise<SharedRepository[]> {
+        const request = `${config.apiUrl}/dashboard/repos`;
+        return this.getData<SharedRepository[]>(request, cancelToken);
+    }
+    static createToken(tokenCreation: any, cancelToken: CancelToken): Promise<APIResponse<any>> {
+        const request = `${config.apiUrl}/dashboard/createtoken`;
+        return this.post<string[]>(request, tokenCreation, cancelToken);
     }
 }

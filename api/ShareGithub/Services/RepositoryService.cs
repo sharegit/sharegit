@@ -1,5 +1,6 @@
 ﻿using Core.Model;
 using Jose;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
@@ -59,6 +60,46 @@ namespace ShareGithub
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));
         }
+        public async Task<GithubAPIResponse> GetUserInstallations(string userAccessToken)
+        {
+            return await FetchGithubAPI($"https://api.github.com/user/installations",
+                HttpMethod.Get,
+                new InstallationGithubAuth(userAccessToken));
+        }
+        public async Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(string userAccessToken)
+        {
+            var installationsReponse = await GetUserInstallations(userAccessToken);
+            dynamic installations = JObject.Parse(installationsReponse.RAW);
+            var ids = new List<int>();
+            foreach (var installation in installations.installations)
+            {
+                int id = installation.id;
+                ids.Add(id);
+            }
+
+            var repos = new List<GithubRepo>();
+            foreach(var id in ids)
+            {
+                var installationAccess = await GetAccess(id);
+                var installationRepositoriesResponse = await GetInstallationRepositories(installationAccess.AccessToken);
+                dynamic installationRepositories = JObject.Parse(installationRepositoriesResponse.RAW);
+
+                foreach(var repo in installationRepositories.repositories)
+                {
+                    string name = repo.name;
+                    string owner = repo.owner.login;
+                    string description = repo.description;
+
+                    repos.Add(new GithubRepo()
+                    {
+                        Repo = name,
+                        Owner = owner,
+                        Description = description
+                    });
+                }
+            }
+            return repos;
+        }
 
         public async Task<GithubAppAccess> GetAccess(string user)
         {
@@ -74,6 +115,18 @@ namespace ShareGithub
             return new GithubAppAccess()
             {
                 InstallationId = installationid,
+                AccessToken = accessToken
+            };
+        }
+        public async Task<GithubAppAccess> GetAccess(int installationId)
+        {
+            var accessTokensResponse = await GetAccessToken($"https://api.github.com/app/installations/{installationId}/access_tokens");
+            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
+            string accessToken = accessTokens.token;
+
+            return new GithubAppAccess()
+            {
+                InstallationId = installationId,
                 AccessToken = accessToken
             };
         }

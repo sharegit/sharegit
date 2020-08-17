@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ShareGithub
@@ -13,6 +14,8 @@ namespace ShareGithub
         Task<GithubAPIResponse> GetBranches(string owner, string repo, string installationAccess);
         Task<GithubAPIResponse> GetCommits(string owner, string repo, string sha, string uri, string installationAccess, int page = 0, int per_page = 0);
         Task<GithubAPIResponse> GetContent(string owner, string repo, string sha, string uri, string installationAccess);
+        Task<GithubAPIResponse> GetUserInstallations(string userAccessToken);
+        Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(string userAccessToken);
         Task<GithubAppAccess> GetAccess(string user);
     }
 }
