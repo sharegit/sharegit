@@ -36,6 +36,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             const code = query.get('code')
             const state = query.get('state')
             
+            let succ = false;
             if(code != undefined && state != undefined) {
                 const parsedState = JSON.parse(atob(state));
                 if(parsedState.d && !window.location.href.startsWith('http://localhost:44800')) {
@@ -46,24 +47,25 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     console.log(uri)
                     console.log(window.location.href)
                 } else {
-                    let succ = false;
                     if (code != undefined && state != undefined) {
+                        console.log("CODE_SATE_OK")
                         const oauthPrevState = localStorage.getItem('oauthState');
                         if (oauthPrevState != undefined && oauthPrevState == state) {
+                            console.log("GOING_TO_API")
                             API.auth(code, state, this.state.cancelToken).then((res) =>{
                                 succ = true;
                                 localStorage.setItem('OAuthJWT', res.token);
+                                localStorage.removeItem('oauthState');
                                 this.props.login();
                                 this.props.history.push('/dashboard');
                             });
                         }
                     }
-                    if(!succ) {
-                        localStorage.setItem('oauthState', this.state.state);
-                    } else {
-                        localStorage.removeItem('oauthState');
-                    }
                 }
+            }
+            if(!succ) {
+                localStorage.setItem('oauthState', this.state.state);
+                console.log("SETTING_OAUTH_STATE " + this.state.state);
             }
         }
     }
