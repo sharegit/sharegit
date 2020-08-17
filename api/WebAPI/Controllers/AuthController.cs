@@ -53,9 +53,18 @@ namespace WebAPI.Controllers
                     Login = login,
                     Name = name,
                     GithubId = github_id,
+                    // TODO: Encode access_token
                     AccessToken = access_token
                 };
                 existingUser = AccountRepository.Create(existingUser);
+            }
+            // TODO: Make use of token refeshes
+            // Save the aq date of this access_token and the refresh_token
+            // and if it were to be used and is expired ask github api for a new token through the refresh token
+            else
+            {
+                existingUser.AccessToken = access_token;
+                AccountRepository.Update(existingUser.Id, existingUser);
             }
 
 
