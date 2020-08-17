@@ -43,7 +43,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                 console.log('Replacing URL to localhost because this came from development')
                 console.log(uri)
                 console.log(window.location.href)
-            } else if (localStorage.getItem('OauthJWT') == undefined) {
+            } else if (localStorage.getItem('OAuthJWT') == undefined) {
                 if (code != undefined && state != undefined) {
                     console.log("CODE_SATE_OK")
                     const oauthPrevState = localStorage.getItem('oauthState');
@@ -61,6 +61,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
             } else {
                 this.props.history.push(`/dashboard`);
             }
+        } else if(localStorage.getItem('OAuthJWT') != undefined) {
+            this.props.history.push(`/dashboard`);
         }
         if(!succ) {
             localStorage.setItem('oauthState', this.state.state);
