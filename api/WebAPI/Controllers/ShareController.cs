@@ -39,29 +39,32 @@ namespace WebAPI.Controllers
             {
                 var accessibleRepositories = share.AccessibleRepositories;
 
-                // TOOD: collect users and providers that this token gives access to
-                // For now just the the user and assume github
-                var owner = accessibleRepositories.GroupBy(x => x.Owner).Select(x => x.Key).Distinct().FirstOrDefault();
-
-                var ownerAccess = await RepositoryService.GetAccess(owner);
-
-                var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess.AccessToken);
-                dynamic repositories = Newtonsoft.Json.Linq.JObject.Parse(repositoriesResponse.RAW);
+                // TOOD: collect providers that this token gives access to
+                // For now just collecting the users and assume github
+                var owners = accessibleRepositories.GroupBy(x => x.Owner).Select(x => x.Key).Distinct();
                 List<SharedRepository> sharedRepositories = new List<SharedRepository>();
-                foreach (dynamic rep in repositories.repositories)
-                {
-                    string n = rep.name;
-                    string o = rep.owner.login;
-                    string d = rep.description;
 
-                    if (accessibleRepositories.Any(x => x.Repo == n && x.Provider == "github" && x.Owner == o))
-                        sharedRepositories.Add(new SharedRepository()
-                        {
-                            Description = d,
-                            Owner = o,
-                            Provider = "github",
-                            Repo = n
-                        });
+                foreach(var owner in owners)
+                {
+                    var ownerAccess = await RepositoryService.GetAccess(owner);
+
+                    var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess.AccessToken);
+                    dynamic repositories = Newtonsoft.Json.Linq.JObject.Parse(repositoriesResponse.RAW);
+                    foreach (dynamic rep in repositories.repositories)
+                    {
+                        string n = rep.name;
+                        string o = rep.owner.login;
+                        string d = rep.description;
+
+                        if (accessibleRepositories.Any(x => x.Repo == n && x.Provider == "github" && x.Owner == o))
+                            sharedRepositories.Add(new SharedRepository()
+                            {
+                                Description = d,
+                                Owner = o,
+                                Provider = "github",
+                                Repo = n
+                            });
+                    }
                 }
 
                 return new OkObjectResult(sharedRepositories);
