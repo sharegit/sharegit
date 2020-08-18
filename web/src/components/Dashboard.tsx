@@ -5,6 +5,7 @@ import API, { SharedRepository } from '../models/API';
 import { List, Accordion, Icon, AccordionTitleProps, Button, Modal } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import NewTokenCreation from './NewTokenCreation';
+import config from '../config';
 
 interface IState extends BaseState {
     name: string;
@@ -105,6 +106,9 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                         {token}
                                     </Accordion.Title>
                                     <Accordion.Content active={this.state.activeTokenIndex == index}>
+                                        <Button onClick={() =>{
+                                            navigator.clipboard.writeText(`${config.share_uri}/${token}`);
+                                        }}>Copy link</Button>
                                         <Button onClick={()=>{
                                             this.deleteToken(token)
                                         }}>Delete token</Button>

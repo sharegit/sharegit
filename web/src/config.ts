@@ -17,6 +17,7 @@ export interface AkroGamesConfig{
     client_id: string;
     redirect_uri: string;
     isDev: boolean;
+    share_uri: string;
 }
 
 const config: AkroGamesConfig = rawConf;
