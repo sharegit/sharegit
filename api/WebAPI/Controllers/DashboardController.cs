@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Model.Github;
 using Core.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using ShareGithub;
+using ShareGithub.GithubAuth;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Services;
@@ -64,8 +66,12 @@ namespace WebAPI.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            var userAccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
-            var repos = await RepositoryService.GetUserInstallationRepositories(userAccessToken);
+            var userAccess = new GithubUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
             return new OkObjectResult(repos);
         }
         [HttpPost("createtoken")]
@@ -83,8 +89,12 @@ namespace WebAPI.Controllers
                 return new BadRequestResult();
             }
 
-            var userAccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
-            var repos = await RepositoryService.GetUserInstallationRepositories(userAccessToken);
+            var userAccess = new GithubUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
             if (createToken.Repositories.Any(c => !repos.Any(r => c.Owner == r.Owner && c.Repo == r.Repo)))
             {
                 return new ForbidResult();

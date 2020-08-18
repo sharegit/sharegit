@@ -1,4 +1,5 @@
-﻿using Core.Util;
+﻿using Core.Model.Github;
+using Core.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -79,13 +80,18 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> Auth(string code, string state)
         {
             var userAccessResponse = await AccountService.AuthUserWithGithub(code, state);
-            dynamic userAccess = JObject.Parse(userAccessResponse.RAW);
-            string accessToken = userAccess.access_token;
-            long accessTokenExpIn = userAccess.expires_in;
-            string refreshToken = userAccess.refresh_token;
-            long refreshTokenExpIn = userAccess.refresh_token_expires_in;
+            dynamic userAccessJO = JObject.Parse(userAccessResponse.RAW);
+            string accessToken = userAccessJO.access_token;
+            long accessTokenExpIn = userAccessJO.expires_in;
+            string refreshToken = userAccessJO.refresh_token;
+            long refreshTokenExpIn = userAccessJO.refresh_token_expires_in;
 
-            var userResponse = await AccountService.GetUserInfo(accessToken);
+            var userAccess = new GithubUserAccess()
+            {
+                AccessToken = accessToken,
+                UserId = null
+            };
+            var userResponse = await AccountService.GetUserInfo(userAccess);
             dynamic user = JObject.Parse(userResponse.RAW);
             string login = user.login;
             string name = user.name;

@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using Core.Model.Github;
 using ShareGithub.GithubAuth;
 using System;
 using System.Collections.Generic;

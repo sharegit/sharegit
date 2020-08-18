@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using Core.Model.Github;
 using System.Threading.Tasks;
 
 namespace ShareGithub.Services
@@ -7,6 +8,6 @@ namespace ShareGithub.Services
     {
         Task<GithubAPIResponse> AuthUserWithGithub(string code, string state);
         Task<GithubAPIResponse> RefreshAuthWithGithub(string refreshToken);
-        Task<GithubAPIResponse> GetUserInfo(string accessToken);
+        Task<GithubAPIResponse> GetUserInfo(GithubUserAccess accessToken);
     }
 }

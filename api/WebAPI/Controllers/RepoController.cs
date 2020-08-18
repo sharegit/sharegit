@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Core.Model;
+using Core.Model.Github;
 using Jose;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +33,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepoBranches(string user, string repo)
         {
-            var accessToken = await GetAccessToken(user);
+            var accessToken = await RepositoryService.GetAccess(user);
 
             var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
             dynamic branches = JArray.Parse(branchesResponse.RAW);
@@ -53,7 +54,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepoBlob(string user, string repo, string sha, string uri)
         {
-            var accessToken = await GetAccessToken(user);
+            var accessToken = await RepositoryService.GetAccess(user);
 
             var contentResponse = await RepositoryService.GetContent(user, repo, sha, uri, accessToken);
             dynamic content = JObject.Parse(contentResponse.RAW);
@@ -74,7 +75,7 @@ namespace WebAPI.Controllers
         // TODO: Refactor with https://docs.github.com/en/rest/reference/repos#contents
         public async Task<ActionResult<object>> GetRepo(string user, string repo, string sha, string uri)
         {
-            var accessToken = await GetAccessToken(user);
+            var accessToken = await RepositoryService.GetAccess(user);
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
             dynamic repository = JObject.Parse(repositoryResponse.RAW);
@@ -154,7 +155,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetRepo(string user, string repo)
         {
-            var accessToken = await GetAccessToken(user);
+            var accessToken = await RepositoryService.GetAccess(user);
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
             dynamic repository = JObject.Parse(repositoryResponse.RAW);
@@ -172,15 +173,9 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ContentResult> GetReposOf(string user)
         {
-            var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse.RAW);
-            string accessTokensUrl = installation.access_tokens_url;
+            var access = await RepositoryService.GetAccess(user);
 
-            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
-            string accessToken = accessTokens.token;
-
-            var repositoriesResponse = await RepositoryService.GetInstallationRepositories(accessToken);
+            var repositoriesResponse = await RepositoryService.GetInstallationRepositories(access);
             dynamic repositories = JObject.Parse(repositoriesResponse.RAW);
             List<string> repositoryUrls = new List<string>();
             foreach (dynamic rep in repositories.repositories)
@@ -192,20 +187,6 @@ namespace WebAPI.Controllers
             //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
             string rawresponse = repositoriesResponse.RAW;
             return Content(rawresponse, "application/json");
-        }
-
-        [Obsolete("Use RepositoryService's GetAccess!")]
-        private async Task<string> GetAccessToken(string user)
-        {
-            var installationResponse = await RepositoryService.GetInstallation(user);
-            dynamic installation = JObject.Parse(installationResponse.RAW);
-            string accessTokensUrl = installation.access_tokens_url;
-
-            var accessTokensResponse = await RepositoryService.GetAccessToken(accessTokensUrl);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
-            string accessToken = accessTokens.token;
-
-            return accessToken;
         }
     }
 }

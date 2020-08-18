@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
                 {
                     var ownerAccess = await RepositoryService.GetAccess(owner);
 
-                    var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess.AccessToken);
+                    var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess);
                     dynamic repositories = Newtonsoft.Json.Linq.JObject.Parse(repositoriesResponse.RAW);
                     foreach (dynamic rep in repositories.repositories)
                     {

@@ -1,5 +1,4 @@
-﻿
-namespace Core.Model
+﻿namespace Core.Model.Github
 {
     public class GithubRepo
     {

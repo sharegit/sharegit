@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using Core.Model.Github;
 using Core.Util;
 using Microsoft.Extensions.Options;
 using ShareGithub.GithubAuth;
@@ -37,9 +38,9 @@ namespace ShareGithub.Services
                 ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
         }
 
-        public async Task<GithubAPIResponse> GetUserInfo(string accessToken)
+        public async Task<GithubAPIResponse> GetUserInfo(GithubUserAccess access)
         {
-            return await FetchGithubAPI("https://api.github.com/user", HttpMethod.Get, new InstallationGithubAuth(accessToken));
+            return await FetchGithubAPI("https://api.github.com/user", HttpMethod.Get, new UserGithubAuth(access));
         }
     }
 }

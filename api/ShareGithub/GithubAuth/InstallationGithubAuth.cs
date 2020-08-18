@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.Model.Github;
+using System;
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text;
@@ -7,14 +8,14 @@ namespace ShareGithub.GithubAuth
 {
     class InstallationGithubAuth : GithubAuthMode
     {
-        private string installationToken;
-        public InstallationGithubAuth(string installationToken)
+        private GithubAppAccess installationToken;
+        public InstallationGithubAuth(GithubAppAccess installationAccess)
         {
-            this.installationToken = installationToken;
+            this.installationToken = installationAccess;
         }
         public override void AddAuthHeader(HttpRequestHeaders headers)
         {
-            headers.Add("Authorization", $"token {installationToken}");
+            headers.Add("Authorization", $"token {installationToken.AccessToken}");
         }
     }
 }

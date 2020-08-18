@@ -1,4 +1,5 @@
 ﻿using Core.Model;
+using Core.Model.Github;
 using Jose;
 using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
@@ -26,24 +27,24 @@ namespace ShareGithub
         {
             return await FetchGithubAPI(url, HttpMethod.Post, new AppGithubAuth());
         }
-        public async Task<GithubAPIResponse> GetInstallationRepositories(string installationAccess)
+        public async Task<GithubAPIResponse> GetInstallationRepositories(GithubAppAccess installationAccess)
         {
             return await FetchGithubAPI("https://api.github.com/installation/repositories", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
         }
-        public async Task<GithubAPIResponse> GetInstallationRepository(string owner, string repo, string installationAccess)
+        public async Task<GithubAPIResponse> GetInstallationRepository(string owner, string repo, GithubAppAccess installationAccess)
         {
             return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
         }
-        public async Task<GithubAPIResponse> GetRepositoryTree(string trees_url, string installationAccess, bool recursive)
+        public async Task<GithubAPIResponse> GetRepositoryTree(string trees_url, GithubAppAccess installationAccess, bool recursive)
         {
             
             return await FetchGithubAPI(trees_url, HttpMethod.Get, new InstallationGithubAuth(installationAccess), ("recursive", recursive ? "true" : "false"));
         }
-        public async Task<GithubAPIResponse> GetBranches(string owner, string repo, string installationAccess)
+        public async Task<GithubAPIResponse> GetBranches(string owner, string repo, GithubAppAccess installationAccess)
         {
             return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/branches", HttpMethod.Get, new InstallationGithubAuth(installationAccess));
         }
-        public async Task<GithubAPIResponse> GetCommits(string owner, string repo, string sha, string uri, string installationAccess, int page = 0, int per_page = 0)
+        public async Task<GithubAPIResponse> GetCommits(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess, int page = 0, int per_page = 0)
         {
             return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/commits",
             HttpMethod.Get,
@@ -53,20 +54,20 @@ namespace ShareGithub
             ("page", page.ToString()),
             ("per_page", per_page.ToString()));
         }
-        public async Task<GithubAPIResponse> GetContent(string owner, string repo, string sha, string uri, string installationAccess)
+        public async Task<GithubAPIResponse> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
             return await FetchGithubAPI($"https://api.github.com/repos/{owner}/{repo}/contents/{uri}",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));
         }
-        public async Task<GithubAPIResponse> GetUserInstallations(string userAccessToken)
+        public async Task<GithubAPIResponse> GetUserInstallations(GithubUserAccess userAccessToken)
         {
             return await FetchGithubAPI($"https://api.github.com/user/installations",
                 HttpMethod.Get,
-                new InstallationGithubAuth(userAccessToken));
+                new UserGithubAuth(userAccessToken));
         }
-        public async Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(string userAccessToken)
+        public async Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
             var installationsReponse = await GetUserInstallations(userAccessToken);
             dynamic installations = JObject.Parse(installationsReponse.RAW);
@@ -81,7 +82,7 @@ namespace ShareGithub
             foreach(var id in ids)
             {
                 var installationAccess = await GetAccess(id);
-                var installationRepositoriesResponse = await GetInstallationRepositories(installationAccess.AccessToken);
+                var installationRepositoriesResponse = await GetInstallationRepositories(installationAccess);
                 dynamic installationRepositories = JObject.Parse(installationRepositoriesResponse.RAW);
 
                 foreach(var repo in installationRepositories.repositories)
