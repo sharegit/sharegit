@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ShareGithub.Models;
-using ShareGithub.Repositories;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
@@ -17,7 +15,6 @@ namespace WebAPI.Authentication
     public class JWTAuthenticationHandler
         : AuthenticationHandler<JWTAuthenticationSchemeOptions>
     {
-
         public JWTAuthenticationHandler(
             IOptionsMonitor<JWTAuthenticationSchemeOptions> options,
             ILoggerFactory logger,
@@ -26,12 +23,12 @@ namespace WebAPI.Authentication
             : base(options, logger, encoder, clock)
         {
         }
-
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+       // private static ConcurrentDictionary<string, object> locks = new ConcurrentDictionary<string, object>();
+        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("jwt"))
             {
-                return Task.FromResult(AuthenticateResult.Fail("JWT header Not Found."));
+                return AuthenticateResult.Fail("JWT header Not Found.");
             }
 
             var jwt = Request.Headers["jwt"].ToString();
@@ -41,25 +38,27 @@ namespace WebAPI.Authentication
                 var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
                 if (validatedJWT != null)
                 {
+                    var id = validatedJWT["id"];
+
                     var claims = new[]
                     {
-                        new Claim(ClaimTypes.NameIdentifier, validatedJWT["id"])
+                        new Claim(ClaimTypes.NameIdentifier, id)
                     };
 
                     var claimsIdentity = new ClaimsIdentity(claims, nameof(JWTAuthenticationHandler));
 
                     var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), this.Scheme.Name);
 
-                    return Task.FromResult(AuthenticateResult.Success(ticket));
+                    return AuthenticateResult.Success(ticket);
                 }
                 else
                 {
-                    return Task.FromResult(AuthenticateResult.Fail("Invalid JWT!"));
+                    return AuthenticateResult.Fail("Invalid JWT!");
                 }
             }
             catch
             {
-                return Task.FromResult(AuthenticateResult.Fail("Invalid JWT!"));
+                return AuthenticateResult.Fail("Invalid JWT!");
             }
         }
     }

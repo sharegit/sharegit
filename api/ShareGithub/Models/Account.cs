@@ -7,7 +7,10 @@ namespace ShareGithub.Models
         public int GithubId { get; set; }
         public string Name { get; set; }
         public string Login { get; set; }
-        public string AccessToken { get; set; }
+        public string EncodedAccessToken { get; set; }
+        public string EncodedRefreshToken { get; set; }
+        public long AccessTokenExp { get; set; }
+        public long RefreshTokenExp { get; set; }
         public List<SharedToken> SharedTokens { get; set; }
     }
 }

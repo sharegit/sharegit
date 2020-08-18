@@ -12,6 +12,7 @@ using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -31,39 +32,91 @@ namespace WebAPI.Controllers
         }
 
 
+        [HttpGet("refreshtoken")]
+        [Produces("application/json")]
+        [Authorize(AuthenticationSchemes = "jwt")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+            string oldRefreshToken = JWT.Decode<string>(user.EncodedRefreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+
+            var refreshReponse = await AccountService.RefreshAuthWithGithub(oldRefreshToken);
+            dynamic refresh = JObject.Parse(refreshReponse.RAW);
+            string accessToken = refresh.access_token;
+            long accessTokenExpIn = refresh.expires_in;
+            string refreshToken = refresh.refresh_token;
+            long refreshTokenExpIn = refresh.refresh_token_expires_in;
+
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
+            var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
+
+            user.EncodedAccessToken = encodedAccessToken;
+            user.EncodedRefreshToken = encodedRefreshToken;
+            user.AccessTokenExp = accessTokenExp;
+            user.RefreshTokenExp = refreshTokenExp;
+            AccountRepository.Update(user.Id, user);
+
+            var payload = new
+            {
+                iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                exp = accessTokenExp,
+                id = user.Id
+            };
+
+            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+
+            return new OkObjectResult(new
+            {
+                token = jwt,
+                exp = accessTokenExp
+            });
+        }
         [HttpGet("{code}/{state}")]
         [Produces("application/json")]
         public async Task<IActionResult> Auth(string code, string state)
         {
             var userAccessResponse = await AccountService.AuthUserWithGithub(code, state);
             dynamic userAccess = JObject.Parse(userAccessResponse.RAW);
-            string access_token = userAccess.access_token;
+            string accessToken = userAccess.access_token;
+            long accessTokenExpIn = userAccess.expires_in;
+            string refreshToken = userAccess.refresh_token;
+            long refreshTokenExpIn = userAccess.refresh_token_expires_in;
 
-            var userResponse = await AccountService.GetUserInfo(access_token);
+            var userResponse = await AccountService.GetUserInfo(accessToken);
             dynamic user = JObject.Parse(userResponse.RAW);
             string login = user.login;
             string name = user.name;
             int github_id = user.id;
-
+            
             var existingUser = AccountRepository.Find(x => x.GithubId == github_id);
-            if(existingUser == null)
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
+            var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
+            if (existingUser == null)
             {
                 existingUser = new Account()
                 {
                     Login = login,
                     Name = name,
                     GithubId = github_id,
-                    // TODO: Encode access_token
-                    AccessToken = access_token
+                    EncodedAccessToken = encodedAccessToken,
+                    EncodedRefreshToken = encodedRefreshToken,
+                    AccessTokenExp = accessTokenExp,
+                    RefreshTokenExp = refreshTokenExp
                 };
                 existingUser = AccountRepository.Create(existingUser);
             }
-            // TODO: Make use of token refeshes
-            // Save the aq date of this access_token and the refresh_token
-            // and if it were to be used and is expired ask github api for a new token through the refresh token
             else
             {
-                existingUser.AccessToken = access_token;
+                existingUser.EncodedAccessToken = encodedAccessToken;
+                existingUser.EncodedAccessToken = encodedAccessToken;
+                existingUser.EncodedRefreshToken = encodedRefreshToken;
+                existingUser.AccessTokenExp = accessTokenExp;
+                existingUser.RefreshTokenExp = refreshTokenExp;
                 AccountRepository.Update(existingUser.Id, existingUser);
             }
 
@@ -71,6 +124,7 @@ namespace WebAPI.Controllers
             var payload = new
             {
                 iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                exp = accessTokenExp,
                 id = existingUser.Id
             };
 
@@ -78,7 +132,8 @@ namespace WebAPI.Controllers
 
             return new OkObjectResult(new
             {
-                token = jwt
+                token = jwt,
+                exp = accessTokenExp
             });
         }
     }

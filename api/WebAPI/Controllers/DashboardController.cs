@@ -64,7 +64,7 @@ namespace WebAPI.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            var userAccessToken = user.AccessToken;
+            var userAccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccessToken);
             return new OkObjectResult(repos);
         }
@@ -83,7 +83,7 @@ namespace WebAPI.Controllers
                 return new BadRequestResult();
             }
 
-            var userAccessToken = user.AccessToken;
+            var userAccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccessToken);
             if (createToken.Repositories.Any(c => !repos.Any(r => c.Owner == r.Owner && c.Repo == r.Repo)))
             {

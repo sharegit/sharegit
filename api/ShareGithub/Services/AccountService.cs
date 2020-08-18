@@ -27,6 +27,15 @@ namespace ShareGithub.Services
                 ("state", state),
                 ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
         }
+        public async Task<GithubAPIResponse> RefreshAuthWithGithub(string refreshToken)
+        {
+            return await FetchGithubAPI("https://github.com/login/oauth/access_token", HttpMethod.Post, null,
+                ("client_id", GithubAppSettings.Value.ClientId),
+                ("client_secret", RollingEnv.Get("SHARE_GITHUB_CLIENT_SECRET")),
+                ("refresh_token", refreshToken),
+                ("grant_type", "refresh_token"),
+                ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
+        }
 
         public async Task<GithubAPIResponse> GetUserInfo(string accessToken)
         {
