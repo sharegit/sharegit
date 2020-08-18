@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, List } from 'semantic-ui-react';
+import { Modal, Button, List, Icon } from 'semantic-ui-react';
 import API, { SharedRepository } from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import RepositoryCard from './RepositoryCard';
@@ -44,14 +44,33 @@ export default class NewTokenCreation extends React.Component<IProps> {
     componentDidMount() {
         API.getMyRepos(this.state.cancelToken)
         .then((res) => {
-            this.state.repositories = res;
+            this.state.repositories = [...res];
             // Assume everything selected
-            this.state.selectedRepositories = res;
+            this.state.selectedRepositories = [...res];
             this.setState(this.state);
         });
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();
+    }
+    isSelected(r: SharedRepository): boolean {
+        return this.state.selectedRepositories.find((s) => {
+            return s.owner == r.owner && s.repo == r.repo && s.provider == r.provider;
+        }) != undefined;
+    }
+    removeRepositorySelection(r: SharedRepository): void {
+        const index = this.state.selectedRepositories.indexOf(r, 0);
+        if (index > -1) {
+            this.state.selectedRepositories.splice(index, 1);
+            this.setState(this.state);
+        }
+    }
+    addRepositorySelection(r: SharedRepository): void {
+        const index = this.state.selectedRepositories.indexOf(r, 0);
+        if (index == -1) {
+            this.state.selectedRepositories.push(r);
+            this.setState(this.state);
+        }
     }
     render() {
         return (
@@ -71,9 +90,19 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                     .map((r : SharedRepository) =>
                                         <RepositoryCard key={r.repo}
                                                         link={`/repo/${r.owner}/${r.repo}/tree/master/`}
+                                                        deselected={this.isSelected(r) ? undefined : true}
                                                         name={r.repo}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                        provider='github'></RepositoryCard>
+                                                        provider='github'>
+                                                            {this.isSelected(r) ?
+                                                                <Button onClick={() => {
+                                                                    this.removeRepositorySelection(r);
+                                                                }}>Remove</Button>
+                                                            :   <Button onClick={() => {
+                                                                    this.addRepositorySelection(r);
+                                                                }}>Add</Button>
+                                                            }
+                                                        </RepositoryCard>
                                     )
                         }
                     </List>
