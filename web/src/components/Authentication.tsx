@@ -28,7 +28,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
     constructor(props: IProps) {
         super(props);
     }
-    componentDidMount() {
+    async componentDidMount() {
         const query = new URLSearchParams(this.props.location.search)
         const code = query.get('code')
         const state = query.get('state')
@@ -49,13 +49,12 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     const oauthPrevState = localStorage.getItem('oauthState');
                     if (oauthPrevState != undefined && oauthPrevState == state) {
                         console.log("GOING_TO_API")
-                        API.auth(code, state, this.state.cancelToken).then((res) =>{
-                            succ = true;
-                            localStorage.setItem('OAuthJWT', res.token);
-                            localStorage.removeItem('oauthState');
-                            this.props.login();
-                            this.props.history.push('/dashboard');
-                        });
+                        const authResult = await API.auth(code, state, this.state.cancelToken);
+                        succ = true;
+                        localStorage.setItem('OAuthJWT', authResult.token);
+                        localStorage.removeItem('oauthState');
+                        this.props.login();
+                        this.props.history.push('/dashboard');
                     }
                 }
             } else {

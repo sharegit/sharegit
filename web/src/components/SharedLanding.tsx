@@ -36,13 +36,14 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         this.state.cancelToken.cancel();
     }
 
-    validateToken() {
-        API.getSharedRepositories(this.props.token, this.state.cancelToken)
-        .then((res) => {
+    async validateToken() {
+        try {
+            const sharedRepositories = await API.getSharedRepositories(this.props.token, this.state.cancelToken)
+            
             this.state.tokenValid = true;
-            this.state.repositories = res;
-            if(res.length > 0)
-                this.state.author = res[0].owner;
+            this.state.repositories = sharedRepositories;
+            if(sharedRepositories.length > 0)
+            this.state.author = sharedRepositories[0].owner;
             this.setState(this.state);
             
             let tokens = localStorage.getItem("alltokens")
@@ -57,11 +58,10 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             }
             localStorage.setItem('alltokens', tokens)
             localStorage.setItem('token', this.props.token)
-        })
-        .catch(()=>{
+        } catch {
             this.state.tokenValid = false;
             this.setState(this.state);
-        });
+        }
     }
 
     render() {

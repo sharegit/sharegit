@@ -31,12 +31,12 @@ export default class Repositories extends React.Component<IProps, IState> {
         super(props)
     }
 
-    componentDidMount() {
-        API.getRepositories(this.props.user, this.state.cancelToken)
-        .then((res : RepositoriesResponse) => {
-            this.state.repositories = res;
-            this.setState(this.state);
-        })
+    async componentDidMount() {
+        const repositories = await API.getRepositories(this.props.user, this.state.cancelToken)
+        
+        this.state.repositories = repositories;
+        this.setState(this.state);
+        
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();

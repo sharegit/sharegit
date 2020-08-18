@@ -28,21 +28,21 @@ export default class Dashboard extends React.Component<IProps, IState>  {
     constructor(props: IProps) {
         super(props);
     }
-    componentDidMount() {
+    async componentDidMount() {
         if (localStorage.getItem('OAuthJWT')) {
-            API.fetchDashboardEssential(this.state.cancelToken)
-            .then((res) => {
-                this.state.name = res.name;
-                this.setState(this.state);
+            const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
+            const tokensRequest = API.getSharedTokens(this.state.cancelToken)
+
+            const essentials = await essentialsRequest;
+            this.state.name = essentials.name;
+            this.setState(this.state);
+
+            const tokens = await tokensRequest;
+            this.state.sharedTokens = tokens;
+            tokens.forEach((_, index) => {
+                this.state.repositories[index] = []
             });
-            API.getSharedTokens(this.state.cancelToken)
-            .then((res) => {
-                this.state.sharedTokens = res;
-                res.forEach((_, index) => {
-                    this.state.repositories[index] = []
-                });
-                this.setState(this.state);
-            }); 
+            this.setState(this.state);
         } else {
             this.props.history.push(`/auth`);
         }
@@ -50,7 +50,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
     componentWillUnmount() {
         this.state.cancelToken.cancel()
     }
-    handleClick(event: React.MouseEvent<HTMLDivElement>, data: AccordionTitleProps): void {
+    async handleClick(event: React.MouseEvent<HTMLDivElement>, data: AccordionTitleProps): Promise<void> {
         const newIndex = data.index as number
         if(this.state.activeTokenIndex == newIndex)
             this.state.activeTokenIndex = -1;
@@ -60,11 +60,10 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         if(this.state.activeTokenIndex >= 0) {
             if(this.state.repositories[this.state.activeTokenIndex].length == 0) {
                 const index = this.state.activeTokenIndex
-                API.getSharedRepositories(this.state.sharedTokens[index], this.state.cancelToken)
-                .then((res) => {
-                    this.state.repositories[index] = res;
-                    this.setState(this.state);
-                })
+
+                const repositories = await API.getSharedRepositories(this.state.sharedTokens[index], this.state.cancelToken)
+                this.state.repositories[index] = repositories;
+                this.setState(this.state);
             }
         }
         this.setState(this.state)
@@ -74,16 +73,15 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         this.state.repositories[this.state.sharedTokens.length - 1] = []
         this.setState(this.state);
     }
-    deleteToken(token: string) {
-        API.deleteToken(token, this.state.cancelToken)
-        .then(() => {
-            const index = this.state.sharedTokens.indexOf(token, 0);
-            if (index > -1) {
-                this.state.activeTokenIndex = -1;
-                this.state.sharedTokens.splice(index, 1);
-                this.setState(this.state);
-            }
-        });
+    async deleteToken(token: string) {
+        
+        await API.deleteToken(token, this.state.cancelToken)
+        const index = this.state.sharedTokens.indexOf(token, 0);
+        if (index > -1) {
+            this.state.activeTokenIndex = -1;
+            this.state.sharedTokens.splice(index, 1);
+            this.setState(this.state);
+        }
     }
     render() {
         return (

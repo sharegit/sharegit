@@ -46,46 +46,36 @@ export default class Repository extends React.Component<IProps, IState> {
         this.queryServer();
     }
 
-    queryTree(uri: string) {
-        API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-            .then((res: RepoObj[]) => {
-                this.state.objects = res.sort((a: RepoObj, b: RepoObj) => {
-                    if (a.type == b.type)
-                        return a.path.localeCompare(b.path);
-                    else if (a.type == 'tree' && b.type == 'blob')
-                        return -1;
-                    else if (a.type == 'blob' && b.type == 'tree')
-                        return 1;
+    async queryTree(uri: string) {
+        const repoTree = await API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+            
+        this.state.objects = repoTree.sort((a: RepoObj, b: RepoObj) => {
+            if (a.type == b.type)
+                return a.path.localeCompare(b.path);
+            else if (a.type == 'tree' && b.type == 'blob')
+                return -1;
+            else if (a.type == 'blob' && b.type == 'tree')
+                return 1;
 
-                    return 0;
-                });
-                this.setState(this.state);
+            return 0;
+        });
+        this.setState(this.state);
 
-                const readme = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
-                if (readme != undefined) {
-                    return API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readme.path, this.state.cancelToken);
-                } else {
-                    return undefined;
-                }
-            })
-            .then((readme) => {
-                if (readme != undefined) {
-                    this.state.readme = readme;
-                    this.setState(this.state);
-                }
-            })
-            .catch(() => {
-            });
+        const readmeFile = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
+        
+        if(readmeFile != undefined) {
+
+            const readme = await API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
+        
+            this.state.readme = readme;
+            this.setState(this.state);
+        }
     }
-    queryBlob(uri: string) {
-        API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-            .then((res: BlobResult) => {
-                this.state.blob = res;
-                this.setState(this.state);
-            })
-            .catch(() => {
-                console.log('Error!');
-            });
+    async queryBlob(uri: string) {
+        const blob = await API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+
+        this.state.blob = blob;
+        this.setState(this.state);
     }
 
     queryServer() {

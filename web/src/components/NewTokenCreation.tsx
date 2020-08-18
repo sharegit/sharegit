@@ -31,26 +31,25 @@ export default class NewTokenCreation extends React.Component<IProps> {
         this.state.isOpen = false;
         this.setState(this.state);
     }
-    create() {
-        API.createToken({
+    async create() {
+        const newToken = await API.createToken({
             Stamp: this.state.stamp,
             Repositories: this.state.selectedRepositories
         }, this.state.cancelToken)
-        .then((res) => {
-            this.props.tokenCreatedCallback(res.data);
-            this.state.stamp = Date.now().toString();
-            this.setState(this.state);
-        });
+        
+        this.props.tokenCreatedCallback(newToken);
+        this.state.stamp = Date.now().toString();
+        this.setState(this.state);
         this.close()
     }
-    componentDidMount() {
-        API.getMyRepos(this.state.cancelToken)
-        .then((res) => {
-            this.state.repositories = [...res];
-            // Assume everything selected
-            this.state.selectedRepositories = [...res];
-            this.setState(this.state);
-        });
+    async componentDidMount() {
+        const myRepos = await API.getMyRepos(this.state.cancelToken)
+        
+        this.state.repositories = [...myRepos];
+        // Assume everything selected
+        this.state.selectedRepositories = [...myRepos];
+        this.setState(this.state);
+
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();

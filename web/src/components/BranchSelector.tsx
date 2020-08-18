@@ -26,16 +26,14 @@ export default class BranchSelector extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
     }
-    componentDidMount() {
+    async componentDidMount() {
         this.state.current = this.props.current;
         // Assume the branch we're trying to display is a valid branch to avoid popping
         this.state.branches = [this.props.current];
         this.setState(this.state);
-        API.getBranches(this.props.user, this.props.repo, this.state.cancelToken)
-        .then((res) => {
-            this.state.branches = res;
-            this.setState(this.state);
-        })
+        const branches = await API.getBranches(this.props.user, this.props.repo, this.state.cancelToken)
+        this.state.branches = branches;
+        this.setState(this.state);
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();
