@@ -123,7 +123,10 @@ export default class NewTokenCreation extends React.Component<IProps> {
                 </Modal.Content>
                 <Modal.Actions>
                     <Button color='yellow' onClick={this.close.bind(this)}>Cancel</Button>
-                    <Button onClick={this.create.bind(this)}>Create!</Button>
+                    {this.state.selectedRepositories.length > 0 ? 
+                        <Button onClick={this.create.bind(this)}>Create!</Button>
+                    :   <Button disabled >Create!</Button>
+                    }
                 </Modal.Actions>
             </Modal>
         )

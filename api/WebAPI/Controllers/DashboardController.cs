@@ -71,6 +71,11 @@ namespace WebAPI.Controllers
         [HttpPost("createtoken")]
         public async Task<IActionResult> CreateToken([FromBody] CreateToken createToken)
         {
+            if(createToken.Repositories.Length == 0)
+            {
+                return new BadRequestResult();
+            }
+
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
             if(user.SharedTokens.Any(x=>x.Stamp == createToken.Stamp))
