@@ -56,6 +56,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
             this.state.activeTokenIndex = -1;
         else 
             this.state.activeTokenIndex = newIndex;
+        this.setState(this.state)
         
         if(this.state.activeTokenIndex >= 0) {
             if(this.state.repositories[this.state.activeTokenIndex].length == 0) {
@@ -66,7 +67,6 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                 this.setState(this.state);
             }
         }
-        this.setState(this.state)
     }
     addToken(token: string) {
         this.state.sharedTokens.push(token);
@@ -74,7 +74,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         this.setState(this.state);
     }
     async deleteToken(token: string) {
-        
+
         await API.deleteToken(token, this.state.cancelToken)
         const index = this.state.sharedTokens.indexOf(token, 0);
         if (index > -1) {
@@ -99,7 +99,9 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                     <Accordion.Title
                                         active={this.state.activeTokenIndex == index}
                                         index={index}
-                                        onClick={this.handleClick.bind(this)}>
+                                        onClick={async (event, data) => {
+                                            await this.handleClick(event, data)
+                                        }}>
                                         <Icon name='dropdown' />
                                         {token}
                                     </Accordion.Title>
