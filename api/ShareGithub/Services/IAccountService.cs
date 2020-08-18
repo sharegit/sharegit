@@ -6,8 +6,8 @@ namespace ShareGithub.Services
 {
     public interface IAccountService
     {
-        Task<GithubAPIResponse> AuthUserWithGithub(string code, string state);
-        Task<GithubAPIResponse> RefreshAuthWithGithub(string refreshToken);
-        Task<GithubAPIResponse> GetUserInfo(GithubUserAccess accessToken);
+        Task<GithubAPIResponse<GithubWebFlowAccessToken>> AuthUserWithGithub(string code, string state);
+        Task<GithubAPIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken);
+        Task<GithubAPIResponse<GithubUserInfo>> GetUserInfo(GithubUserAccess accessToken);
     }
 }

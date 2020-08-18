@@ -79,16 +79,14 @@ namespace WebAPI.Controllers
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
             dynamic repository = JObject.Parse(repositoryResponse.RAW);
-            string trees_url = repository.trees_url;
-            trees_url = trees_url.Replace(@"{/sha}", $"/{sha}");
 
-            var treeResponse = await RepositoryService.GetRepositoryTree(trees_url, accessToken, true);
+            var treeResponse = await RepositoryService.GetRepositoryTree(user, repo, sha, accessToken, true);
             dynamic tree = JObject.Parse(treeResponse.RAW);
             uri = uri?.TrimEnd('/') ?? "";
             if(uri.Any())
                 uri += '/';
             List<dynamic> results = new List<dynamic>();
-            var commitFetshes = new List<Task<GithubAPIResponse>>();
+            var commitFetshes = new List<Task<GithubAPIResponse<GithubCommit[]>>>();
             foreach (dynamic node in tree.tree)
             {
                 string path = node.path;
@@ -159,10 +157,8 @@ namespace WebAPI.Controllers
 
             var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
             dynamic repository = JObject.Parse(repositoryResponse.RAW);
-            string trees_url = repository.trees_url;
-            trees_url = trees_url.Replace(@"{/sha}", @"/master");
 
-            var treeResponse = await RepositoryService.GetRepositoryTree(trees_url, accessToken, false);
+            var treeResponse = await RepositoryService.GetRepositoryTree(user, repo, "master", accessToken, false);
 
             //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
             string rawresponse = treeResponse.RAW;
