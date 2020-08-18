@@ -58,12 +58,20 @@ export default class NewTokenCreation extends React.Component<IProps> {
             return s.owner == r.owner && s.repo == r.repo && s.provider == r.provider;
         }) != undefined;
     }
+    removeAllRepositorySelection(): void {
+        this.state.selectedRepositories = [];
+        this.setState(this.state);
+    }
     removeRepositorySelection(r: SharedRepository): void {
         const index = this.state.selectedRepositories.indexOf(r, 0);
         if (index > -1) {
             this.state.selectedRepositories.splice(index, 1);
             this.setState(this.state);
         }
+    }
+    addAllRepositorySelection(): void {
+        this.state.selectedRepositories = [...this.state.repositories];
+        this.setState(this.state);
     }
     addRepositorySelection(r: SharedRepository): void {
         const index = this.state.selectedRepositories.indexOf(r, 0);
@@ -83,7 +91,12 @@ export default class NewTokenCreation extends React.Component<IProps> {
                 <Modal.Content>
                     <Modal.Header>Available repositories</Modal.Header>
                     <Modal.Description>
-                    
+                    <Button onClick={() => {
+                        this.removeAllRepositorySelection();
+                    }}>Remove All</Button>
+                    <Button onClick={() => {
+                        this.addAllRepositorySelection();
+                    }}>Add All</Button>
                     <List divided relaxed>
                         {
                             this.state.repositories
