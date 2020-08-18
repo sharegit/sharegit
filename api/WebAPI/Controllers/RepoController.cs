@@ -10,7 +10,6 @@ using Jose;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.OpenSsl;
@@ -36,13 +35,11 @@ namespace WebAPI.Controllers
             var accessToken = await RepositoryService.GetAccess(user);
 
             var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
-            dynamic branches = JArray.Parse(branchesResponse.RAW);
 
             List<string> results = new List<string>();
-            foreach (dynamic branch in branches)
+            foreach (var branch in branchesResponse.Value)
             {
-                string branchName = branch.name;
-                results.Add(branchName);
+                results.Add(branch.Name);
             }
 
             string rawresponse = JsonConvert.SerializeObject(results);
@@ -56,13 +53,12 @@ namespace WebAPI.Controllers
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
-            var contentResponse = await RepositoryService.GetContent(user, repo, sha, uri, accessToken);
-            dynamic content = JObject.Parse(contentResponse.RAW);
+            var content = await RepositoryService.GetContent(user, repo, sha, uri, accessToken);
 
             var result = new
             {
-                file = content.path,
-                content = content.content
+                file = content.Value.Path,
+                content = content.Value.Content
             };
 
             string rawresponse = JsonConvert.SerializeObject(result);
@@ -77,19 +73,15 @@ namespace WebAPI.Controllers
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
-            var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
-            dynamic repository = JObject.Parse(repositoryResponse.RAW);
-
-            var treeResponse = await RepositoryService.GetRepositoryTree(user, repo, sha, accessToken, true);
-            dynamic tree = JObject.Parse(treeResponse.RAW);
+            var tree = await RepositoryService.GetRepositoryTree(user, repo, sha, accessToken, true);
             uri = uri?.TrimEnd('/') ?? "";
             if(uri.Any())
                 uri += '/';
             List<dynamic> results = new List<dynamic>();
             var commitFetshes = new List<Task<GithubAPIResponse<GithubCommit[]>>>();
-            foreach (dynamic node in tree.tree)
+            foreach (var node in tree.Value.Tree)
             {
-                string path = node.path;
+                string path = node.Path;
                 if (path.StartsWith(uri))
                 {
                     var prefixRemoved = path.Remove(0, uri.Length);
@@ -100,8 +92,8 @@ namespace WebAPI.Controllers
                         // It is in this folder
                         if (nextSlash == -1)
                         {
-                            string type = node.type;
-                            string nodeSha = node.sha;
+                            string type = node.Type;
+                            string nodeSha = node.Sha;
 
                             commitFetshes.Add(RepositoryService.GetCommits(user, repo, sha, path, accessToken, 1, 1));
                             results.Add(new
@@ -122,16 +114,10 @@ namespace WebAPI.Controllers
             for(int i = 0; i < commitFetshes.Count;i++)
             {
                 var commitsResponse = await commitFetshes[i];
-                dynamic commitsJA = JArray.Parse(commitsResponse.RAW);
-                dynamic lastCommit = null;
-                foreach (var commit in commitsJA)
-                {
-                    lastCommit = commit;
-                    break;
-                }
-                string lastmodifydate = lastCommit.commit.author.date;
-                string lastmodifycommitmessage = lastCommit.commit.message;
-                string author = lastCommit.commit.author.name;
+                var latestCommit = commitsResponse.Value.First();
+                string lastmodifydate = latestCommit.Commit.Author.Date;
+                string lastmodifycommitmessage = latestCommit.Commit.Message;
+                string author = latestCommit.Commit.Author.Name;
 
                 results[i] = new
                 {
@@ -154,9 +140,6 @@ namespace WebAPI.Controllers
         public async Task<ContentResult> GetRepo(string user, string repo)
         {
             var accessToken = await RepositoryService.GetAccess(user);
-
-            var repositoryResponse = await RepositoryService.GetInstallationRepository(user, repo, accessToken);
-            dynamic repository = JObject.Parse(repositoryResponse.RAW);
 
             var treeResponse = await RepositoryService.GetRepositoryTree(user, repo, "master", accessToken, false);
 

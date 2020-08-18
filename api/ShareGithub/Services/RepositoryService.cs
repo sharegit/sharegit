@@ -84,33 +84,21 @@ namespace ShareGithub
 
         public async Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
-            var installationsReponse = await GetUserInstallations(userAccessToken);
-            dynamic installations = JObject.Parse(installationsReponse.RAW);
-            var ids = new List<int>();
-            foreach (var installation in installations.installations)
-            {
-                int id = installation.id;
-                ids.Add(id);
-            }
-
+            var installations = await GetUserInstallations(userAccessToken);
+            
             var repos = new List<GithubRepo>();
-            foreach (var id in ids)
+            foreach (var installation in installations.Value.Installations)
             {
-                var installationAccess = await GetAccess(id);
-                var installationRepositoriesResponse = await GetInstallationRepositories(installationAccess);
-                dynamic installationRepositories = JObject.Parse(installationRepositoriesResponse.RAW);
+                var installationAccess = await GetAccess(installation.Id);
+                var installationRepositories = await GetInstallationRepositories(installationAccess);
 
-                foreach (var repo in installationRepositories.repositories)
+                foreach (var repo in installationRepositories.Value.Repositories)
                 {
-                    string name = repo.name;
-                    string owner = repo.owner.login;
-                    string description = repo.description;
-
                     repos.Add(new GithubRepo()
                     {
-                        Repo = name,
-                        Owner = owner,
-                        Description = description
+                        Repo = repo.Name,
+                        Owner = repo.Owner.Login,
+                        Description = repo.Description
                     });
                 }
             }

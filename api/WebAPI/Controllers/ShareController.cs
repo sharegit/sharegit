@@ -44,25 +44,23 @@ namespace WebAPI.Controllers
                 var owners = accessibleRepositories.GroupBy(x => x.Owner).Select(x => x.Key).Distinct();
                 List<SharedRepository> sharedRepositories = new List<SharedRepository>();
 
-                foreach(var owner in owners)
+                foreach (var owner in owners)
                 {
                     var ownerAccess = await RepositoryService.GetAccess(owner);
 
                     var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess);
-                    dynamic repositories = Newtonsoft.Json.Linq.JObject.Parse(repositoriesResponse.RAW);
-                    foreach (dynamic rep in repositories.repositories)
+                    foreach (var rep in repositoriesResponse.Value.Repositories)
                     {
-                        string n = rep.name;
-                        string o = rep.owner.login;
-                        string d = rep.description;
-
-                        if (accessibleRepositories.Any(x => x.Repo == n && x.Provider == "github" && x.Owner == o))
+                        if (accessibleRepositories.Any(x =>
+                            x.Repo == rep.Name
+                         && x.Provider == "github"
+                         && x.Owner == rep.Owner.Login))
                             sharedRepositories.Add(new SharedRepository()
                             {
-                                Description = d,
-                                Owner = o,
+                                Description = rep.Description,
+                                Owner = rep.Owner.Login,
                                 Provider = "github",
-                                Repo = n
+                                Repo = rep.Name
                             });
                     }
                 }
