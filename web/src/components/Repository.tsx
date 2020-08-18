@@ -105,6 +105,7 @@ export default class Repository extends React.Component<IProps, IState> {
                     <div className="clear"></div>
                     <div id={styles.branch}>
                         <BranchSelector
+                            key={`${this.state.sha}`}
                             user={this.props.user}
                             repo={this.props.repo}
                             current={this.state.sha}
@@ -112,7 +113,7 @@ export default class Repository extends React.Component<IProps, IState> {
                                 this.state.sha = newValue;
                                 this.setState(this.state);
                                 
-                                this.props.history.push(`/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                                this.props.history.push(`/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
                                 this.queryServer();
                             }}>
                         </BranchSelector>
