@@ -164,25 +164,5 @@ namespace WebAPI.Controllers
             string rawresponse = treeResponse.RAW;
             return Content(rawresponse, "application/json");
         }
-
-        [HttpGet("{user}")]
-        [Produces("application/json")]
-        public async Task<ContentResult> GetReposOf(string user)
-        {
-            var access = await RepositoryService.GetAccess(user);
-
-            var repositoriesResponse = await RepositoryService.GetInstallationRepositories(access);
-            dynamic repositories = JObject.Parse(repositoriesResponse.RAW);
-            List<string> repositoryUrls = new List<string>();
-            foreach (dynamic rep in repositories.repositories)
-            {
-                string name = rep.html_url;
-                repositoryUrls.Add(name);
-            }
-
-            //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            string rawresponse = repositoriesResponse.RAW;
-            return Content(rawresponse, "application/json");
-        }
     }
 }

@@ -136,10 +136,6 @@ export default class API {
         return result.data;
     }
 
-    static async getRepositories(owner: string, cancelToken: CancelToken): Promise<RepositoriesResponse> {
-        const request = `${config.apiUrl}/repo/${owner}`;
-        return await this.getData<RepositoriesResponse>(request, cancelToken);
-    }
     static async getBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<String[]> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/branches`;
         return await this.getData<String[]>(request, cancelToken);

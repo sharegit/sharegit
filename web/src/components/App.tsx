@@ -1,5 +1,4 @@
 import React from 'react';
-import Repositories, {IRepositoriesProps} from './Repositories';
 import Repository, {IProps as IRepositoryProps} from './Repository';
 import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
 import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
@@ -76,11 +75,6 @@ export default class App extends React.Component<IProps, IState> {
                 key={props.match.params.uri}
                 {...props} 
                 {...props.match.params}/>
-                )}></Route>
-
-              <Route path="/repo/:user" exact component={(props: IRepositoriesProps) => (
-                <Repositories
-                user={props.match.params.user} />
                 )}></Route>
 
               <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
