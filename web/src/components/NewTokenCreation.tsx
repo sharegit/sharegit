@@ -38,6 +38,8 @@ export default class NewTokenCreation extends React.Component<IProps> {
         }, this.state.cancelToken)
         .then((res) => {
             this.props.tokenCreatedCallback(res.data);
+            this.state.stamp = Date.now().toString();
+            this.setState(this.state);
         });
         this.close()
     }
