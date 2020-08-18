@@ -9,6 +9,7 @@ interface IProps extends RouteComponentProps<any>  {
 export default class Logout extends React.Component<IProps> {
     componentDidMount() {
         localStorage.removeItem('OAuthJWT');
+        localStorage.removeItem('OAuthJWT-exp');
         this.props.logout();
         this.props.history.push('/');
     }

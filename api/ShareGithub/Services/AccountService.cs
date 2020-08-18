@@ -24,7 +24,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<GithubAPIResponse<GithubWebFlowAccessToken>> AuthUserWithGithub(string code, string state)
         {
-            return await FetchGithubAPI<GithubWebFlowAccessToken>(
+            return await FetchGithub<GithubWebFlowAccessToken>(
                 "/login/oauth/access_token", HttpMethod.Post, null,
                 ("client_id", GithubAppSettings.Value.ClientId),
                 ("client_secret", RollingEnv.Get("SHARE_GITHUB_CLIENT_SECRET")),
@@ -37,7 +37,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<GithubAPIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken)
         {
-            return await FetchGithubAPI<GithubWebFlowAccessToken>(
+            return await FetchGithub<GithubWebFlowAccessToken>(
                 "/login/oauth/access_token",
                 HttpMethod.Post,
                 null,

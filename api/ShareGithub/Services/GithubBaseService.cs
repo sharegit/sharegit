@@ -15,6 +15,7 @@ namespace ShareGithub.Services
     public abstract class GithubBaseService
     {
         private const string GITHUB_API = "https://api.github.com";
+        private const string GITHUB = "https://github.com";
 
         /// <summary>
         /// https://docs.github.com/en/rest/reference/apps#get-a-user-installation-for-the-authenticated-app
@@ -49,40 +50,34 @@ namespace ShareGithub.Services
 
         public async Task<GithubAppAccess> GetAccess(string user)
         {
-            var installationResponse = await GetInstallation(user);
-            dynamic installation = Newtonsoft.Json.Linq.JObject.Parse(installationResponse.RAW);
-            string accessTokensUrl = installation.access_tokens_url;
-            int installationid = installation.id;
-
-            var accessTokensResponse = await GetAccessToken(installationid);
-            dynamic accessTokens = Newtonsoft.Json.Linq.JObject.Parse(accessTokensResponse.RAW);
-            string accessToken = accessTokens.token;
-
-            return new GithubAppAccess()
-            {
-                InstallationId = installationid,
-                AccessToken = accessToken
-            };
+            var installation = await GetInstallation(user);
+            return await GetAccess(installation.Value.Id);
         }
         public async Task<GithubAppAccess> GetAccess(int installationId)
         {
-            var accessTokensResponse = await GetAccessToken(installationId);
-            dynamic accessTokens = JObject.Parse(accessTokensResponse.RAW);
-            string accessToken = accessTokens.token;
+            var accessToken = await GetAccessToken(installationId);
 
             return new GithubAppAccess()
             {
                 InstallationId = installationId,
-                AccessToken = accessToken
+                AccessToken = accessToken.Value.Token
             };
         }
 
         protected async Task<GithubAPIResponse<T>> FetchGithubAPI<T>(string url, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
         {
+            return await Fetch<T>($"{GITHUB_API}{url}", method, authMode, queryOptions);
+        }
+        protected async Task<GithubAPIResponse<T>> FetchGithub<T>(string url, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
+        {
+            return await Fetch<T>($"{GITHUB}{url}", method, authMode, queryOptions);
+        }
+        protected async Task<GithubAPIResponse<T>> Fetch<T>(string fullUrl, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
+        {
             GithubAPIResponse<T> githubAPIResponse = new GithubAPIResponse<T>();
             using (var httpClient = new HttpClient())
             {
-                var uriBuilder = new UriBuilder($"{GITHUB_API}{url}");
+                var uriBuilder = new UriBuilder($"{fullUrl}");
                 var query = HttpUtility.ParseQueryString(uriBuilder.Query);
                 foreach (var queryOption in queryOptions)
                 {
