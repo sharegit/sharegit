@@ -156,8 +156,8 @@ export default class Repository extends React.Component<IProps, IState> {
                                 user={this.props.user}
                                 repo={this.props.repo}
                                 sha={this.state.sha}
-                                lastCommitMessage={r.lastmodifycommitmessage}
-                                lastModifyDate={r.lastmodifydate}
+                                lastCommitMessage={r.lastModifyCommitMessage}
+                                lastModifyDate={r.lastModifyDate}
                                 author={r.author}
                                 path={r.path}
                                 type={r.type}>

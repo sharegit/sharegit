@@ -38,8 +38,8 @@ export interface TreeNode {
     type: 'tree' | 'blob';
     sha: string;
     author: string;
-    lastmodifydate: string;
-    lastmodifycommitmessage: string;
+    lastModifyDate: string;
+    lastModifyCommitMessage: string;
 }
 export interface AuthResult {
     token: string;
