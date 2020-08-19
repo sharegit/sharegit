@@ -1,11 +1,11 @@
 import React from 'react';
 import { Modal, Button, List, Icon } from 'semantic-ui-react';
-import API, { SharedRepository } from '../models/API';
+import API, { SharedRepository, SharedToken } from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import RepositoryCard from './RepositoryCard';
 
 interface IProps {
-    tokenCreatedCallback: (token: string) => void;
+    tokenCreatedCallback: (token: SharedToken) => void;
 }
 
 interface IState extends BaseState {

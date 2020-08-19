@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Core.APIModels;
 using Core.Model;
 using Core.Model.Github;
 using Jose;
@@ -30,46 +31,37 @@ namespace WebAPI.Controllers
 
         [HttpGet("{user}/{repo}/branches")]
         [Produces("application/json")]
-        public async Task<ContentResult> GetRepoBranches(string user, string repo)
+        public async Task<ActionResult<IEnumerable<Branch>>> GetRepoBranches(string user, string repo)
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
             var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
 
-            List<string> results = new List<string>();
-            foreach (var branch in branchesResponse.Value)
+            return branchesResponse.Value.Select(x => new Branch()
             {
-                results.Add(branch.Name);
-            }
-
-            string rawresponse = JsonConvert.SerializeObject(results);
-            //string rawresponse = branchesResponse;
-            return Content(rawresponse, "application/json");
+                Name = x.Name
+            }).ToList();
         }
 
         [HttpGet("{user}/{repo}/blob/{sha}/{**uri}")]
         [Produces("application/json")]
-        public async Task<ContentResult> GetRepoBlob(string user, string repo, string sha, string uri)
+        public async Task<ActionResult<BlobResult>> GetRepoBlob(string user, string repo, string sha, string uri)
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
             var content = await RepositoryService.GetContent(user, repo, sha, uri, accessToken);
 
-            var result = new
+            return new BlobResult()
             {
-                file = content.Value.Path,
-                content = content.Value.Content
+                File = content.Value.Path,
+                Content = content.Value.Content
             };
-
-            string rawresponse = JsonConvert.SerializeObject(result);
-            //string rawresponse = contentResponse.RAW;
-            return Content(rawresponse, "application/json");
         }
 
         [HttpGet("{user}/{repo}/tree/{sha}/{**uri}")]
         [Produces("application/json")]
-        // TODO: Refactor with https://docs.github.com/en/rest/reference/repos#contents
-        public async Task<ActionResult<object>> GetRepo(string user, string repo, string sha, string uri)
+        // TODO: remove recursive repository tree, save the current sha at each depth and get only the tree relative to the previous tree sha
+        public async Task<ActionResult<TreeResult>> GetRepo(string user, string repo, string sha, string uri)
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
@@ -77,7 +69,7 @@ namespace WebAPI.Controllers
             uri = uri?.TrimEnd('/') ?? "";
             if(uri.Any())
                 uri += '/';
-            List<dynamic> results = new List<dynamic>();
+            var nodes = new List<TreeResult.TreeNode>();
             var commitFetshes = new List<Task<GithubAPIResponse<GithubCommit[]>>>();
             foreach (var node in tree.Value.Tree)
             {
@@ -96,11 +88,11 @@ namespace WebAPI.Controllers
                             string nodeSha = node.Sha;
 
                             commitFetshes.Add(RepositoryService.GetCommits(user, repo, sha, path, accessToken, 1, 1));
-                            results.Add(new
+                            nodes.Add(new TreeResult.TreeNode()
                             {
-                                path = path,
-                                type = type,
-                                sha = nodeSha
+                                Path = path,
+                                Type = type,
+                                Sha = nodeSha
                             });
                         }
                         // There are more folders to go
@@ -115,37 +107,16 @@ namespace WebAPI.Controllers
             {
                 var commitsResponse = await commitFetshes[i];
                 var latestCommit = commitsResponse.Value.First();
-                string lastmodifydate = latestCommit.Commit.Author.Date;
-                string lastmodifycommitmessage = latestCommit.Commit.Message;
-                string author = latestCommit.Commit.Author.Name;
 
-                results[i] = new
-                {
-                    path = results[i].path,
-                    type = results[i].type,
-                    sha = results[i].sha,
-                    author = author,
-                    lastmodifydate = lastmodifydate,
-                    lastmodifycommitmessage = lastmodifycommitmessage,
-                };
+                nodes[i].Author = latestCommit.Commit.Author.Name;
+                nodes[i].LastModifyDate = latestCommit.Commit.Author.Date;
+                nodes[i].LastModifyCommitMessage = latestCommit.Commit.Message;
             }
 
-            //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            //string rawresponse = JsonConvert.SerializeObject(results);
-            return new OkObjectResult(results);
-        }
-
-        [HttpGet("{user}/{repo}")]
-        [Produces("application/json")]
-        public async Task<ContentResult> GetRepo(string user, string repo)
-        {
-            var accessToken = await RepositoryService.GetAccess(user);
-
-            var treeResponse = await RepositoryService.GetRepositoryTree(user, repo, "master", accessToken, false);
-
-            //string rawresponse = JsonConvert.SerializeObject(repositoryUrls);
-            string rawresponse = treeResponse.RAW;
-            return Content(rawresponse, "application/json");
+            return new TreeResult()
+            {
+                TreeNodes = nodes.ToArray()
+            };
         }
     }
 }

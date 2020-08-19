@@ -82,11 +82,11 @@ namespace ShareGithub
                 ("ref", sha));
         }
 
-        public async Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
+        public async Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
             var installations = await GetUserInstallations(userAccessToken);
             
-            var repos = new List<GithubRepo>();
+            var repos = new List<GithubRepository>();
             foreach (var installation in installations.Value.Installations)
             {
                 var installationAccess = await GetAccess(installation.Id);
@@ -94,15 +94,10 @@ namespace ShareGithub
 
                 foreach (var repo in installationRepositories.Value.Repositories)
                 {
-                    repos.Add(new GithubRepo()
-                    {
-                        Repo = repo.Name,
-                        Owner = repo.Owner.Login,
-                        Description = repo.Description
-                    });
+                    repos.Add(repo);
                 }
             }
-            return repos;
+            return repos.ToArray();
         }
 
 

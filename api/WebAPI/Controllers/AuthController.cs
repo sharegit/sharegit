@@ -1,4 +1,5 @@
-﻿using Core.Model.Github;
+﻿using Core.APIModels;
+using Core.Model.Github;
 using Core.Util;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -35,7 +36,7 @@ namespace WebAPI.Controllers
         [HttpGet("refreshtoken")]
         [Produces("application/json")]
         [Authorize(AuthenticationSchemes = "jwt")]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<ActionResult<JWTResponse>> RefreshToken()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
@@ -67,15 +68,15 @@ namespace WebAPI.Controllers
 
             var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
 
-            return new OkObjectResult(new
+            return new JWTResponse()
             {
-                token = jwt,
-                exp = accessTokenExp
-            });
+                Token = jwt,
+                Exp = accessTokenExp
+            };
         }
         [HttpGet("{code}/{state}")]
         [Produces("application/json")]
-        public async Task<IActionResult> Auth(string code, string state)
+        public async Task<ActionResult<JWTResponse>> Auth(string code, string state)
         {
             var userAccess = await AccountService.AuthUserWithGithub(code, state);
             string accessToken = userAccess.Value.AccessToken;
@@ -132,11 +133,11 @@ namespace WebAPI.Controllers
 
             var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
 
-            return new OkObjectResult(new
+            return new JWTResponse()
             {
-                token = jwt,
-                exp = accessTokenExp
-            });
+                Token = jwt,
+                Exp = accessTokenExp
+            };
         }
     }
 }

@@ -15,7 +15,7 @@ namespace ShareGithub
         Task<GithubAPIResponse<GithubCommit[]>> GetCommits(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess, int page = 0, int per_page = 0);
         Task<GithubAPIResponse<GithubContent>> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess);
         Task<GithubAPIResponse<GithubUserInstallations>> GetUserInstallations(GithubUserAccess userAccessToken);
-        Task<IEnumerable<GithubRepo>> GetUserInstallationRepositories(GithubUserAccess userAccessToken);
+        Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken);
         Task<GithubAppAccess> GetAccess(string user);
     }
 }

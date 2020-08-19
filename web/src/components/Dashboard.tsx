@@ -1,7 +1,7 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { BaseState } from '../models/BaseComponent';
-import API, { SharedRepository } from '../models/API';
+import API, { SharedRepository, SharedToken } from '../models/API';
 import { List, Accordion, Icon, AccordionTitleProps, Button, Modal } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import NewTokenCreation from './NewTokenCreation';
@@ -9,7 +9,7 @@ import config from '../config';
 
 interface IState extends BaseState {
     name: string;
-    sharedTokens: string[];
+    sharedTokens: SharedToken[];
     activeTokenIndex: number;
     repositories: { [K in number]: SharedRepository[] };
 }
@@ -62,20 +62,20 @@ export default class Dashboard extends React.Component<IProps, IState>  {
             if(this.state.repositories[this.state.activeTokenIndex].length == 0) {
                 const index = this.state.activeTokenIndex
 
-                const repositories = await API.getSharedRepositories(this.state.sharedTokens[index], this.state.cancelToken)
+                const repositories = await API.getSharedRepositories(this.state.sharedTokens[index].token, this.state.cancelToken)
                 this.state.repositories[index] = repositories;
                 this.setState(this.state);
             }
         }
     }
-    addToken(token: string) {
+    addToken(token: SharedToken) {
         this.state.sharedTokens.push(token);
         this.state.repositories[this.state.sharedTokens.length - 1] = []
         this.setState(this.state);
     }
-    async deleteToken(token: string) {
+    async deleteToken(token: SharedToken) {
 
-        await API.deleteToken(token, this.state.cancelToken)
+        await API.deleteToken(token.token, this.state.cancelToken)
         const index = this.state.sharedTokens.indexOf(token, 0);
         if (index > -1) {
             this.state.activeTokenIndex = -1;
@@ -94,8 +94,8 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                 <Accordion fluid styled>
                     {
                         this.state.sharedTokens
-                            .map((token : string, index: number) => 
-                                <div key={token}>
+                            .map((token : SharedToken, index: number) => 
+                                <div key={token.token}>
                                     <Accordion.Title
                                         active={this.state.activeTokenIndex == index}
                                         index={index}
@@ -103,11 +103,11 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                             await this.handleClick(event, data)
                                         }}>
                                         <Icon name='dropdown' />
-                                        {token}
+                                        {token.token}
                                     </Accordion.Title>
                                     <Accordion.Content active={this.state.activeTokenIndex == index}>
                                         <Button onClick={() =>{
-                                            navigator.clipboard.writeText(`${config.share_uri}/${token}`);
+                                            navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
                                         }}>Copy link</Button>
                                         <Button onClick={()=>{
                                             this.deleteToken(token)
@@ -117,7 +117,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                             {
                                                 this.state.repositories[index]
                                                     .map((r : SharedRepository) =>
-                                                        <RepositoryCard key={`${r.repo}_${token}`}
+                                                        <RepositoryCard key={`${r.repo}_${token.token}`}
                                                                         link={`/repo/${r.owner}/${r.repo}/tree/master/`}
                                                                         name={r.repo}
                                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}

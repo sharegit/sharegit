@@ -26,17 +26,20 @@ export interface RepositoriesResponse {
     total_count: number;
     repositories: Repository[];
 }
-
-export interface RepoObj {
-    type: 'tree' | 'blob';
-    path: string;
-    author: string;
-    lastmodifydate: string;
-    lastmodifycommitmessage: string;
-}
 export interface BlobResult {
     file: string;
     content: string;
+}
+export interface TreeResult {
+    treeNodes: TreeNode[];
+}
+export interface TreeNode {
+    path: string;
+    type: 'tree' | 'blob';
+    sha: string;
+    author: string;
+    lastmodifydate: string;
+    lastmodifycommitmessage: string;
 }
 export interface AuthResult {
     token: string;
@@ -45,6 +48,13 @@ export interface AuthResult {
 export interface DashboardResponse {
     name: string;
 }
+export interface SharedToken {
+    token: string;
+}
+export interface Branch {
+    name: string;
+}
+
 
 export default class API {
     static aquireNewCancelToken(): CancelToken {
@@ -136,13 +146,13 @@ export default class API {
         return result.data;
     }
 
-    static async getBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<String[]> {
+    static async getBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/branches`;
-        return await this.getData<String[]>(request, cancelToken);
+        return await this.getData<Branch[]>(request, cancelToken);
     }
-    static async getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<RepoObj[]> {
+    static async getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeResult> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/tree/${sha}/${uri}`;
-        return await this.getData<RepoObj[]>(request, cancelToken);
+        return await this.getData<TreeResult>(request, cancelToken);
     }
     static async getRepoBlob(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/blob/${sha}/${uri}`;
@@ -160,20 +170,20 @@ export default class API {
         const request = `${config.apiUrl}/dashboard`;
         return await this.getData<DashboardResponse>(request, cancelToken);
     }
-    static async getSharedTokens(cancelToken: CancelToken): Promise<string[]> {
+    static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
         const request = `${config.apiUrl}/dashboard/tokens`;
-        return await this.getData<string[]>(request, cancelToken);
+        return await this.getData<SharedToken[]>(request, cancelToken);
     }
     static async getMyRepos(cancelToken: CancelToken): Promise<SharedRepository[]> {
         const request = `${config.apiUrl}/dashboard/repos`;
         return await this.getData<SharedRepository[]>(request, cancelToken);
     }
-    static async createToken(tokenCreation: any, cancelToken: CancelToken): Promise<string> {
+    static async createToken(tokenCreation: any, cancelToken: CancelToken): Promise<SharedToken> {
         const request = `${config.apiUrl}/dashboard/createtoken`;
-        return (await this.post<string>(request, tokenCreation, cancelToken)).data;
+        return (await this.post<SharedToken>(request, tokenCreation, cancelToken)).data;
     }
     static async deleteToken(token: string, cancelToken: CancelToken): Promise<any> {
         const request = `${config.apiUrl}/dashboard/deletetoken/${token}`;
-        return await this.post<string[]>(request, {}, cancelToken);
+        return await this.post<any>(request, {}, cancelToken);
     }
 }

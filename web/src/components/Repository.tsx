@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import FileViewer from './FileViewer/FileViewer';
 import { List } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
-import API, { RepoObj, BlobResult } from '../models/API';
+import API, { BlobResult, TreeNode } from '../models/API';
 import Path from './Path';
 import styles from '../styles/Repository.scss';
 
@@ -20,7 +20,7 @@ export interface IProps extends RouteComponentProps<any> {
 }
 
 interface IState extends BaseState {
-    objects: RepoObj[];
+    objects: TreeNode[];
     sha: string;
     blob?: BlobResult;
     readme?: BlobResult;
@@ -48,8 +48,8 @@ export default class Repository extends React.Component<IProps, IState> {
 
     async queryTree(uri: string) {
         const repoTree = await API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-            
-        this.state.objects = repoTree.sort((a: RepoObj, b: RepoObj) => {
+        const repoNodes = repoTree.treeNodes
+        this.state.objects = repoNodes.sort((a: TreeNode, b: TreeNode) => {
             if (a.type == b.type)
                 return a.path.localeCompare(b.path);
             else if (a.type == 'tree' && b.type == 'blob')
@@ -150,7 +150,7 @@ export default class Repository extends React.Component<IProps, IState> {
             return (
                 <div id={styles.tree}>
                     <List divided relaxed>
-                        {this.state.objects.map((r: RepoObj) =>
+                        {this.state.objects.map((r: TreeNode) =>
                             <RepoListElement
                                 key={r.path + this.state.sha}
                                 user={this.props.user}

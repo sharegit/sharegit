@@ -65,7 +65,7 @@ namespace WebAPI.Controllers
                     }
                 }
 
-                return new OkObjectResult(sharedRepositories);
+                return sharedRepositories;
             }
             else
             {

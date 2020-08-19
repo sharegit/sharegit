@@ -40,28 +40,31 @@ namespace WebAPI.Controllers
 
         [HttpGet()]
         [Produces("application/json")]
-        public async Task<IActionResult> Get()
+        public async Task<ActionResult<EssentialDashboardInfo>> GetEssentialDashboardInfo()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            return new OkObjectResult(new
+            return new EssentialDashboardInfo()
             {
-                name = user.Name
-            });
+                Name = user.Name
+            };
         }
 
         [HttpGet("tokens")]
         [Produces("application/json")]
-        public async Task<IActionResult> GetTokens()
+        public async Task<ActionResult<IEnumerable<Core.APIModels.SharedToken>>> GetTokens()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            return new OkObjectResult(user.SharedTokens.Select(x => x.Token));
+            return user.SharedTokens.Select(x => new Core.APIModels.SharedToken()
+            {
+                Token = x.Token
+            }).ToList();
         }
 
         [HttpGet("repos")]
         [Produces("application/json")]
-        public async Task<IActionResult> GetRepos()
+        public async Task<ActionResult<IEnumerable<SharedRepository>>> GetRepos()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
@@ -71,19 +74,28 @@ namespace WebAPI.Controllers
                 UserId = user.Id
             };
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
-            return new OkObjectResult(repos);
+
+            return repos.Select(x =>
+                new SharedRepository()
+                {
+                    Description = x.Description,
+                    Owner = x.Owner.Login,
+                    Provider = "github",
+                    Repo = x.Name
+                }
+            ).ToList();
         }
         [HttpPost("createtoken")]
-        public async Task<IActionResult> CreateToken([FromBody] CreateToken createToken)
+        public async Task<ActionResult<Core.APIModels.SharedToken>> CreateToken([FromBody] CreateToken createToken)
         {
-            if(createToken.Repositories.Length == 0)
+            if (createToken.Repositories.Length == 0)
             {
                 return new BadRequestResult();
             }
 
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            if(user.SharedTokens.Any(x=>x.Stamp == createToken.Stamp))
+            if (user.SharedTokens.Any(x => x.Stamp == createToken.Stamp))
             {
                 return new BadRequestResult();
             }
@@ -94,7 +106,7 @@ namespace WebAPI.Controllers
                 UserId = user.Id
             };
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
-            if (createToken.Repositories.Any(c => !repos.Any(r => c.Owner == r.Owner && c.Repo == r.Repo)))
+            if (createToken.Repositories.Any(c => !repos.Any(r => c.Owner == r.Owner.Login && c.Repo == r.Name)))
             {
                 return new ForbidResult();
             }
@@ -109,7 +121,7 @@ namespace WebAPI.Controllers
                 var share = new Share()
                 {
                     Token = Base64UrlTextEncoder.Encode(tokenData),
-                    AccessibleRepositories = createToken.Repositories.Select(x=>new Repository()
+                    AccessibleRepositories = createToken.Repositories.Select(x => new Repository()
                     {
                         Owner = x.Owner,
                         Provider = "github",
@@ -117,7 +129,7 @@ namespace WebAPI.Controllers
                     }).ToArray()
                 };
 
-                user.SharedTokens.Add(new SharedToken()
+                user.SharedTokens.Add(new ShareGithub.Models.SharedToken()
                 {
                     Token = share.Token,
                     Stamp = createToken.Stamp
@@ -125,7 +137,10 @@ namespace WebAPI.Controllers
                 ShareRepository.Create(share);
                 AccountRepository.Update(user.Id, user);
 
-                return new OkObjectResult(share.Token);
+                return new Core.APIModels.SharedToken()
+                {
+                    Token = share.Token
+                };
             }
         }
         [HttpPost("deletetoken/{token}")]
@@ -137,7 +152,7 @@ namespace WebAPI.Controllers
             {
                 user.SharedTokens.RemoveAll(x => x.Token == token);
                 var share = ShareRepository.Find(x => x.Token == token);
-                if(share != null)
+                if (share != null)
                     ShareRepository.Remove(share.Id);
                 AccountRepository.Update(user.Id, user);
                 return new OkResult();

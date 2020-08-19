@@ -1,9 +1,9 @@
 import React from 'react'
 import { Dropdown, DropdownItemProps } from 'semantic-ui-react'
-import API, { CancelToken } from '../models/API';
+import API, { CancelToken, Branch } from '../models/API';
 
 interface IState {
-    branches: String[];
+    branches: Branch[];
     cancelToken: CancelToken;
     current: string;
 }
@@ -29,7 +29,7 @@ export default class BranchSelector extends React.Component<IProps, IState> {
     async componentDidMount() {
         this.state.current = this.props.current;
         // Assume the branch we're trying to display is a valid branch to avoid popping
-        this.state.branches = [this.props.current];
+        this.state.branches = [ {name: this.props.current} ];
         this.setState(this.state);
         const branches = await API.getBranches(this.props.user, this.props.repo, this.state.cancelToken)
         this.state.branches = branches;
@@ -60,7 +60,7 @@ export default class BranchSelector extends React.Component<IProps, IState> {
                         }
                       }
                       options={
-                          this.state.branches.map((item, _) => ({text: item, value: item} as DropdownItemProps))
+                          this.state.branches.map((branch) => ({text: branch.name, value: branch.name} as DropdownItemProps))
                       }
             />
         )
