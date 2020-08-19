@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import FileViewer from './FileViewer/FileViewer';
 import { List } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
-import API, { BlobResult, TreeNode } from '../models/API';
+import API, { BlobResult, TreeNode, TreeResult } from '../models/API';
 import Path from './Path';
 import styles from '../styles/Repository.scss';
 
@@ -24,6 +24,7 @@ interface IState extends BaseState {
     sha: string;
     blob?: BlobResult;
     readme?: BlobResult;
+    tree: { [K in string]: TreeResult };
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -32,6 +33,7 @@ export default class Repository extends React.Component<IProps, IState> {
         objects: [],
         cancelToken: API.aquireNewCancelToken(),
         sha: '',
+        tree: {}
     }
 
     constructor(props: IProps) {
@@ -48,17 +50,19 @@ export default class Repository extends React.Component<IProps, IState> {
 
     async queryTree(uri: string) {
         const repoTree = await API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-        const repoNodes = repoTree.treeNodes
-        this.state.objects = repoNodes.sort((a: TreeNode, b: TreeNode) => {
+        repoTree.sort((a: TreeNode, b: TreeNode) => {
             if (a.type == b.type)
                 return a.path.localeCompare(b.path);
-            else if (a.type == 'tree' && b.type == 'blob')
+            else if ((a.type == 'tree' || a.type == 'dir') && (b.type == 'blob' || b.type == 'file'))
                 return -1;
-            else if (a.type == 'blob' && b.type == 'tree')
+            else if ((a.type == 'blob' || a.type == 'file') && (b.type == 'tree' || b.type == 'dir'))
                 return 1;
 
             return 0;
         });
+      //  this.state.tree[uri] = repoTree
+        this.state.objects = repoTree;
+        console.log(repoTree);
         this.setState(this.state);
 
         const readmeFile = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));

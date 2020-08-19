@@ -7,18 +7,32 @@ interface IProps {
     repo: string;
     sha: string;
     path: string;
-    type: 'tree' | 'blob';
+    type: 'tree' | 'blob' | 'dir' | 'file';
     lastCommitMessage: string;
     lastModifyDate: string;
     author: string;
 }
 
-interface IState {}
+interface IState {
+    type: 'tree' | 'blob'
+}
 
 export default class RepoListElement extends React.Component<IProps, IState> {
-
+    state: IState = {
+        type: 'tree'
+    }
     constructor(props: IProps) {
         super(props)
+        switch(props.type) {
+            case 'tree':
+            case 'dir':
+                this.state.type = 'tree';
+                break;
+            case 'file':
+            case 'blob':
+                this.state.type = 'blob';
+                break;
+        }
     }
 
     render() {
@@ -40,10 +54,10 @@ export default class RepoListElement extends React.Component<IProps, IState> {
     renderSlot(path: string) {
         return (
             <List.Item>
-                <List.Icon name={this.typeToIcon(this.props.type)} size='large' verticalAlign='middle'>
+                <List.Icon name={this.typeToIcon(this.state.type)} size='large' verticalAlign='middle'>
                 </List.Icon>
                 <List.Content>
-                    <Link to={`/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.props.sha}/${this.props.path}/`} >
+                    <Link to={`/repo/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}/`} >
                     <List.Header>
                         <span>{path}</span>
                         &nbsp;

@@ -16,5 +16,6 @@ namespace Core.APIModels
             public string LastModifyCommitMessage { get; set; }
         }
         public TreeNode[] TreeNodes { get; set; }
+        public string Sha { get; set; }
     }
 }

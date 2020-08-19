@@ -81,6 +81,17 @@ namespace ShareGithub
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));
         }
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/repos#get-repository-content
+        /// </summary>
+        public async Task<GithubAPIResponse<GithubContent[]>> GetDirectoryContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
+        {
+            return await FetchGithubAPI<GithubContent[]>(
+                $"/repos/{owner}/{repo}/contents/{uri}",
+                HttpMethod.Get,
+                new InstallationGithubAuth(installationAccess),
+                ("ref", sha));
+        }
 
         public async Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {

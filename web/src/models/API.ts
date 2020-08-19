@@ -35,7 +35,7 @@ export interface TreeResult {
 }
 export interface TreeNode {
     path: string;
-    type: 'tree' | 'blob';
+    type: 'tree' | 'blob' | 'file' | 'dir';
     sha: string;
     author: string;
     lastModifyDate: string;
@@ -150,9 +150,9 @@ export default class API {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/branches`;
         return await this.getData<Branch[]>(request, cancelToken);
     }
-    static async getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeResult> {
+    static async getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/tree/${sha}/${uri}`;
-        return await this.getData<TreeResult>(request, cancelToken);
+        return await this.getData<TreeNode[]>(request, cancelToken);
     }
     static async getRepoBlob(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/blob/${sha}/${uri}`;

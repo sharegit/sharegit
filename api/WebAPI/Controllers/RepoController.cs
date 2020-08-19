@@ -58,65 +58,23 @@ namespace WebAPI.Controllers
             };
         }
 
+        /// <summary>
+        /// Has a limit of 1000 files per directory
+        /// </summary>
         [HttpGet("{user}/{repo}/tree/{sha}/{**uri}")]
         [Produces("application/json")]
-        // TODO: remove recursive repository tree, save the current sha at each depth and get only the tree relative to the previous tree sha
-        public async Task<ActionResult<TreeResult>> GetRepo(string user, string repo, string sha, string uri)
+        public async Task<ActionResult<IEnumerable<GithubContent>>> GetRepoTree(string user, string repo, string sha, string uri)
         {
             var accessToken = await RepositoryService.GetAccess(user);
 
-            var tree = await RepositoryService.GetRepositoryTree(user, repo, sha, accessToken, true);
-            uri = uri?.TrimEnd('/') ?? "";
-            if(uri.Any())
-                uri += '/';
-            var nodes = new List<TreeResult.TreeNode>();
-            var commitFetshes = new List<Task<GithubAPIResponse<GithubCommit[]>>>();
-            foreach (var node in tree.Value.Tree)
+            var tree = await RepositoryService.GetDirectoryContent(user, repo, sha, uri, accessToken);
+
+            return tree.Value.Select(x=>new GithubContent()
             {
-                string path = node.Path;
-                if (path.StartsWith(uri))
-                {
-                    var prefixRemoved = path.Remove(0, uri.Length);
-                    if (prefixRemoved.Length > 0)
-                    {
-                        int nextSlash = prefixRemoved.IndexOf('/');
-
-                        // It is in this folder
-                        if (nextSlash == -1)
-                        {
-                            string type = node.Type;
-                            string nodeSha = node.Sha;
-
-                            commitFetshes.Add(RepositoryService.GetCommits(user, repo, sha, path, accessToken, 1, 1));
-                            nodes.Add(new TreeResult.TreeNode()
-                            {
-                                Path = path,
-                                Type = type,
-                                Sha = nodeSha
-                            });
-                        }
-                        // There are more folders to go
-                        else
-                        {
-
-                        }
-                    }
-                }
-            }
-            for(int i = 0; i < commitFetshes.Count;i++)
-            {
-                var commitsResponse = await commitFetshes[i];
-                var latestCommit = commitsResponse.Value.First();
-
-                nodes[i].Author = latestCommit.Commit.Author.Name;
-                nodes[i].LastModifyDate = latestCommit.Commit.Author.Date;
-                nodes[i].LastModifyCommitMessage = latestCommit.Commit.Message;
-            }
-
-            return new TreeResult()
-            {
-                TreeNodes = nodes.ToArray()
-            };
+                Path = x.Path,
+                Sha = x.Sha,
+                Type = x.Type
+            }).ToArray();
         }
     }
 }
