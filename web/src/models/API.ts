@@ -72,12 +72,12 @@ export default class API {
     static mutex = new Mutex();
     static async checkJWT(cancelToken: CancelToken) {
         const exp = localStorage.getItem('OAuthJWT-exp')
-        if (exp != undefined && parseInt(exp) < new Date().getUTCDate()) {
+        if (exp != undefined && parseInt(exp) < new Date().getTime() / 1000) {
             console.log('YES')
             await this.mutex.dispatch(async () => {
                 console.log('IN_MUTEX')
-                const exp = localStorage.getItem('OAuthJWT-exp')
-                if (exp != undefined && parseInt(exp) < new Date().getUTCDate()) {
+                const exp2 = localStorage.getItem('OAuthJWT-exp')
+                if (exp2 != undefined && parseInt(exp2) < new Date().getTime() / 1000) {
                     console.log('REFRESHING_TOKEN')
                     const axiosConfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken);
                     const result = await axios.get<AuthResult>(`${config.apiUrl}/auth/refreshtoken`, axiosConfig);
