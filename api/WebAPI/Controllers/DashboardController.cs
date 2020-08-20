@@ -75,15 +75,24 @@ namespace WebAPI.Controllers
             };
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
 
-            return repos.Select(x =>
+            IEnumerable<Task<SharedRepository>> result = repos.Select(async x =>
                 new SharedRepository()
                 {
                     Description = x.Description,
                     Owner = x.Owner.Login,
                     Provider = "github",
-                    Repo = x.Name
+                    Repo = x.Name,
+                    Branches = (await RepositoryService.GetBranches(x.Owner.Login, x.Name, userAccess))
+                        .Value.Select(b =>
+                            new Branch()
+                            {
+                                Name = b.Name,
+                                Snapshot = false,
+                                Sha = false
+                            }).ToArray()
                 }
-            ).ToList();
+            );
+            return await Task.WhenAll(result);
         }
         [HttpPost("createtoken")]
         public async Task<ActionResult<Core.APIModels.SharedToken>> CreateToken([FromBody] CreateToken createToken)
@@ -118,15 +127,32 @@ namespace WebAPI.Controllers
 
                 // Get repositories available for user access token
 
+                async Task<string> TranslateBranch(string owner, string repo, Branch b)
+                {
+                    if(b.Snapshot && !b.Sha)
+                    {
+                        var commits = await RepositoryService.GetCommits(owner, repo, b.Name, "", userAccess, 0, 1);
+                        var latestCommit = commits.Value.First();
+                        return latestCommit.Sha;
+                    }
+                    else
+                    {
+                        return b.Name;
+                    }
+                }
+
+                var accessibleRepositories = createToken.Repositories.Select(async x => new Repository()
+                {
+                    Owner = x.Owner,
+                    Provider = "github",
+                    Repo = x.Repo,
+                    Branches = await ( Task.WhenAll(x.Branches.Select(async b => await TranslateBranch(x.Owner, x.Repo, b))))
+                });
+
                 var share = new Share()
                 {
                     Token = Base64UrlTextEncoder.Encode(tokenData),
-                    AccessibleRepositories = createToken.Repositories.Select(x => new Repository()
-                    {
-                        Owner = x.Owner,
-                        Provider = "github",
-                        Repo = x.Repo
-                    }).ToArray()
+                    AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
                 };
 
                 user.SharedTokens.Add(new ShareGithub.Models.SharedToken()

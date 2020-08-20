@@ -54,6 +54,16 @@ namespace ShareGithub
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess));
         }
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/repos#list-branches
+        /// </summary>
+        public async Task<GithubAPIResponse<GithubBranch[]>> GetBranches(string owner, string repo, GithubUserAccess userAccess)
+        {
+            return await FetchGithubAPI<GithubBranch[]>(
+                $"/repos/{owner}/{repo}/branches",
+                HttpMethod.Get,
+                new UserGithubAuth(userAccess));
+        }
 
         /// <summary>
         /// https://docs.github.com/en/rest/reference/repos#list-commits
@@ -64,6 +74,21 @@ namespace ShareGithub
                 $"/repos/{owner}/{repo}/commits",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
+                ("sha", sha),
+                ("path", uri),
+                ("page", page.ToString()),
+                ("per_page", per_page.ToString()));
+        }
+
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/repos#list-commits
+        /// </summary>
+        public async Task<GithubAPIResponse<GithubCommit[]>> GetCommits(string owner, string repo, string sha, string uri, GithubUserAccess installationAccess, int page = 0, int per_page = 0)
+        {
+            return await FetchGithubAPI<GithubCommit[]>(
+                $"/repos/{owner}/{repo}/commits",
+                HttpMethod.Get,
+                new UserGithubAuth(installationAccess),
                 ("sha", sha),
                 ("path", uri),
                 ("page", page.ToString()),

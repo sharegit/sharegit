@@ -1,5 +1,6 @@
 ﻿using Core.APIModels;
 using Jose;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
 using ShareGithub.Models;
@@ -15,7 +16,7 @@ namespace WebAPI.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class ShareController
+    public class ShareController : ControllerBase
     {
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         private IRepositoryService RepositoryService { get; }
@@ -25,6 +26,22 @@ namespace WebAPI.Controllers
         {
             ShareRepository = shareRepository;
             RepositoryService = repositoryService;
+        }
+        [HttpGet("branches/{owner}/{repo}")]
+        [Authorize(AuthenticationSchemes = "token")]
+        public async Task<ActionResult<IEnumerable<Branch>>> GetSharedBranches(string owner, string repo)
+        {
+            if (HttpContext.Items.ContainsKey("access"))
+            {
+                var repos = HttpContext.Items["access"] as ShareGithub.Models.Repository[];
+                var sharedRepo = repos.FirstOrDefault(x => x.Owner == owner && x.Repo == repo);
+                if (sharedRepo != null)
+                    return sharedRepo.Branches.Select(x => new Branch()
+                    {
+                        Name = x
+                    }).ToArray();
+            }
+            return new ForbidResult("token");
         }
         /// <summary>
         /// 
@@ -51,16 +68,18 @@ namespace WebAPI.Controllers
                     var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess);
                     foreach (var rep in repositoriesResponse.Value.Repositories)
                     {
-                        if (accessibleRepositories.Any(x =>
+                        var dbRepo = accessibleRepositories.FirstOrDefault(x =>
                             x.Repo == rep.Name
                          && x.Provider == "github"
-                         && x.Owner == rep.Owner.Login))
+                         && x.Owner == rep.Owner.Login);
+                        if (dbRepo != null)
                             sharedRepositories.Add(new SharedRepository()
                             {
                                 Description = rep.Description,
                                 Owner = rep.Owner.Login,
                                 Provider = "github",
-                                Repo = rep.Name
+                                Repo = rep.Name,
+                                Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                             });
                     }
                 }

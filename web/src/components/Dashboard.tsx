@@ -118,7 +118,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                                 this.state.repositories[index]
                                                     .map((r : SharedRepository) =>
                                                         <RepositoryCard key={`${r.repo}_${token.token}`}
-                                                                        link={`/repo/${r.owner}/${r.repo}/tree/master/`}
+                                                                        link={``}
                                                                         name={r.repo}
                                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                                         provider={r.provider}></RepositoryCard>

@@ -85,7 +85,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                             this.state.repositories
                                 .map((r : SharedRepository) =>
                                     <RepositoryCard key={r.repo}
-                                                    link={`/repo/${r.owner}/${r.repo}/tree/master/`}
+                                                    link={`/repo/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}/`}
                                                     name={r.repo}
                                                     description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                     provider={r.provider}></RepositoryCard>
@@ -95,6 +95,15 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 </div>
             </div>
         )
+    }
+    getPreferredSha(r: SharedRepository): string {
+        const master = r.branches.find(x=>x.name == 'master');
+        if(master != undefined) {
+            return master.name;
+        }
+        else {
+            return r.branches[0].name;
+        }
     }
     renderTokenValidity() {
         if(this.state.tokenValid == undefined) {
