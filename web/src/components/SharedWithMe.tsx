@@ -1,6 +1,6 @@
 import React from 'react'
 import { RouteComponentProps } from 'react-router';
-import { List } from 'semantic-ui-react';
+import { List, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import styles from '../styles/SharedWithMe.scss';
 import { Token, TokenRepo } from '../models/Tokens';
@@ -23,6 +23,17 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         const allTokensStr = localStorage.getItem("alltokens");
         if(allTokensStr != null) {
             this.state.tokens = JSON.parse(allTokensStr);
+            this.setState(this.state);
+        }
+    }
+    forget(token: string) {
+        const toForget = this.state.tokens.findIndex(x=>x.token == token);
+        if(toForget > -1) {
+            this.state.tokens.splice(toForget, 1);
+
+            const tokens = JSON.stringify(this.state.tokens);
+            localStorage.setItem("alltokens", tokens);
+            
             this.setState(this.state);
         }
     }
@@ -49,6 +60,9 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                             </span>
                                         ))}
                                     </List.Description>
+                                    <Button onClick={(e, d) => {
+                                        this.forget(token.token)
+                                    }}>Forget</Button>
                                 </List.Content>
                             </List.Item>
                             )
