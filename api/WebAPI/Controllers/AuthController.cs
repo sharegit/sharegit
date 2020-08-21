@@ -105,6 +105,7 @@ namespace WebAPI.Controllers
                 {
                     Login = login,
                     Name = name,
+                    DisplayName = name,
                     GithubId = github_id,
                     EncodedAccessToken = encodedAccessToken,
                     EncodedRefreshToken = encodedRefreshToken,

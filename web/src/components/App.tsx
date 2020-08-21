@@ -16,6 +16,7 @@ import styles from '../styles/App.scss';
 import highlight from 'highlight.js'
 import NavMenuItem from './NavMenuItem';
 import Logout from './Logout';
+import Settings from './Settings';
 highlight.configure({
   tabReplace: '    '
 })
@@ -53,6 +54,7 @@ export default class App extends React.Component<IProps, IState> {
               <div id={styles.rightMenu}>
                 <ul>
                   <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/auth">Login</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard/settings">Settings</NavMenuItem>
                   <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
                 </ul>
               </div>
@@ -106,6 +108,12 @@ export default class App extends React.Component<IProps, IState> {
                 <Logout logout={this.logout.bind(this)}
                 {...props}
                 {...props.match.params}/>
+              )}></Route>
+
+              <Route path="/dashboard/settings" exact component={(props: any) => (
+                <Settings
+                  {...props}
+                  {...props.match.params}/>
               )}></Route>
             </div>
           </Router>

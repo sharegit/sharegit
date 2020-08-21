@@ -50,6 +50,9 @@ export interface AuthResult {
 export interface DashboardResponse {
     name: string;
 }
+export interface SettingsReponse {
+    displayName?: string;
+}
 export interface SharedToken {
     token: string;
 }
@@ -144,6 +147,32 @@ export default class API {
             });
         });
     }
+    static async put<T = any>(request: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        console.log(`Requesting: ${request}`);
+
+        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
+        if (additionalConfig != undefined)
+            Object.assign(config, additionalConfig);
+        return new Promise<APIResponse<T>>((resolve, reject) => {
+            axios.put<T>(request, data, config)
+            .then((res: AxiosResponse<T>) => {
+                if(res.status >= 200 && res.status < 400) {
+                    console.log(`Got a response for ${request} (${res.status})`)
+                    resolve({
+                        data: res.data,
+                        statusCode: res.status
+                    })
+                } else {
+                    console.error(`Error while requesting ${request} ${res.status}`)
+                    reject();
+                }
+            })
+            .catch((error) => {
+                console.error(`Error while requesting ${request} ${error}`)
+                reject();
+            });
+        });
+    }
 
     static async getData<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
         const result = await this.get<T>(request, cancelToken)
@@ -177,6 +206,14 @@ export default class API {
     static async fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
         const request = `${config.apiUrl}/dashboard`;
         return await this.getData<DashboardResponse>(request, cancelToken);
+    }
+    static async getSettings(cancelToken: CancelToken): Promise<SettingsReponse> {
+        const request = `${config.apiUrl}/dashboard/settings`;
+        return await this.getData<SettingsReponse>(request, cancelToken);
+    }
+    static async updateSettings(newSettings: SettingsReponse, cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/dashboard/settings`;
+        return await this.put<any>(request, newSettings, cancelToken);
     }
     static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
         const request = `${config.apiUrl}/dashboard/tokens`;

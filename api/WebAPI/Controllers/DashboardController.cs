@@ -49,6 +49,33 @@ namespace WebAPI.Controllers
                 Name = user.Name
             };
         }
+        [HttpPut("settings")]
+        [Produces("application/json")]
+        public async Task<ActionResult<SettingsInfo>> SetSettingsInfo([FromBody] SettingsInfo newSettings)
+        {
+            // TODO: Validate user settings
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+
+            if(newSettings.DisplayName != null)
+            {
+                user.DisplayName = newSettings.DisplayName;
+            }
+
+            AccountRepository.Update(user.Id, user);
+            return new OkResult();
+        }
+        [HttpGet("settings")]
+        [Produces("application/json")]
+        public async Task<ActionResult<SettingsInfo>> GetSettingsInfo()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+            return new SettingsInfo()
+            {
+                DisplayName = user.DisplayName
+            };
+        }
 
         [HttpGet("tokens")]
         [Produces("application/json")]
