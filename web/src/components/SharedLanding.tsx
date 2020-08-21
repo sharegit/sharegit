@@ -5,6 +5,7 @@ import { BaseState } from '../models/BaseComponent';
 import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import styles from '../styles/SharedLanding.scss';
+import { Token } from '../models/Tokens';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -46,17 +47,34 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             this.state.author = sharedRepositories[0].owner;
             this.setState(this.state);
             
-            let tokens = localStorage.getItem("alltokens")
-            if (tokens == null){
-                tokens = `["${this.props.token}"]`;
-            } else {
-                let tokensObj = JSON.parse(tokens) as string[];
-                if(tokensObj.find(x => x == this.props.token) == undefined) {
-                    tokensObj.push(this.props.token);
-                    tokens = JSON.stringify(tokensObj);
-                }
+            const tokensStr = localStorage.getItem("alltokens")
+            let tokens: Token[] = []
+            if (tokensStr != null) {
+                tokens = JSON.parse(tokensStr);
             }
-            localStorage.setItem('alltokens', tokens)
+            
+            const existingToken = tokens.find(x=>x.token == this.props.token)
+            if(existingToken == undefined) {
+                tokens.push({
+                    author: this.state.author,
+                    token: this.props.token,
+                    repositories: sharedRepositories.map(x=>({
+                        name: x.repo,
+                        owner: x.owner,
+                        provider: x.provider
+                    }))
+                })
+            }
+            else {
+                existingToken.author = this.state.author;
+                existingToken.repositories = sharedRepositories.map(x=>({
+                    name: x.repo,
+                    owner: x.owner,
+                    provider: x.provider
+                }));
+            }
+            
+            localStorage.setItem('alltokens', JSON.stringify(tokens))
             localStorage.setItem('token', this.props.token)
         } catch {
             this.state.tokenValid = false;

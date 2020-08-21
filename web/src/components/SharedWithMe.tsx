@@ -3,12 +3,13 @@ import { RouteComponentProps } from 'react-router';
 import { List } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import styles from '../styles/SharedWithMe.scss';
+import { Token, TokenRepo } from '../models/Tokens';
 
 export interface IProps extends RouteComponentProps<any> {
 }
 
 interface IState {
-    tokens: string[];
+    tokens: Token[];
 }
 
 export default class SharedWithMe extends React.Component<IProps, IState> {
@@ -19,11 +20,9 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         super(props)
     }
     componentDidMount() {
-        let allTokens = localStorage.getItem("alltokens");
-        console.log(allTokens)
-        if(allTokens != null) {
-            this.state.tokens = JSON.parse(allTokens);
-            console.log(this.state.tokens)
+        const allTokensStr = localStorage.getItem("alltokens");
+        if(allTokensStr != null) {
+            this.state.tokens = JSON.parse(allTokensStr);
             this.setState(this.state);
         }
     }
@@ -37,12 +36,19 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                 <List divided relaxed>
                     {
                         this.state.tokens
-                            .map((token : string) =>
-                            <List.Item key={token}>
+                            .map((token : Token) =>
+                            <List.Item key={token.token}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/share/${token}`}>{token}</Link>
+                                        <Link to={`/share/${token.token}`}>{`${token.author}'s [${token.token}]`}</Link>
                                     </List.Header>
+                                    <List.Description>
+                                        {token.repositories.map((r:TokenRepo) => (
+                                            <span key={`${r.provider}/${r.owner}/${r.name}`}>
+                                                {`${r.owner}/${r.name}`}
+                                            </span>
+                                        ))}
+                                    </List.Description>
                                 </List.Content>
                             </List.Item>
                             )
