@@ -12,6 +12,6 @@ namespace ShareGithub.Models
         public string EncodedRefreshToken { get; set; }
         public long AccessTokenExp { get; set; }
         public long RefreshTokenExp { get; set; }
-        public List<SharedToken> SharedTokens { get; set; }
+        public List<SharedToken> SharedTokens { get; set; } = new List<SharedToken>();
     }
 }
