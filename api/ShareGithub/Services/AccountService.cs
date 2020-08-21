@@ -1,13 +1,9 @@
-﻿using Core.Model;
-using Core.Model.Github;
+﻿using Core.Model.Github;
 using Core.Util;
 using Microsoft.Extensions.Options;
 using ShareGithub.GithubAuth;
 using ShareGithub.Settings;
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ShareGithub.Services

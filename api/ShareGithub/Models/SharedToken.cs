@@ -7,7 +7,7 @@ namespace ShareGithub.Models
     {
         public string Token { get; set; }
         public string Stamp { get; set; }
-        
+
         [BsonRepresentation(BsonType.ObjectId)]
         public string SharingUserId { get; set; }
     }

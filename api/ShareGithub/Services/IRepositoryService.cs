@@ -1,5 +1,4 @@
 ﻿using Core.Model.Github;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ShareGithub

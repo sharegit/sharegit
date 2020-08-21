@@ -23,7 +23,7 @@ namespace WebAPI.Authentication
             : base(options, logger, encoder, clock)
         {
         }
-       // private static ConcurrentDictionary<string, object> locks = new ConcurrentDictionary<string, object>();
+        
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("jwt"))

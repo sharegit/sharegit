@@ -1,17 +1,14 @@
 ﻿using Core.APIModels;
 using Core.Model.Github;
 using Core.Util;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Services;
 using ShareGithub.Settings;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -93,7 +90,7 @@ namespace WebAPI.Controllers
             string login = user.Value.Login;
             string name = user.Value.Name;
             int github_id = user.Value.Id;
-            
+
             var existingUser = AccountRepository.Find(x => x.GithubId == github_id);
             var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
             var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));

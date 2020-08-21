@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Core.APIModels
+﻿namespace Core.APIModels
 {
     public class CreateToken
     {
@@ -13,6 +9,6 @@ namespace Core.APIModels
             public Branch[] Branches { get; set; }
         }
         public string Stamp { get; set; }
-        public Repository[] Repositories {get;set;}
+        public Repository[] Repositories { get; set; }
     }
 }

@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-using Core.APIModels;
-using Core.Model;
+﻿using Core.APIModels;
 using Core.Model.Github;
-using Jose;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.OpenSsl;
 using ShareGithub;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
@@ -69,7 +60,7 @@ namespace WebAPI.Controllers
 
             var tree = await RepositoryService.GetDirectoryContent(user, repo, sha, uri, accessToken);
 
-            return tree.Value.Select(x=>new GithubContent()
+            return tree.Value.Select(x => new GithubContent()
             {
                 Path = x.Path,
                 Sha = x.Sha,

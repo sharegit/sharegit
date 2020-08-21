@@ -1,6 +1,5 @@
 ﻿using Core.Model.Github;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using ShareGithub.GithubAuth;
 using System;

@@ -1,6 +1,4 @@
-﻿using ShareGithub;
-
-namespace ShareGithub.Settings
+﻿namespace ShareGithub.Settings
 {
     public class AccountDatabaseSettings : DatabaseSettingsBase
     {

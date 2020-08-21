@@ -1,15 +1,12 @@
 ﻿using Core.APIModels;
-using Jose;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Settings;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers

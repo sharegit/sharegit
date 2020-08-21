@@ -1,5 +1,4 @@
 ﻿using Core.Model.Github;
-using Newtonsoft.Json.Linq;
 using ShareGithub.GithubAuth;
 using ShareGithub.Services;
 using System.Collections.Generic;
@@ -121,7 +120,7 @@ namespace ShareGithub
         public async Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
             var installations = await GetUserInstallations(userAccessToken);
-            
+
             var repos = new List<GithubRepository>();
             foreach (var installation in installations.Value.Installations)
             {

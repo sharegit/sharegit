@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ShareGithub.Models
+﻿namespace ShareGithub.Models
 {
     public class Share : DbItemBase
     {

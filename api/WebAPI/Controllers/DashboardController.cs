@@ -6,12 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
-using ShareGithub.GithubAuth;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
-using ShareGithub.Services;
 using ShareGithub.Settings;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -57,7 +54,7 @@ namespace WebAPI.Controllers
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
 
-            if(newSettings.DisplayName != null)
+            if (newSettings.DisplayName != null)
             {
                 user.DisplayName = newSettings.DisplayName;
             }
@@ -156,7 +153,7 @@ namespace WebAPI.Controllers
 
                 async Task<string> TranslateBranch(string owner, string repo, Branch b)
                 {
-                    if(b.Snapshot && !b.Sha)
+                    if (b.Snapshot && !b.Sha)
                     {
                         var commits = await RepositoryService.GetCommits(owner, repo, b.Name, "", userAccess, 0, 1);
                         var latestCommit = commits.Value.First();
@@ -173,12 +170,13 @@ namespace WebAPI.Controllers
                     Owner = x.Owner,
                     Provider = "github",
                     Repo = x.Repo,
-                    Branches = await ( Task.WhenAll(x.Branches.Select(async b => await TranslateBranch(x.Owner, x.Repo, b))))
+                    Branches = await (Task.WhenAll(x.Branches.Select(async b => await TranslateBranch(x.Owner, x.Repo, b))))
                 });
-                
+
                 var share = new Share()
                 {
-                    Token = new ShareGithub.Models.SharedToken() {
+                    Token = new ShareGithub.Models.SharedToken()
+                    {
                         Token = Base64UrlTextEncoder.Encode(tokenData),
                         SharingUserId = user.Id,
                         Stamp = null
