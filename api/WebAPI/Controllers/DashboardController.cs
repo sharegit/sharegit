@@ -175,16 +175,20 @@ namespace WebAPI.Controllers
                     Repo = x.Repo,
                     Branches = await ( Task.WhenAll(x.Branches.Select(async b => await TranslateBranch(x.Owner, x.Repo, b))))
                 });
-
+                
                 var share = new Share()
                 {
-                    Token = Base64UrlTextEncoder.Encode(tokenData),
+                    Token = new ShareGithub.Models.SharedToken() {
+                        Token = Base64UrlTextEncoder.Encode(tokenData),
+                        SharingUserId = user.Id,
+                        Stamp = null
+                    },
                     AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
                 };
 
                 user.SharedTokens.Add(new ShareGithub.Models.SharedToken()
                 {
-                    Token = share.Token,
+                    Token = share.Token.Token,
                     Stamp = createToken.Stamp
                 });
                 ShareRepository.Create(share);
@@ -192,7 +196,8 @@ namespace WebAPI.Controllers
 
                 return new Core.APIModels.SharedToken()
                 {
-                    Token = share.Token
+                    Token = share.Token.Token,
+                    DisplayName = user.DisplayName
                 };
             }
         }
@@ -204,7 +209,7 @@ namespace WebAPI.Controllers
             if (user.SharedTokens.Any(x => x.Token == token))
             {
                 user.SharedTokens.RemoveAll(x => x.Token == token);
-                var share = ShareRepository.Find(x => x.Token == token);
+                var share = ShareRepository.Find(x => x.Token.Token == token);
                 if (share != null)
                     ShareRepository.Remove(share.Id);
                 AccountRepository.Update(user.Id, user);

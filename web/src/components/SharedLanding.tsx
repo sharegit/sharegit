@@ -42,9 +42,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             const sharedRepositories = await API.getSharedRepositories(this.props.token, this.state.cancelToken)
             
             this.state.tokenValid = true;
-            this.state.repositories = sharedRepositories;
-            if(sharedRepositories.length > 0)
-            this.state.author = sharedRepositories[0].owner;
+            this.state.repositories = sharedRepositories.repositories;
+            if(sharedRepositories.repositories.length > 0)
+            this.state.author = sharedRepositories.author;
             this.setState(this.state);
             
             const tokensStr = localStorage.getItem("alltokens")
@@ -58,7 +58,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 tokens.push({
                     author: this.state.author,
                     token: this.props.token,
-                    repositories: sharedRepositories.map(x=>({
+                    repositories: sharedRepositories.repositories.map(x=>({
                         name: x.repo,
                         owner: x.owner,
                         provider: x.provider
@@ -67,7 +67,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             }
             else {
                 existingToken.author = this.state.author;
-                existingToken.repositories = sharedRepositories.map(x=>({
+                existingToken.repositories = sharedRepositories.repositories.map(x=>({
                     name: x.repo,
                     owner: x.owner,
                     provider: x.provider

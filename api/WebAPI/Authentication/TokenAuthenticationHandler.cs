@@ -38,7 +38,7 @@ namespace WebAPI.Authentication
 
             var token = Request.Headers["token"].ToString();
 
-            var validatedToken = ShareRepository.Find(x => x.Token == token);
+            var validatedToken = ShareRepository.Find(x => x.Token.Token == token);
             if (validatedToken != null)
             {
                 var claims = new[]

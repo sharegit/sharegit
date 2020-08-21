@@ -10,7 +10,10 @@ export interface CancelToken {
     token: AxiosCancelToken,
     cancel: () => void
 }
-
+export interface SharedRepositories {
+    repositories: SharedRepository[];
+    author: string;
+}
 export interface SharedRepository {
     owner: string;
     repo: string;
@@ -195,9 +198,9 @@ export default class API {
         const request = `${config.apiUrl}/repo/${owner}/${repo}/blob/${sha}/${uri}`;
         return await this.getData<BlobResult>(request, cancelToken);
     }
-    static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepository[]> {
+    static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {
         const request = `${config.apiUrl}/share/${token}`;
-        return await this.getData<SharedRepository[]>(request, cancelToken);
+        return await this.getData<SharedRepositories>(request, cancelToken);
     }
     static async auth(code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
         const request = `${config.apiUrl}/auth/${code}/${state}`;

@@ -19,12 +19,15 @@ namespace WebAPI.Controllers
     public class ShareController : ControllerBase
     {
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
+        private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IRepositoryService RepositoryService { get; }
 
         public ShareController(IRepositoryService repositoryService,
+            IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             ShareRepository = shareRepository;
+            AccountRepository = accountRepository;
             RepositoryService = repositoryService;
         }
         [HttpGet("branches/{owner}/{repo}")]
@@ -49,10 +52,11 @@ namespace WebAPI.Controllers
         /// <param name="token"></param>
         [HttpGet("{token}")]
         [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<SharedRepository>>> GetList(string token)
+        public async Task<ActionResult<SharedRepositories>> GetList(string token)
         {
-            var share = ShareRepository.Find(x => x.Token == token);
-            if (share != null)
+            var share = ShareRepository.Find(x => x.Token.Token == token);
+            var user = AccountRepository.Get(share.Token.SharingUserId);
+            if (share != null && user != null)
             {
                 var accessibleRepositories = share.AccessibleRepositories;
 
@@ -84,7 +88,11 @@ namespace WebAPI.Controllers
                     }
                 }
 
-                return sharedRepositories;
+                return new SharedRepositories()
+                {
+                    Author = user.DisplayName,
+                    Repositories = sharedRepositories
+                };
             }
             else
             {

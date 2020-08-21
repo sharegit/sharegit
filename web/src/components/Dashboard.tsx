@@ -63,7 +63,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                 const index = this.state.activeTokenIndex
 
                 const repositories = await API.getSharedRepositories(this.state.sharedTokens[index].token, this.state.cancelToken)
-                this.state.repositories[index] = repositories;
+                this.state.repositories[index] = repositories.repositories;
                 this.setState(this.state);
             }
         }
