@@ -14,8 +14,8 @@ namespace WebAPI.Controllers
     [Authorize(AuthenticationSchemes = "token")]
     public class RepoController : ControllerBase
     {
-        private IRepositoryService RepositoryService { get; }
-        public RepoController(IRepositoryService repositoryService)
+        private IRepositoryServiceGithub RepositoryService { get; }
+        public RepoController(IRepositoryServiceGithub repositoryService)
         {
             RepositoryService = repositoryService;
         }

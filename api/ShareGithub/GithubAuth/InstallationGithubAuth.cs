@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace ShareGithub.GithubAuth
 {
-    class InstallationGithubAuth : GithubAuthMode
+    class InstallationGithubAuth : AuthMode
     {
         private GithubAppAccess installationToken;
         public InstallationGithubAuth(GithubAppAccess installationAccess)

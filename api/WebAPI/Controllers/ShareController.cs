@@ -17,9 +17,9 @@ namespace WebAPI.Controllers
     {
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
-        private IRepositoryService RepositoryService { get; }
+        private IRepositoryServiceGithub RepositoryService { get; }
 
-        public ShareController(IRepositoryService repositoryService,
+        public ShareController(IRepositoryServiceGithub repositoryService,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {

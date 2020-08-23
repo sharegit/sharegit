@@ -1,6 +1,6 @@
 ﻿namespace ShareGithub.GithubAuth
 {
-    abstract public class GithubAuthMode
+    abstract public class AuthMode
     {
         public abstract void AddAuthHeader(System.Net.Http.Headers.HttpRequestHeaders headers);
     }

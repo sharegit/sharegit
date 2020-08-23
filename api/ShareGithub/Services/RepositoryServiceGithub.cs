@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShareGithub
 {
-    public class RepositoryService : GithubBaseService, IRepositoryService
+    public class RepositoryServiceGithub : GithubBaseService, IRepositoryServiceGithub
     {
         /// <summary>
         /// https://docs.github.com/en/rest/reference/apps#list-repositories-accessible-to-the-app-installation

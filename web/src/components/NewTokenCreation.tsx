@@ -161,7 +161,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                                         deselected={this.isSelected(r) ? undefined : true}
                                                         name={r.repo}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                        provider='github'>
+                                                        provider={r.provider}>
                                                             {this.isSelected(r) ?
                                                                 <div>
 

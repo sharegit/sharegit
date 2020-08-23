@@ -1,5 +1,6 @@
 ﻿using Core.APIModels;
 using Core.Model.Github;
+using Core.Model.GitLab;
 using Core.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -20,12 +21,15 @@ namespace WebAPI.Controllers
     public class AuthController : ControllerBase
     {
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
-        private IAccountService AccountService { get; }
+        private IAccountServiceGithub AccountServiceGH { get; }
+        private IAccountServiceGitlab AccountServiceGL { get; }
 
-        public AuthController(IAccountService accountService,
+        public AuthController(IAccountServiceGithub accountServiceGH,
+            IAccountServiceGitlab accountServiceGL,
             IRepository<Account, AccountDatabaseSettings> accountRepository)
         {
-            AccountService = accountService;
+            AccountServiceGH = accountServiceGH;
+            AccountServiceGL = accountServiceGL;
             AccountRepository = accountRepository;
         }
 
@@ -44,7 +48,7 @@ namespace WebAPI.Controllers
             {
                 string oldRefreshToken = JWT.Decode<string>(user.GithubConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
 
-                var refresh = await AccountService.RefreshAuthWithGithub(oldRefreshToken);
+                var refresh = await AccountServiceGH.RefreshAuthWithGithub(oldRefreshToken);
                 if (refresh.Value.AccessToken != null)
                 {
                     string accessToken = refresh.Value.AccessToken;
@@ -92,11 +96,86 @@ namespace WebAPI.Controllers
                 return new ForbidResult();
             }
         }
+        [HttpGet("gitlab/{code}/{state}")]
+        [Produces("application/json")]
+        public async Task<ActionResult<JWTResponse>> AuthGitlab(string code, string state)
+        {
+            var userAccess = await AccountServiceGL.AuthUserWithGitlab(code, state);
+
+            string accessToken = userAccess.Value.AccessToken;
+            long accessTokenExpIn = userAccess.Value.ExpiresIn;
+            string refreshToken = userAccess.Value.RefreshToken;
+
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var accessTokenExp = DateTimeOffset.UtcNow.AddYears(999).ToUnixTimeSeconds();
+
+
+            var githubUserAccess = new GitlabUserAccess()
+            {
+                AccessToken = accessToken,
+                UserId = null
+            };
+            var user = await AccountServiceGL.GetUserInfo(githubUserAccess);
+
+            string login = user.Value.Login;
+            string name = user.Value.Name;
+            string email = user.Value.Email;
+            int gitlab_id = user.Value.Id;
+
+            var existingUser = AccountRepository.Find(x => x.GitlabConnection?.GitlabId == gitlab_id);
+            if (existingUser == null)
+            {
+                existingUser = new Account()
+                {
+                    Name = name,
+                    DisplayName = name,
+                    Email = email,
+                    GitlabConnection = new GitlabConnectedService()
+                    {
+                        Login = login,
+                        GitlabId = gitlab_id,
+                        EncodedAccessToken = encodedAccessToken,
+                        EncodedRefreshToken = encodedRefreshToken,
+                        AccessTokenExp = accessTokenExp
+                    }
+                };
+                existingUser = AccountRepository.Create(existingUser);
+            }
+            else
+            {
+                existingUser.GitlabConnection = new GitlabConnectedService()
+                {
+                    Login = login,
+                    GitlabId = gitlab_id,
+                    EncodedAccessToken = encodedAccessToken,
+                    EncodedRefreshToken = encodedRefreshToken,
+                    AccessTokenExp = accessTokenExp
+                };
+                AccountRepository.Update(existingUser.Id, existingUser);
+            }
+
+
+            var payload = new
+            {
+                iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                exp = accessTokenExp,
+                id = existingUser.Id
+            };
+
+            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+
+            return new JWTResponse()
+            {
+                Token = jwt,
+                Exp = accessTokenExp
+            };
+        }
         [HttpGet("github/{code}/{state}")]
         [Produces("application/json")]
-        public async Task<ActionResult<JWTResponse>> Auth(string code, string state)
+        public async Task<ActionResult<JWTResponse>> AuthGithub(string code, string state)
         {
-            var userAccess = await AccountService.AuthUserWithGithub(code, state);
+            var userAccess = await AccountServiceGH.AuthUserWithGithub(code, state);
 
             string accessToken = userAccess.Value.AccessToken;
             long accessTokenExpIn = userAccess.Value.ExpiresIn;
@@ -114,7 +193,7 @@ namespace WebAPI.Controllers
                 AccessToken = accessToken,
                 UserId = null
             };
-            var user = await AccountService.GetUserInfo(githubUserAccess);
+            var user = await AccountServiceGH.GetUserInfo(githubUserAccess);
 
             string login = user.Value.Login;
             string name = user.Value.Name;

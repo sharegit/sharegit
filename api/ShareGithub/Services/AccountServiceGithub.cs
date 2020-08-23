@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace ShareGithub.Services
 {
-    public class AccountService : GithubBaseService, IAccountService
+    public class AccountServiceGithub : GithubBaseService, IAccountServiceGithub
     {
         IOptions<GithubAppSettings> GithubAppSettings { get; }
-        public AccountService(IOptions<GithubAppSettings> githubAppSettings)
+        public AccountServiceGithub(IOptions<GithubAppSettings> githubAppSettings)
         {
             GithubAppSettings = githubAppSettings;
         }
@@ -28,6 +28,7 @@ namespace ShareGithub.Services
                 ("state", state),
                 ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
         }
+
         /// <summary>
         /// https://docs.github.com/en/developers/apps/refreshing-user-to-server-access-tokens#renewing-a-user-token-with-a-refresh-token
         /// </summary>

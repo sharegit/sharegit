@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace ShareGithub.GithubAuth
 {
-    public class UserGithubAuth : GithubAuthMode
+    public class UserGithubAuth : AuthMode
     {
         private GithubUserAccess UserAccess { get; }
         public UserGithubAuth(GithubUserAccess userAccess)

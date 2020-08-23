@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace ShareGithub
 {
-    public interface IRepositoryService
+    public interface IRepositoryServiceGithub
     {
         Task<GithubAPIResponse<GithubUserInstallation>> GetInstallation(string user);
         Task<GithubAPIResponse<GithubInstallationAccessRequest>> GetAccessToken(int installationId);

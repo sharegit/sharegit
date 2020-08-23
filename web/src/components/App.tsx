@@ -97,10 +97,10 @@ export default class App extends React.Component<IProps, IState> {
                 {...props.match.params}/>
               )}></Route>
 
-              <Route path="/auth" exact component={(props: RouteComponentProps<any>) => (
+              <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
                 <Authentication
-                login={this.login.bind(this)}
                 {...props}
+                login={this.login.bind(this)}
                 {...props.match.params}/>
               )}></Route>
 

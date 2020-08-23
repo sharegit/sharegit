@@ -63,15 +63,15 @@ namespace ShareGithub.Services
             };
         }
 
-        protected async Task<GithubAPIResponse<T>> FetchGithubAPI<T>(string url, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
+        protected async Task<GithubAPIResponse<T>> FetchGithubAPI<T>(string url, HttpMethod method, AuthMode authMode = null, params (string key, string value)[] queryOptions)
         {
             return await Fetch<T>($"{GITHUB_API}{url}", method, authMode, queryOptions);
         }
-        protected async Task<GithubAPIResponse<T>> FetchGithub<T>(string url, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
+        protected async Task<GithubAPIResponse<T>> FetchGithub<T>(string url, HttpMethod method, AuthMode authMode = null, params (string key, string value)[] queryOptions)
         {
             return await Fetch<T>($"{GITHUB}{url}", method, authMode, queryOptions);
         }
-        protected async Task<GithubAPIResponse<T>> Fetch<T>(string fullUrl, HttpMethod method, GithubAuthMode authMode = null, params (string key, string value)[] queryOptions)
+        protected async Task<GithubAPIResponse<T>> Fetch<T>(string fullUrl, HttpMethod method, AuthMode authMode = null, params (string key, string value)[] queryOptions)
         {
             GithubAPIResponse<T> githubAPIResponse = new GithubAPIResponse<T>();
             using (var httpClient = new HttpClient())

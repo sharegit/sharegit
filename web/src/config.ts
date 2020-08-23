@@ -12,10 +12,15 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     Object.assign(rawConf, config_prod);
 }
 
-export interface AkroGamesConfig{
-    apiUrl: string;
+export interface OAuthConfig {
     client_id: string;
     redirect_uri: string;
+}
+
+export interface AkroGamesConfig{
+    apiUrl: string;
+    github_auth: OAuthConfig;
+    gitlab_auth: OAuthConfig;
     isDev: boolean;
     share_uri: string;
 }

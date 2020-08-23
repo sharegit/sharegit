@@ -9,7 +9,7 @@ namespace ShareGithub.Models
         public string Email { get; set; }
         public List<SharedToken> SharedTokens { get; set; } = new List<SharedToken>();
         public GithubConnectedService GithubConnection { get; set; } = null;
-        public object GitLabConnection { get; set; } = null;
+        public GitlabConnectedService GitlabConnection { get; set; } = null;
         public object BitbucketConnection { get; set; } = null;
     }
 }

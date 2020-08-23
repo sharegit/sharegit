@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 
 namespace ShareGithub.GithubAuth
 {
-    class AppGithubAuth : GithubAuthMode
+    class AppGithubAuth : AuthMode
     {
         private string jwt;
 
