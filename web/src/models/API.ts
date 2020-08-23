@@ -55,6 +55,9 @@ export interface DashboardResponse {
 }
 export interface SettingsReponse {
     displayName?: string;
+    githubConnected?: boolean;
+    gitLabConnected?: boolean;
+    bitbucketConnected?: boolean;
 }
 export interface SharedToken {
     token: string;

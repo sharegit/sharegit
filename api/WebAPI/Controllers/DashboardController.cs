@@ -70,7 +70,10 @@ namespace WebAPI.Controllers
             var user = AccountRepository.Get(userId.Value);
             return new SettingsInfo()
             {
-                DisplayName = user.DisplayName
+                DisplayName = user.DisplayName,
+                GithubConnected = user.GithubConnection != null,
+                GitLabConnected = user.GitLabConnection != null,
+                BitbucketConnected = user.BitbucketConnection != null,
             };
         }
 
