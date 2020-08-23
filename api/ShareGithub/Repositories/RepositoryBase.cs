@@ -17,8 +17,8 @@ namespace ShareGithub.Repositories
 
         public RepositoryBase(IOptions<S> settings)
         {
-            var usr = RollingEnv.Get("SHARE_GITHUB_DB_USR");
-            var psw = RollingEnv.Get("SHARE_GITHUB_DB_PSW");
+            var usr = RollingEnv.Get("SHARE_GIT_DB_USR");
+            var psw = RollingEnv.Get("SHARE_GIT_DB_PSW");
             var connectionString = settings.Value.ConnectionString.Replace("{user}", usr).Replace("{password}", psw);
             var client = new MongoClient(connectionString);
             var database = client.GetDatabase(settings.Value.Database);

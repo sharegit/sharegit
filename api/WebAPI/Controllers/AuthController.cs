@@ -37,7 +37,7 @@ namespace WebAPI.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = AccountRepository.Get(userId.Value);
-            string oldRefreshToken = JWT.Decode<string>(user.EncodedRefreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            string oldRefreshToken = JWT.Decode<string>(user.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
 
             var refresh = await AccountService.RefreshAuthWithGithub(oldRefreshToken);
             string accessToken = refresh.Value.AccessToken;
@@ -45,8 +45,8 @@ namespace WebAPI.Controllers
             string refreshToken = refresh.Value.RefreshToken;
             long refreshTokenExpIn = refresh.Value.RefreshTokenExpiresIn;
 
-            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
-            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
             var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
             var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
 
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
                 id = user.Id
             };
 
-            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
 
             return new JWTResponse()
             {
@@ -92,8 +92,8 @@ namespace WebAPI.Controllers
             int github_id = user.Value.Id;
 
             var existingUser = AccountRepository.Find(x => x.GithubId == github_id);
-            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
-            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
             var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
             var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
             if (existingUser == null)
@@ -129,7 +129,7 @@ namespace WebAPI.Controllers
                 id = existingUser.Id
             };
 
-            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
 
             return new JWTResponse()
             {

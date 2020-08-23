@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
             var user = AccountRepository.Get(userId.Value);
             var userAccess = new GithubUserAccess()
             {
-                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC")),
+                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                 UserId = user.Id
             };
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);
@@ -135,7 +135,7 @@ namespace WebAPI.Controllers
 
             var userAccess = new GithubUserAccess()
             {
-                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC")),
+                AccessToken = JWT.Decode<string>(user.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                 UserId = user.Id
             };
             var repos = await RepositoryService.GetUserInstallationRepositories(userAccess);

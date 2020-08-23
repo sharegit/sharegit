@@ -23,7 +23,7 @@ namespace ShareGithub.Services
             return await FetchGithub<GithubWebFlowAccessToken>(
                 "/login/oauth/access_token", HttpMethod.Post, null,
                 ("client_id", GithubAppSettings.Value.ClientId),
-                ("client_secret", RollingEnv.Get("SHARE_GITHUB_CLIENT_SECRET")),
+                ("client_secret", RollingEnv.Get("SHARE_GIT_GITHUB_APP_CLIENT_SECRET")),
                 ("code", code),
                 ("state", state),
                 ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
@@ -38,7 +38,7 @@ namespace ShareGithub.Services
                 HttpMethod.Post,
                 null,
                 ("client_id", GithubAppSettings.Value.ClientId),
-                ("client_secret", RollingEnv.Get("SHARE_GITHUB_CLIENT_SECRET")),
+                ("client_secret", RollingEnv.Get("SHARE_GIT_GITHUB_APP_CLIENT_SECRET")),
                 ("refresh_token", refreshToken),
                 ("grant_type", "refresh_token"),
                 ("redirect_uri", GithubAppSettings.Value.RedirectUrl));

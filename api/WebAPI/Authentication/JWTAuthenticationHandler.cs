@@ -35,7 +35,7 @@ namespace WebAPI.Authentication
 
             try
             {
-                var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GITHUB_API_PRIV_KEY_LOC"));
+                var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
                 if (validatedJWT != null)
                 {
                     var id = validatedJWT["id"];

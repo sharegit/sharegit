@@ -18,7 +18,7 @@ namespace ShareGithub.GithubAuth
                 iss = 76016
             };
 
-            jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GITHUB_PRIV_KEY_LOC"));
+            jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_GITHUB_APP_PRIV_KEY_LOC"));
         }
 
         public override void AddAuthHeader(HttpRequestHeaders headers)
