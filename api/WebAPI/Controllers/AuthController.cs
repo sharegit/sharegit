@@ -145,6 +145,8 @@ namespace WebAPI.Controllers
             {
                 existingUser.GithubConnection = new GithubConnectedService()
                 {
+                    Login = login,
+                    GithubId = github_id,
                     EncodedAccessToken = encodedAccessToken,
                     EncodedRefreshToken = encodedRefreshToken,
                     AccessTokenExp = accessTokenExp,
