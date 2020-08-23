@@ -49,7 +49,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     const oauthPrevState = localStorage.getItem('oauthState');
                     if (oauthPrevState != undefined && oauthPrevState == state) {
                         console.log("GOING_TO_API")
-                        const authResult = await API.auth(code, state, this.state.cancelToken);
+                        const authResult = await API.authGithub(code, state, this.state.cancelToken);
                         succ = true;
                         localStorage.setItem('OAuthJWT', authResult.token);
                         localStorage.setItem('OAuthJWT-exp', authResult.exp);

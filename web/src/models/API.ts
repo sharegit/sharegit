@@ -202,8 +202,8 @@ export default class API {
         const request = `${config.apiUrl}/share/${token}`;
         return await this.getData<SharedRepositories>(request, cancelToken);
     }
-    static async auth(code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
-        const request = `${config.apiUrl}/auth/${code}/${state}`;
+    static async authGithub(code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
+        const request = `${config.apiUrl}/auth/github/${code}/${state}`;
         return await this.getData<AuthResult>(request, cancelToken);
     }
     static async fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
