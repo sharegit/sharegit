@@ -5,9 +5,12 @@ import Random from '../util/Random';
 import API from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import comfig from '../config'
+import { Button, Icon, Segment } from 'semantic-ui-react';
+import styles from '../styles/Authentication.scss';
 
 interface IState extends BaseState {
     state: string;
+    processing: boolean;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -17,7 +20,8 @@ export interface IProps  extends RouteComponentProps<any> {
 export default class Authentication extends React.Component<IProps, IState>  {
     state: IState= {
         state: this.constructState(),
-        cancelToken: API.aquireNewCancelToken()
+        cancelToken: API.aquireNewCancelToken(),
+        processing: false
     }
     constructState(): string {
         return btoa(JSON.stringify({
@@ -49,6 +53,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     const oauthPrevState = localStorage.getItem('oauthState');
                     if (oauthPrevState != undefined && oauthPrevState == state) {
                         console.log("GOING_TO_API")
+                        this.state.processing = true;
+                        this.setState(this.state);
                         const authResult = await API.authGithub(code, state, this.state.cancelToken);
                         succ = true;
                         localStorage.setItem('OAuthJWT', authResult.token);
@@ -75,10 +81,39 @@ export default class Authentication extends React.Component<IProps, IState>  {
     render() {
         return (
             <div>
-                <h2>
-                    Authentication
-                </h2>
-                <a href={`https://github.com/login/oauth/authorize?client_id=${config.client_id}&redirect_uri=${config.redirect_uri}&state=${this.state.state}`}>Authenticate with github</a>
+                <Segment className={styles.authSegment}>
+                    <h2>
+                        Authentication
+                    </h2>
+                    {
+                        this.state.processing ? 
+                        <p>Processing authentication request</p>
+                    :
+                        <div>
+                            <Button
+                                as='a'
+                                primary
+                                href={`https://github.com/login/oauth/authorize?client_id=${config.client_id}&redirect_uri=${config.redirect_uri}&state=${this.state.state}`}>
+                                    <Icon name='github'></Icon>
+                                    Authenticate with Github
+                            </Button>
+                            <Button
+                            as='a'
+                            primary
+                            href={`#`}>
+                                    <Icon name='gitlab'></Icon>
+                                    Authenticate with GitLab
+                            </Button>
+                            <Button
+                            as='a'
+                            primary
+                            href={`#`}>
+                                    <Icon name='bitbucket'></Icon>
+                                    Authenticate with Bitbucket
+                            </Button>
+                        </div>
+                    }
+                </Segment>
             </div>
         )
     }
