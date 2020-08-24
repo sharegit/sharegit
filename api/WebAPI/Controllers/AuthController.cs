@@ -10,7 +10,9 @@ using ShareGithub.Repositories;
 using ShareGithub.Services;
 using ShareGithub.Settings;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -123,7 +125,7 @@ namespace WebAPI.Controllers
             string email = user.Value.Email;
             int gitlab_id = user.Value.Id;
 
-            var existingUser = AccountRepository.Find(x => x.GitlabConnection?.GitlabId == gitlab_id);
+            var existingUser = await GetExistingAccount("gitlab", gitlab_id);
             if (existingUser == null)
             {
                 existingUser = new Account()
@@ -200,7 +202,7 @@ namespace WebAPI.Controllers
             string email = user.Value.Email;
             int github_id = user.Value.Id;
 
-            var existingUser = AccountRepository.Find(x => x.GithubConnection?.GithubId == github_id);
+            var existingUser = await GetExistingAccount("github", github_id);
             if (existingUser == null)
             {
                 existingUser = new Account()
@@ -248,6 +250,31 @@ namespace WebAPI.Controllers
             {
                 Token = jwt,
                 Exp = accessTokenExp
+            };
+        }
+        private async Task<Account> GetExistingAccount(string provider, int id)
+        {
+            if (Request.Headers.ContainsKey("jwt"))
+            {
+                var jwt = Request.Headers["jwt"].ToString();
+                try
+                {
+                    var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+                    if (validatedJWT != null)
+                    {
+                        return AccountRepository.Get(validatedJWT["id"]);
+                    }
+                }
+                catch
+                {
+                }
+            }
+
+            return provider switch
+            {
+                "github" => AccountRepository.Find(x => x.GithubConnection?.GithubId == id),
+                "gitlab" => AccountRepository.Find(x => x.GitlabConnection?.GitlabId == id),
+                _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]"),
             };
         }
     }

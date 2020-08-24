@@ -27,7 +27,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
     constructState(): string {
         return btoa(JSON.stringify({
             t: Random.str(64),
-            d: config.isDev
+            d: config.isDev,
+            addToAccount: false
         }));
     }
     constructor(props: IProps) {
@@ -51,7 +52,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     console.log('Replacing URL to localhost because this came from development')
                     console.log(uri)
                     console.log(window.location.href)
-                } else if (localStorage.getItem('OAuthJWT') == undefined) {
+                } else if (localStorage.getItem('OAuthJWT') == undefined || parsedState.addToAccount) {
                     if (code != undefined && state != undefined) {
                         console.log("CODE_SATE_OK")
                         const oauthPrevState = localStorage.getItem('oauthState');

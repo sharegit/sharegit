@@ -3,10 +3,13 @@ import { Form, Button, FormProps, Segment, Icon } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { SettingsReponse } from '../models/API';
 import Dictionary from '../util/Dictionary';
+import config from '../config';
 import styles from '../styles/Settings.scss';
+import Random from '../util/Random';
 
 
 interface IState extends BaseState {
+    state: string;
     originalSettings?: SettingsReponse;
     changedSettings: Dictionary<string>;
 }
@@ -15,9 +18,19 @@ export default class Settings extends React.Component {
     state: IState = {
         originalSettings: undefined,
         changedSettings: {},
-        cancelToken: API.aquireNewCancelToken()
+        cancelToken: API.aquireNewCancelToken(),
+        state: this.constructState(),
+    }
+    constructState(): string {
+        return btoa(JSON.stringify({
+            t: Random.str(64),
+            d: config.isDev,
+            addToAccount: true
+        }));
     }
     async componentDidMount() {
+        localStorage.setItem('oauthState', this.state.state);
+
         this.state.originalSettings = await API.getSettings(this.state.cancelToken);
         this.setState(this.state);
     }
@@ -69,29 +82,29 @@ export default class Settings extends React.Component {
                             <Button
                                 as='a'
                                 primary
-                                href={`#`}>
+                                href={`https://github.com/login/oauth/authorize?client_id=${config.github_auth.client_id}&redirect_uri=${config.github_auth.redirect_uri}&state=${this.state.state}`}>
                                     <Icon name='github'></Icon>
                                     Authenticate with Github
                             </Button>
                         }
                         {this.state.originalSettings.gitLabConnected ? 
                             <Button disabled>
-                                <Icon name='github'></Icon>
-                                Connected with Github
+                                <Icon name='gitlab'></Icon>
+                                Connected with GitLab
                             </Button>
                         :
                             <Button
                             as='a'
                             primary
-                            href={`#`}>
+                            href={`https://gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`}>
                                     <Icon name='gitlab'></Icon>
                                     Authenticate with GitLab
                             </Button>
                         }
                         {this.state.originalSettings.bitbucketConnected ? 
                             <Button disabled>
-                                <Icon name='github'></Icon>
-                                Connected with Github
+                                <Icon name='bitbucket'></Icon>
+                                Connected with Bitbucket
                             </Button>
                         :
                             <Button
