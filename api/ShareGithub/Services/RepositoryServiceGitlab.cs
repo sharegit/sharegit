@@ -13,9 +13,9 @@ namespace ShareGithub
         /// <summary>
         /// https://docs.gitlab.com/ee/api/projects.html#list-all-projects
         /// </summary>
-        public async Task<GitlabAPIResponse<IEnumerable<GitlabProject>>> GetProjects(int userId, GitlabUserAccess userAccess)
+        public async Task<GitlabAPIResponse<GitlabProject[]>> GetProjects(int userId, GitlabUserAccess userAccess)
         {
-            return await FetchGitlabAPI<IEnumerable<GitlabProject>>(
+            return await FetchGitlabAPI<GitlabProject[]>(
                 $"/users/{userId}/projects",
                 HttpMethod.Get,
                 new UserGitlabAuth(userAccess));

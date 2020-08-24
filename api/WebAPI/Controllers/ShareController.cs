@@ -76,6 +76,7 @@ namespace WebAPI.Controllers
                         if (dbRepo != null)
                             sharedRepositories.Add(new SharedRepository()
                             {
+                                Id = rep.Id,
                                 Description = rep.Description,
                                 Owner = rep.Owner.Login,
                                 Provider = "github",

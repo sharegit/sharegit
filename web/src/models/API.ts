@@ -15,9 +15,10 @@ export interface SharedRepositories {
     author: string;
 }
 export interface SharedRepository {
+    id: number;
     owner: string;
     repo: string;
-    provider: 'github';
+    provider: 'github' | 'gitlab' | 'bitbucket';
     description: string;
     snapshot: boolean;
     branches: Branch[];

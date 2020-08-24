@@ -2,6 +2,7 @@
 {
     public class SharedRepository
     {
+        public int Id { get; set; }
         public string Owner { get; set; }
         public string Repo { get; set; }
         public string Provider { get; set; }

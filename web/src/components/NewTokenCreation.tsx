@@ -78,6 +78,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
     addAllRepositorySelection(): void {
         this.state.selectedRepositories = this.state.repositories.map(r=> (
             {
+                id: r.id,
                 owner: r.owner,
                 repo: r.repo,
                 provider: r.provider,
@@ -93,6 +94,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
         if (index == -1) {
             console.log('Adding repo')
             this.state.selectedRepositories.push({
+                id: r.id,
                 owner: r.owner,
                 repo: r.repo,
                 provider: r.provider,

@@ -6,7 +6,7 @@ namespace ShareGithub
 {
     public interface IRepositoryServiceGitlab
     {
-        Task<GitlabAPIResponse<IEnumerable<GitlabProject>>> GetProjects(int userId, GitlabUserAccess userAccess);
+        Task<GitlabAPIResponse<GitlabProject[]>> GetProjects(int userId, GitlabUserAccess userAccess);
         Task<GitlabAPIResponse<GitlabBranch[]>> GetBranches(int projectId, GitlabUserAccess userAccess);
     }
 }

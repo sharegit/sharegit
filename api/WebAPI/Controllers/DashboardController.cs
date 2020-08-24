@@ -10,6 +10,7 @@ using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -115,6 +116,7 @@ namespace WebAPI.Controllers
                     IEnumerable<Task<SharedRepository>> result = repos.Select(async x =>
                         new SharedRepository()
                         {
+                            Id = x.Id,
                             Description = x.Description,
                             Owner = x.Owner.Login,
                             Provider = "github",
@@ -146,6 +148,7 @@ namespace WebAPI.Controllers
                     IEnumerable<Task<SharedRepository>> result = projects.Value.Select(async x =>
                         new SharedRepository()
                         {
+                            Id = x.Id,
                             Description = x.Description,
                             Owner = x.Owner.Name,
                             Provider = "gitlab",
@@ -181,73 +184,91 @@ namespace WebAPI.Controllers
                 return new BadRequestResult();
             }
 
-            // Get Github repos, assume it exists for now
             var github = user.GithubConnection;
-            var userAccess = new GithubUserAccess()
+            var gitlab = user.GitlabConnection;
+            var githubUserAccess = github == null ? null : new GithubUserAccess()
             {
                 AccessToken = JWT.Decode<string>(github.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                 UserId = user.Id
             };
-            var repos = await RepositoryServiceGH.GetUserInstallationRepositories(userAccess);
-            if (createToken.Repositories.Any(c => !repos.Any(r => c.Owner == r.Owner.Login && c.Repo == r.Name)))
+            var gitlabUserAccess = gitlab == null ? null : new GitlabUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(gitlab.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var githubRepos = github == null ? new GithubRepository[0] : await RepositoryServiceGH.GetUserInstallationRepositories(githubUserAccess);
+            var gitlabRepos = gitlab == null ? new GitlabProject[0] : (await RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabUserAccess)).Value;
+            if (createToken.Repositories.Any(c => !githubRepos.Any(r => c.Provider == "github" && c.Owner == r.Owner.Login && c.Repo == r.Name)
+                                                && !gitlabRepos.Any(r => c.Provider == "gitlab" && c.Id == r.Id)))
             {
                 return new ForbidResult();
             }
 
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
+            async Task<string[]> TranslateBranches(CreateToken.Repository repository)
             {
-                byte[] tokenData = new byte[64];
-                rng.GetBytes(tokenData);
-
-                // Get repositories available for user access token
-
-                async Task<string> TranslateBranch(string owner, string repo, Branch b)
+                switch(repository.Provider)
                 {
-                    if (b.Snapshot && !b.Sha)
-                    {
-                        var commits = await RepositoryServiceGH.GetCommits(owner, repo, b.Name, "", userAccess, 0, 1);
-                        var latestCommit = commits.Value.First();
-                        return latestCommit.Sha;
-                    }
-                    else
-                    {
-                        return b.Name;
-                    }
+                    case "github":
+                        var brDicGH = (await RepositoryServiceGH.GetBranches(repository.Owner, repository.Repo, githubUserAccess)).Value.ToDictionary(x => x.Name, x => x);
+
+                        return repository.Branches.Select(b =>
+                        {
+                            if (!b.Snapshot || b.Sha)
+                                return b.Name;
+                            else
+                                return brDicGH[b.Name].Commit.Sha;
+                        }).ToArray();
+                    case "gitlab":
+                        var brDicGL = (await RepositoryServiceGL.GetBranches(repository.Id, gitlabUserAccess)).Value.ToDictionary(x => x.Name, x => x);
+
+                        return repository.Branches.Select(b =>
+                        {
+                            if (!b.Snapshot || b.Sha)
+                                return b.Name;
+                            else
+                                return brDicGL[b.Name].Commit.Id;
+                        }).ToArray();
+                    default:
+                        throw new ArgumentException("Invalid argument: provider: [" + repository.Provider + "]");
                 }
-
-                var accessibleRepositories = createToken.Repositories.Select(async x => new Repository()
-                {
-                    Owner = x.Owner,
-                    Provider = "github",
-                    Repo = x.Repo,
-                    Branches = await (Task.WhenAll(x.Branches.Select(async b => await TranslateBranch(x.Owner, x.Repo, b))))
-                });
-
-                var share = new Share()
-                {
-                    Token = new ShareGithub.Models.SharedToken()
-                    {
-                        Token = Base64UrlTextEncoder.Encode(tokenData),
-                        SharingUserId = user.Id,
-                        Stamp = null
-                    },
-                    AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
-                };
-
-                user.SharedTokens.Add(new ShareGithub.Models.SharedToken()
-                {
-                    Token = share.Token.Token,
-                    Stamp = createToken.Stamp
-                });
-                ShareRepository.Create(share);
-                AccountRepository.Update(user.Id, user);
-
-                return new Core.APIModels.SharedToken()
-                {
-                    Token = share.Token.Token,
-                    DisplayName = user.DisplayName
-                };
             }
+
+            var accessibleRepositories = createToken.Repositories.Select(async x => new Repository()
+            {
+                RepoId = x.Id,
+                Owner = x.Owner,
+                Provider = x.Provider,
+                Repo = x.Repo,
+                Branches = await TranslateBranches(x)
+            });
+
+            using RandomNumberGenerator rng = new RNGCryptoServiceProvider();
+            byte[] tokenData = new byte[64];
+            rng.GetBytes(tokenData);
+            var share = new Share()
+            {
+                Token = new ShareGithub.Models.SharedToken()
+                {
+                    Token = Base64UrlTextEncoder.Encode(tokenData),
+                    SharingUserId = user.Id,
+                    Stamp = null
+                },
+                AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
+            };
+
+            user.SharedTokens.Add(new ShareGithub.Models.SharedToken()
+            {
+                Token = share.Token.Token,
+                Stamp = createToken.Stamp
+            });
+            ShareRepository.Create(share);
+            AccountRepository.Update(user.Id, user);
+
+            return new Core.APIModels.SharedToken()
+            {
+                Token = share.Token.Token,
+                DisplayName = user.DisplayName
+            };
         }
         [HttpPost("deletetoken/{token}")]
         public async Task<IActionResult> DeleteToken(string token)
