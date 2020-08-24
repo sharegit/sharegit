@@ -12,8 +12,9 @@ pipeline {
         stage('Publish backend') {
             steps {
                 sh '''
+                    echo $JENKINS_CRED_PSW | sudo -S systemctl stop sharegithub
                     dotnet publish api/WebAPI/WebAPI.csproj -o $API_DEPLOY_DIR
-                    echo $JENKINS_CRED_PSW | sudo -S systemctl restart sharegithub
+                    echo $JENKINS_CRED_PSW | sudo -S systemctl start sharegithub
                 '''
             }
         }

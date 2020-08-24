@@ -45,7 +45,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             if(code != undefined && state != undefined) {
                 const parsedState = JSON.parse(atob(state));
                 if(parsedState.d && !window.location.href.startsWith('http://localhost:44800')) {
-                    const uri = `http://localhost:44800/auth?code=${code}&state=${state}`;
+                    const uri = `http://localhost:44800/auth/${this.props.provider}?code=${code}&state=${state}`;
                     window.location.replace(uri);
                     window.location.href = uri;
                     console.log('Replacing URL to localhost because this came from development')
