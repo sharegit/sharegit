@@ -20,19 +20,6 @@ namespace WebAPI.Controllers
             RepositoryService = repositoryService;
         }
 
-        [HttpGet("{user}/{repo}/branches")]
-        [Produces("application/json")]
-        public async Task<ActionResult<IEnumerable<Branch>>> GetRepoBranches(string user, string repo)
-        {
-            var accessToken = await RepositoryService.GetAccess(user);
-
-            var branchesResponse = await RepositoryService.GetBranches(user, repo, accessToken);
-
-            return branchesResponse.Value.Select(x => new Branch()
-            {
-                Name = x.Name
-            }).ToList();
-        }
 
         [HttpGet("{user}/{repo}/blob/{sha}/{**uri}")]
         [Produces("application/json")]

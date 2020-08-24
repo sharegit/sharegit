@@ -186,10 +186,6 @@ export default class API {
         return result.data;
     }
 
-    static async getBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
-        const request = `${config.apiUrl}/repo/${owner}/${repo}/branches`;
-        return await this.getData<Branch[]>(request, cancelToken);
-    }
     static async getSharedBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
         const request = `${config.apiUrl}/share/branches/${owner}/${repo}`;
         return await this.getData<Branch[]>(request, cancelToken);
