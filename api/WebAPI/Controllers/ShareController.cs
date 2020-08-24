@@ -1,10 +1,13 @@
 ﻿using Core.APIModels;
+using Core.Model.GitLab;
+using Core.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Settings;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,15 +20,18 @@ namespace WebAPI.Controllers
     {
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
-        private IRepositoryServiceGithub RepositoryService { get; }
+        private IRepositoryServiceGithub RepositoryServiceGH { get; }
+        private IRepositoryServiceGitlab RepositoryServiceGL { get; }
 
-        public ShareController(IRepositoryServiceGithub repositoryService,
+        public ShareController(IRepositoryServiceGithub repositoryServiceGH,
+            IRepositoryServiceGitlab repositoryServiceGL,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             ShareRepository = shareRepository;
             AccountRepository = accountRepository;
-            RepositoryService = repositoryService;
+            RepositoryServiceGH = repositoryServiceGH;
+            RepositoryServiceGL = repositoryServiceGL;
         }
         [HttpGet("branches/{owner}/{repo}")]
         [Authorize(AuthenticationSchemes = "token")]
@@ -57,34 +63,71 @@ namespace WebAPI.Controllers
             {
                 var accessibleRepositories = share.AccessibleRepositories;
 
-                // TOOD: collect providers that this token gives access to
-                // For now just collecting the users and assume github
-                var owners = accessibleRepositories.GroupBy(x => x.Owner).Select(x => x.Key).Distinct();
+                var providers = accessibleRepositories.GroupBy(x => x.Provider);
                 List<SharedRepository> sharedRepositories = new List<SharedRepository>();
-
-                foreach (var owner in owners)
+                foreach(var provider in providers)
                 {
-                    var ownerAccess = await RepositoryService.GetAccess(owner);
-
-                    var repositoriesResponse = await RepositoryService.GetInstallationRepositories(ownerAccess);
-                    foreach (var rep in repositoriesResponse.Value.Repositories)
+                    switch(provider.Key)
                     {
-                        var dbRepo = accessibleRepositories.FirstOrDefault(x =>
-                            x.Repo == rep.Name
-                         && x.Provider == "github"
-                         && x.Owner == rep.Owner.Login);
-                        if (dbRepo != null)
-                            sharedRepositories.Add(new SharedRepository()
+                        case "github":
+                            var owners = provider.GroupBy(x => x.Owner).Select(x => x.Key).Distinct();
+
+                            foreach (var owner in owners)
                             {
-                                Id = rep.Id,
-                                Description = rep.Description,
-                                Owner = rep.Owner.Login,
-                                Provider = "github",
-                                Repo = rep.Name,
-                                Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
-                            });
+                                var ownerAccess = await RepositoryServiceGH.GetAccess(owner);
+
+                                var repositoriesResponseGH = await RepositoryServiceGH.GetInstallationRepositories(ownerAccess);
+                                foreach (var rep in repositoriesResponseGH.Value.Repositories)
+                                {
+                                    var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                                        x.Repo == rep.Name
+                                     && x.Provider == provider.Key
+                                     && x.Owner == rep.Owner.Login);
+                                    if (dbRepo != null)
+                                        sharedRepositories.Add(new SharedRepository()
+                                        {
+                                            Id = rep.Id,
+                                            Description = rep.Description,
+                                            Owner = rep.Owner.Login,
+                                            Provider = provider.Key,
+                                            Repo = rep.Name,
+                                            Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                                        });
+                                }
+                            }
+                            break;
+                        case "gitlab":
+                            if (user.GitlabConnection != null)
+                            {
+                                var gitlabUserAccess = new GitlabUserAccess()
+                                {
+                                    UserId = user.Id,
+                                    AccessToken = JWT.Decode<string>(user.GitlabConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                                };
+                                var repositoriesResponseGL = await RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabUserAccess);
+                                foreach (var rep in repositoriesResponseGL.Value)
+                                {
+                                    var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                                        x.RepoId == rep.Id
+                                     && x.Provider == provider.Key);
+                                    if (dbRepo != null)
+                                        sharedRepositories.Add(new SharedRepository()
+                                        {
+                                            Id = rep.Id,
+                                            Description = rep.Description,
+                                            Owner = rep.Owner.Name,
+                                            Provider = provider.Key,
+                                            Repo = rep.Name,
+                                            Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                                        });
+                                }
+                            }
+                            break;
+                        default:
+                            throw new ArgumentException("Invalid argument: provider: [" + provider.Key + "]");
                     }
                 }
+                
 
                 return new SharedRepositories()
                 {
