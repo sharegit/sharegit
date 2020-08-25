@@ -35,69 +35,6 @@ namespace WebAPI.Controllers
             AccountRepository = accountRepository;
         }
 
-
-        [HttpGet("refreshtoken")]
-        [Produces("application/json")]
-        [Authorize(AuthenticationSchemes = "jwt")]
-        public async Task<ActionResult<JWTResponse>> RefreshTokens()
-        {
-            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
-
-            // Refresh github token
-            long? tokenExp = null;
-            if (user.GithubConnection != null)
-            {
-                string oldRefreshToken = JWT.Decode<string>(user.GithubConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-
-                var refresh = await AccountServiceGH.RefreshAuthWithGithub(oldRefreshToken);
-                if (refresh.Value.AccessToken != null)
-                {
-                    string accessToken = refresh.Value.AccessToken;
-                    long accessTokenExpIn = refresh.Value.ExpiresIn;
-                    string refreshToken = refresh.Value.RefreshToken;
-                    long refreshTokenExpIn = refresh.Value.RefreshTokenExpiresIn;
-
-                    var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-                    var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-                    var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
-                    var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
-
-                    user.GithubConnection = new GithubConnectedService()
-                    {
-                        EncodedAccessToken = encodedAccessToken,
-                        EncodedRefreshToken = encodedRefreshToken,
-                        AccessTokenExp = accessTokenExp,
-                        RefreshTokenExp = refreshTokenExp
-                    };
-                    AccountRepository.Update(user.Id, user);
-
-                    tokenExp = tokenExp.HasValue ? accessTokenExp : Math.Min(tokenExp.Value, accessTokenExp);
-                }
-            }
-
-            if (tokenExp.HasValue)
-            {
-                var payload = new
-                {
-                    iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                    exp = tokenExp.Value,
-                    id = user.Id
-                };
-
-                var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-
-                return new JWTResponse()
-                {
-                    Token = jwt,
-                    Exp = tokenExp.Value
-                };
-            }
-            else
-            {
-                return new ForbidResult();
-            }
-        }
         [HttpGet("gitlab/{code}/{state}")]
         [Produces("application/json")]
         public async Task<ActionResult<JWTResponse>> AuthGitlab(string code, string state)
@@ -161,7 +98,7 @@ namespace WebAPI.Controllers
             var payload = new
             {
                 iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                exp = accessTokenExp,
+                // exp = accessTokenExp,
                 id = existingUser.Id
             };
 
@@ -170,7 +107,7 @@ namespace WebAPI.Controllers
             return new JWTResponse()
             {
                 Token = jwt,
-                Exp = accessTokenExp
+                // Exp = accessTokenExp
             };
         }
         [HttpGet("github/{code}/{state}")]
@@ -240,7 +177,7 @@ namespace WebAPI.Controllers
             var payload = new
             {
                 iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                exp = accessTokenExp,
+                // exp = accessTokenExp,
                 id = existingUser.Id
             };
 
@@ -249,7 +186,7 @@ namespace WebAPI.Controllers
             return new JWTResponse()
             {
                 Token = jwt,
-                Exp = accessTokenExp
+                // Exp = accessTokenExp
             };
         }
         private async Task<Account> GetExistingAccount(string provider, int id)

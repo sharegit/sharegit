@@ -63,7 +63,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                             const authResult = await API.authGithub(this.props.provider, code, state, this.state.cancelToken);
                             succ = true;
                             localStorage.setItem('OAuthJWT', authResult.token);
-                            localStorage.setItem('OAuthJWT-exp', authResult.exp);
+                            // Expiring tokens turned off
+                            // localStorage.setItem('OAuthJWT-exp', authResult.exp);
                             localStorage.removeItem('oauthState');
                             this.props.login();
                             this.props.history.push('/dashboard');

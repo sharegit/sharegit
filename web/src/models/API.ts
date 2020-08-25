@@ -49,7 +49,8 @@ export interface TreeNode {
 }
 export interface AuthResult {
     token: string;
-    exp: string;
+    // Expiring tokens turned off
+    // exp: string;
 }
 export interface DashboardResponse {
     name: string;
@@ -84,26 +85,28 @@ export default class API {
         };
     }
     static mutex = new Mutex();
-    static async checkJWT(cancelToken: CancelToken) {
-        const exp = localStorage.getItem('OAuthJWT-exp')
-        if (exp != undefined && parseInt(exp) < new Date().getTime() / 1000) {
-            console.log('YES')
-            await this.mutex.dispatch(async () => {
-                console.log('IN_MUTEX')
-                const exp2 = localStorage.getItem('OAuthJWT-exp')
-                if (exp2 != undefined && parseInt(exp2) < new Date().getTime() / 1000) {
-                    console.log('REFRESHING_TOKEN')
-                    const axiosConfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken);
-                    const result = await axios.get<AuthResult>(`${config.apiUrl}/auth/refreshtoken`, axiosConfig);
-                    localStorage.setItem('OAuthJWT-exp', result.data.exp)
-                    localStorage.setItem('OAuthJWT', result.data.token)
-                }
-            })
-        }
-    }
+    // Expiring tokens turned off
+    // static async checkJWT(cancelToken: CancelToken) {
+    //     const exp = localStorage.getItem('OAuthJWT-exp')
+    //     if (exp != undefined && parseInt(exp) < new Date().getTime() / 1000) {
+    //         console.log('YES')
+    //         await this.mutex.dispatch(async () => {
+    //             console.log('IN_MUTEX')
+    //             const exp2 = localStorage.getItem('OAuthJWT-exp')
+    //             if (exp2 != undefined && parseInt(exp2) < new Date().getTime() / 1000) {
+    //                 console.log('REFRESHING_TOKEN')
+    //                 const axiosConfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken);
+    //                 const result = await axios.get<AuthResult>(`${config.apiUrl}/auth/refreshtoken`, axiosConfig);
+    //                 localStorage.setItem('OAuthJWT-exp', result.data.exp)
+    //                 localStorage.setItem('OAuthJWT', result.data.token)
+    //             }
+    //         })
+    //     }
+    // }
     static async get<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
         console.log(`Requesting: ${request}`);
-        await this.checkJWT(cancelToken);
+        // Expiring tokens turned off
+        // await this.checkJWT(cancelToken);
 
         const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
         if (additionalConfig != undefined)
