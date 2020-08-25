@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 interface IState { }
 
 interface IProps {
+    provider: string;
+    id: number;
     user: string;
     repo: string;
     sha: string;
@@ -21,7 +23,7 @@ export default class Path extends React.Component<IProps, IState> {
             return [<Breadcrumb.Section key={path[0]} active>{path[0]}</Breadcrumb.Section>]
         }
 
-        let link = `/repo/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
+        let link = `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
         let crums: ReactElement<typeof Breadcrumb.Section>[] =
             [<Breadcrumb.Section key={path[0]}><Link to={link}>{path[0]}</Link></Breadcrumb.Section>]
 

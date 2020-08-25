@@ -65,14 +65,14 @@ export default class App extends React.Component<IProps, IState> {
 
 
 
-              <Route path="/repo/:user/:repo" exact component={(props: IRepositoryProps) => (
+              <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
                 <Repository
                 {...props}
                 {...props.match.params} />
                 )}></Route>
 
               
-              <Route path="/repo/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
+              <Route path="/:provider/:id/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
                 <Repository
                 key={props.match.params.uri}
                 {...props} 

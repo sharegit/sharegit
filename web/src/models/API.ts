@@ -190,12 +190,12 @@ export default class API {
         const request = `${config.apiUrl}/share/branches/${owner}/${repo}`;
         return await this.getData<Branch[]>(request, cancelToken);
     }
-    static async getRepoTree(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
-        const request = `${config.apiUrl}/repo/${owner}/${repo}/tree/${sha}/${uri}`;
+    static async getRepoTree(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
+        const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/tree/${sha}/${uri}`;
         return await this.getData<TreeNode[]>(request, cancelToken);
     }
-    static async getRepoBlob(owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
-        const request = `${config.apiUrl}/repo/${owner}/${repo}/blob/${sha}/${uri}`;
+    static async getRepoBlob(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
+        const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/blob/${sha}/${uri}`;
         return await this.getData<BlobResult>(request, cancelToken);
     }
     static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {

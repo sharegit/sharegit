@@ -115,9 +115,9 @@ namespace WebAPI.Controllers
                                         {
                                             Id = rep.Id,
                                             Description = rep.Description,
-                                            Owner = rep.Owner.Name,
+                                            Owner = rep.Namespace.Path,
                                             Provider = provider.Key,
-                                            Repo = rep.Name,
+                                            Repo = rep.Path,
                                             Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                                         });
                                 }

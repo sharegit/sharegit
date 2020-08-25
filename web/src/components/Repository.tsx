@@ -11,6 +11,8 @@ import Path from './Path';
 import styles from '../styles/Repository.scss';
 
 export interface IProps extends RouteComponentProps<any> {
+    provider: 'github' | 'gitlab' | 'bitbucket';
+    id: number;
     user: string;
     repo: string;
     sha: string;
@@ -49,7 +51,7 @@ export default class Repository extends React.Component<IProps, IState> {
     }
 
     async queryTree(uri: string) {
-        const repoTree = await API.getRepoTree(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+        const repoTree = await API.getRepoTree(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
         repoTree.sort((a: TreeNode, b: TreeNode) => {
             if (a.type == b.type)
                 return a.path.localeCompare(b.path);
@@ -69,14 +71,14 @@ export default class Repository extends React.Component<IProps, IState> {
         
         if(readmeFile != undefined) {
 
-            const readme = await API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
+            const readme = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
         
             this.state.readme = readme;
             this.setState(this.state);
         }
     }
     async queryBlob(uri: string) {
-        const blob = await API.getRepoBlob(this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+        const blob = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
 
         this.state.blob = blob;
         this.setState(this.state);
@@ -117,7 +119,7 @@ export default class Repository extends React.Component<IProps, IState> {
                                 this.state.sha = newValue;
                                 this.setState(this.state);
                                 
-                                this.props.history.push(`/repo/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                                this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
                                 this.queryServer();
                             }}>
                         </BranchSelector>
@@ -125,6 +127,8 @@ export default class Repository extends React.Component<IProps, IState> {
                     
                     <div id={styles.path}>
                         <Path
+                            provider={this.props.provider}
+                            id={this.props.id}
                             user={this.props.user}
                             repo={this.props.repo}
                             sha={this.state.sha}
@@ -156,6 +160,8 @@ export default class Repository extends React.Component<IProps, IState> {
                     <List divided relaxed>
                         {this.state.objects.map((r: TreeNode) =>
                             <RepoListElement
+                                provider={this.props.provider}
+                                id={this.props.id}
                                 key={r.path + this.state.sha}
                                 user={this.props.user}
                                 repo={this.props.repo}

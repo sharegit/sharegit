@@ -3,6 +3,8 @@ import { List } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
 interface IProps {
+    provider: string;
+    id: number;
     user: string;
     repo: string;
     sha: string;
@@ -57,7 +59,7 @@ export default class RepoListElement extends React.Component<IProps, IState> {
                 <List.Icon name={this.typeToIcon(this.state.type)} size='large' verticalAlign='middle'>
                 </List.Icon>
                 <List.Content>
-                    <Link to={`/repo/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}/`} >
+                    <Link to={`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}/`} >
                     <List.Header>
                         <span>{path}</span>
                         &nbsp;

@@ -150,9 +150,9 @@ namespace WebAPI.Controllers
                         {
                             Id = x.Id,
                             Description = x.Description,
-                            Owner = x.Owner.Name,
+                            Owner = x.Namespace.Path,
                             Provider = "gitlab",
-                            Repo = x.Name,
+                            Repo = x.Path,
                             Branches = (await RepositoryServiceGL.GetBranches(x.Id, userAccess))
                                 .Value.Select(b =>
                                     new Branch()

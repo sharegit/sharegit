@@ -31,5 +31,30 @@ namespace ShareGithub
                 HttpMethod.Get,
                 new UserGitlabAuth(userAccess));
         }
+
+        /// <summary>
+        /// /projects/:id/repository/files/:file_path
+        /// </summary>
+        public async Task<GitlabAPIResponse<GitlabFile>> GetContent(int projectId, string sha, string uri, GitlabUserAccess userAccess)
+        {
+            return await FetchGitlabAPI<GitlabFile>(
+                $"/projects/{projectId}/repository/files/{uri}",
+                HttpMethod.Get,
+                new UserGitlabAuth(userAccess),
+                ("ref", sha));
+        }
+
+        /// <summary>
+        /// https://docs.gitlab.com/ee/api/repositories.html#list-repository-tree
+        /// </summary>
+        public async Task<GitlabAPIResponse<GitlabDirectoryObject[]>> GetDirectoryContent(int projectId, string sha, string uri, GitlabUserAccess userAccess)
+        {
+            return await FetchGitlabAPI<GitlabDirectoryObject[]>(
+                $"/projects/{projectId}/repository/tree",
+                HttpMethod.Get,
+                new UserGitlabAuth(userAccess),
+                ("ref", sha),
+                ("path", uri));
+        }
     }
 }
