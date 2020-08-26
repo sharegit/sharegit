@@ -221,6 +221,7 @@ namespace WebAPI.Controllers
 
             var github = user.GithubConnection;
             var gitlab = user.GitlabConnection;
+            var bitbucket = user.BitbucketConnection;
             var githubUserAccess = github == null ? null : new GithubUserAccess()
             {
                 AccessToken = JWT.Decode<string>(github.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
@@ -231,10 +232,17 @@ namespace WebAPI.Controllers
                 AccessToken = JWT.Decode<string>(gitlab.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                 UserId = user.Id
             };
+            var bitbucketuserAccess = bitbucket == null ? null : new BitbucketUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(bitbucket.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
             var githubRepos = github == null ? new GithubRepository[0] : await RepositoryServiceGH.GetUserInstallationRepositories(githubUserAccess);
             var gitlabRepos = gitlab == null ? new GitlabProject[0] : (await RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabUserAccess)).Value;
+            var bitbucketRepos = bitbucket == null ? new BitbucketRepository[0] : (await RepositoryServiceBB.GetRepositories(bitbucketuserAccess)).Value.Values;
             if (createToken.Repositories.Any(c => !githubRepos.Any(r => c.Provider == "github" && c.Owner == r.Owner.Login && c.Repo == r.Name)
-                                                && !gitlabRepos.Any(r => c.Provider == "gitlab" && c.Id == r.Id)))
+                                                && !gitlabRepos.Any(r => c.Provider == "gitlab" && c.Id == r.Id)
+                                                && !bitbucketRepos.Any(r=>c.Provider == "bitbucket" && c.Owner == r.Workspace.Slug && c.Repo == r.Slug)))
             {
                 return new ForbidResult();
             }
@@ -262,6 +270,16 @@ namespace WebAPI.Controllers
                                 return b.Name;
                             else
                                 return brDicGL[b.Name].Commit.Id;
+                        }).ToArray();
+                    case "bitbucket":
+                        var brDicBB = (await RepositoryServiceBB.GetBranches(repository.Owner, repository.Repo, bitbucketuserAccess)).Value.Values.ToDictionary(x => x.Name, x => x);
+
+                        return repository.Branches.Select(b =>
+                        {
+                            if (!b.Snapshot || b.Sha)
+                                return b.Name;
+                            else
+                                return brDicBB[b.Name].Target.Hash;
                         }).ToArray();
                     default:
                         throw new ArgumentException("Invalid argument: provider: [" + repository.Provider + "]");
