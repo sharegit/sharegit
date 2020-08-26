@@ -16,7 +16,7 @@ namespace ShareGithub
         /// </summary>
         public async Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketRepository>>> GetRepositories(BitbucketUserAccess userAccess)
         {
-            return await FetchBitbucketAPI<PaginatedBitbucketResponse<BitbucketRepository>>(
+            return await FetchBitbucketAPIRecursively<BitbucketRepository>(
                 $"/repositories",
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess),
@@ -29,7 +29,7 @@ namespace ShareGithub
         /// </summary>
         public async Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketBranch>>> GetBranches(string workspace, string slug, BitbucketUserAccess userAccess)
         {
-            return await FetchBitbucketAPI<PaginatedBitbucketResponse<BitbucketBranch>>(
+            return await FetchBitbucketAPIRecursively<BitbucketBranch>(
                 $"/repositories/{workspace}/{slug}/refs/branches",
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess));
@@ -37,7 +37,7 @@ namespace ShareGithub
 
         public async Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketDirecotryObject>>> GetDirectoryContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess)
         {
-            return await FetchBitbucketAPI<PaginatedBitbucketResponse<BitbucketDirecotryObject>>(
+            return await FetchBitbucketAPIRecursively<BitbucketDirecotryObject> (
                 $"/repositories/{workspace}/{slug}/src/{sha}/{uri}",
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess));
