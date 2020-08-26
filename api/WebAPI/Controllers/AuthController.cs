@@ -1,9 +1,8 @@
 ﻿using Core.APIModels;
+using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
@@ -11,9 +10,6 @@ using ShareGithub.Services;
 using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -25,14 +21,99 @@ namespace WebAPI.Controllers
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IAccountServiceGithub AccountServiceGH { get; }
         private IAccountServiceGitlab AccountServiceGL { get; }
+        private IAccountServiceBitbucket AccountServiceBB { get; }
 
         public AuthController(IAccountServiceGithub accountServiceGH,
             IAccountServiceGitlab accountServiceGL,
+            IAccountServiceBitbucket accountServiceBB,
             IRepository<Account, AccountDatabaseSettings> accountRepository)
         {
             AccountServiceGH = accountServiceGH;
             AccountServiceGL = accountServiceGL;
+            AccountServiceBB = accountServiceBB;
             AccountRepository = accountRepository;
+        }
+
+        /// <summary>
+        /// https://stackoverflow.com/questions/2715532/synchronizing-access-to-a-member-of-the-asp-net-session
+        /// https://docs.microsoft.com/en-us/previous-versions/dotnet/articles/aa479041(v=msdn.10)?redirectedfrom=MSDN
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ActionResult> RefreshToken()
+        {
+            return new OkResult();
+        }
+
+        [HttpGet("bitbucket/{code}/{state}")]
+        [Produces("application/json")]
+        public async Task<ActionResult<JWTResponse>> AuthBitbucket(string code, string state)
+        {
+            var userAccess = await AccountServiceBB.AuthUserWithBitbucket(code, state);
+
+            string accessToken = userAccess.Value.AccessToken;
+            long accessTokenExpIn = userAccess.Value.ExpiresIn;
+            string refreshToken = userAccess.Value.RefreshToken;
+
+            var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
+
+            var bitbucketUserAccess = new BitbucketUserAccess()
+            {
+                AccessToken = accessToken,
+                UserId = null
+            };
+            var user = await AccountServiceBB.GetUserInfo(bitbucketUserAccess);
+
+            
+            string name = user.Value.DisplayName;
+            string bitbucket_id = user.Value.UUID;
+
+            var existingUser = await GetExistingAccount("bitbucket", bitbucket_id);
+            if (existingUser == null)
+            {
+                existingUser = new Account()
+                {
+                    Name = name,
+                    DisplayName = name,
+                    Email = null,
+                    BitbucketConnection = new BitbucketConnectedService()
+                    {
+                        BitbucketId = bitbucket_id,
+                        EncodedAccessToken = encodedAccessToken,
+                        EncodedRefreshToken = encodedRefreshToken,
+                        AccessTokenExp = accessTokenExp
+                    }
+                };
+                existingUser = AccountRepository.Create(existingUser);
+            }
+            else
+            {
+                existingUser.BitbucketConnection = new BitbucketConnectedService()
+                {
+                    BitbucketId = bitbucket_id,
+                    EncodedAccessToken = encodedAccessToken,
+                    EncodedRefreshToken = encodedRefreshToken,
+                    AccessTokenExp = accessTokenExp
+                };
+                AccountRepository.Update(existingUser.Id, existingUser);
+            }
+
+
+            var payload = new
+            {
+                iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                // exp = accessTokenExp,
+                id = existingUser.Id
+            };
+
+            var jwt = JWT.Encode(payload, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+
+            return new JWTResponse()
+            {
+                Token = jwt,
+                // Exp = accessTokenExp
+            };
         }
 
         [HttpGet("gitlab/{code}/{state}")]
@@ -189,7 +270,7 @@ namespace WebAPI.Controllers
                 // Exp = accessTokenExp
             };
         }
-        private async Task<Account> GetExistingAccount(string provider, int id)
+        private async Task<Account> GetExistingAccount(string provider, object id)
         {
             if (Request.Headers.ContainsKey("jwt"))
             {
@@ -209,8 +290,9 @@ namespace WebAPI.Controllers
 
             return provider switch
             {
-                "github" => AccountRepository.Find(x => x.GithubConnection?.GithubId == id),
-                "gitlab" => AccountRepository.Find(x => x.GitlabConnection?.GitlabId == id),
+                "github" => AccountRepository.Find(x => x.GithubConnection?.GithubId.Equals(id) ?? false),
+                "gitlab" => AccountRepository.Find(x => x.GitlabConnection?.GitlabId.Equals(id) ?? false),
+                "bitbucket" => AccountRepository.Find(x => x.BitbucketConnection?.BitbucketId.Equals(id) ?? false),
                 _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]"),
             };
         }

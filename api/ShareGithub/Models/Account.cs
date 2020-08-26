@@ -10,6 +10,6 @@ namespace ShareGithub.Models
         public List<SharedToken> SharedTokens { get; set; } = new List<SharedToken>();
         public GithubConnectedService GithubConnection { get; set; } = null;
         public GitlabConnectedService GitlabConnection { get; set; } = null;
-        public object BitbucketConnection { get; set; } = null;
+        public BitbucketConnectedService BitbucketConnection { get; set; } = null;
     }
 }

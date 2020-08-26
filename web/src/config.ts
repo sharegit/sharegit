@@ -21,6 +21,7 @@ export interface AkroGamesConfig{
     apiUrl: string;
     github_auth: OAuthConfig;
     gitlab_auth: OAuthConfig;
+    bitbucket_auth: OAuthConfig;
     isDev: boolean;
     share_uri: string;
 }

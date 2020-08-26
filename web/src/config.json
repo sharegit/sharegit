@@ -8,6 +8,10 @@
         "client_id": "5608c28d28df8138123152dfdc0af45a0492b6cec1f3624e76fd515f4ff363d4",
         "redirect_uri": "http://share.akromentos.studio/auth/gitlab"
     },
+    "bitbucket_auth": {
+        "client_id": "bLJYWcbNLW9RAg9HQD",
+        "redirect_uri": "http://share.akromentos.studio/auth/bitbucket"
+    },
     "share_uri": "http://share.akromentos.studio/share",
     "isDev": true
 }

@@ -115,7 +115,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                             <Button
                             as='a'
                             primary
-                            href={`#`}>
+                            href={`https://bitbucket.org/site/oauth2/authorize?client_id=${config.bitbucket_auth.client_id}&response_type=code&state=${this.state.state}`}>
                                     <Icon name='bitbucket'></Icon>
                                     Authenticate with Bitbucket
                             </Button>
