@@ -8,6 +8,7 @@ namespace ShareGithub
     {
         Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketRepository>>> GetRepositories(BitbucketUserAccess userAccess);
         Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketBranch>>> GetBranches(string workspaceSlug, string slug, BitbucketUserAccess userAccess);
-
+        Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketDirecotryObject>>> GetDirectoryContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
+        Task<BitbucketAPIResponse<string>> GetContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
     }
 }

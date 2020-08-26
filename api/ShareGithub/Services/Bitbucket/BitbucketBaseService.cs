@@ -70,11 +70,17 @@ namespace ShareGithub.Services
                         NamingStrategy = new SnakeCaseNamingStrategy()
                     };
 
-                    bitbucketAPIResponse.Value = JsonConvert.DeserializeObject<T>(bitbucketAPIResponse.RAW, new JsonSerializerSettings
+                    try
                     {
-                        ContractResolver = contractResolver,
-                        Formatting = Formatting.Indented
-                    });
+                        bitbucketAPIResponse.Value = JsonConvert.DeserializeObject<T>(bitbucketAPIResponse.RAW, new JsonSerializerSettings
+                        {
+                            ContractResolver = contractResolver,
+                            Formatting = Formatting.Indented
+                        });
+                    }
+                    catch
+                    {
+                    }
 
                     if (d.TryGetValue("X-RateLimit-Remaining", out string rateLimitStr))
                     {

@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
@@ -12,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -25,13 +27,16 @@ namespace WebAPI.Controllers
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IRepositoryServiceGithub RepositoryServiceGH { get; }
         private IRepositoryServiceGitlab RepositoryServiceGL { get; }
+        private IRepositoryServiceBitbucket RepositoryServiceBB { get; }
         public RepoController(IRepositoryServiceGithub repositoryServiceGH,
             IRepositoryServiceGitlab repositoryServiceGL,
+            IRepositoryServiceBitbucket repositoryServiceBB,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             RepositoryServiceGH = repositoryServiceGH;
             RepositoryServiceGL = repositoryServiceGL;
+            RepositoryServiceBB = repositoryServiceBB;
             ShareRepository = shareRepository;
             AccountRepository = accountRepository;
         }
@@ -71,6 +76,24 @@ namespace WebAPI.Controllers
                         {
                             File = content.Value.FilePath,
                             Content = content.Value.Content
+                        };
+                    }
+                case "bitbucket":
+                    {
+                        var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
+                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
+                        {
+                            AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            UserId = sharingUser.Id
+                        };
+                        var content = await RepositoryServiceBB.GetContent(user, repo, sha, uri, userAccessToken);
+
+                        return new BlobResult()
+                        {
+                            File = uri,
+                            Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(content.RAW))
                         };
                     }
                 default:
@@ -120,6 +143,32 @@ namespace WebAPI.Controllers
                             Type = x.Type
                         }).ToArray();
                     }
+                case "bitbucket":
+                    {
+                        var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
+                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
+                        {
+                            AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            UserId = sharingUser.Id
+                        };
+
+                        var tree = await RepositoryServiceBB.GetDirectoryContent(user, repo, sha, uri, userAccessToken);
+
+                        return tree.Value.Values.Select(x => new TreeResult.TreeNode()
+                        {
+                            Path = x.Path,
+                            Sha = "missing",
+                            Type = x.Type switch
+                            {
+                                "commit_directory" => "tree",
+                                "commit_file" => "blob",
+                                _ => x.Type
+                            }
+                        }).ToArray();
+                    }
+                    break;
                 default:
                     throw new ArgumentException("Invalid argument: provider: [" + provider + "]");
             }

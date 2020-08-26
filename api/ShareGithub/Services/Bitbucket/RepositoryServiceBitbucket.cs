@@ -34,5 +34,21 @@ namespace ShareGithub
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess));
         }
+
+        public async Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketDirecotryObject>>> GetDirectoryContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess)
+        {
+            return await FetchBitbucketAPI<PaginatedBitbucketResponse<BitbucketDirecotryObject>>(
+                $"/repositories/{workspace}/{slug}/src/{sha}/{uri}",
+                HttpMethod.Get,
+                new UserBitbucketAuth(userAccess));
+        }
+
+        public async Task<BitbucketAPIResponse<string>> GetContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess)
+        {
+            return await FetchBitbucketAPI<string>(
+                $"/repositories/{workspace}/{slug}/src/{sha}/{uri}",
+                HttpMethod.Get,
+                new UserBitbucketAuth(userAccess));
+        }
     }
 }
