@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
@@ -28,14 +29,17 @@ namespace WebAPI.Controllers
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
         private IRepositoryServiceGithub RepositoryServiceGH { get; }
         private IRepositoryServiceGitlab RepositoryServiceGL { get; }
+        private IRepositoryServiceBitbucket RepositoryServiceBB { get; }
 
         public DashboardController(IRepositoryServiceGithub repositoryServiceGH,
             IRepositoryServiceGitlab repositoryServiceGL,
+            IRepositoryServiceBitbucket repositoryServiceBB,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             RepositoryServiceGH = repositoryServiceGH;
             RepositoryServiceGL = repositoryServiceGL;
+            RepositoryServiceBB = repositoryServiceBB;
             AccountRepository = accountRepository;
             ShareRepository = shareRepository;
         }
@@ -155,6 +159,37 @@ namespace WebAPI.Controllers
                             Repo = x.Path,
                             Branches = (await RepositoryServiceGL.GetBranches(x.Id, userAccess))
                                 .Value.Select(b =>
+                                    new Branch()
+                                    {
+                                        Name = b.Name,
+                                        Snapshot = false,
+                                        Sha = false
+                                    }).ToArray()
+                        }
+                    );
+                    sharedRepositories.AddRange(await Task.WhenAll(result));
+                }
+            }
+            {
+                var bitbucket = user.BitbucketConnection;
+                if (bitbucket != null)
+                {
+                    var userAccess = new BitbucketUserAccess()
+                    {
+                        AccessToken = JWT.Decode<string>(bitbucket.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                        UserId = user.Id
+                    };
+                    var repositories = await RepositoryServiceBB.GetRepositories(userAccess);
+                    IEnumerable<Task<SharedRepository>> result = repositories.Value.Values.Select(async x =>
+                        new SharedRepository()
+                        {
+                            // Id = x.Id,
+                            Description = x.Description,
+                            Owner = x.Workspace.Slug,
+                            Provider = "bitbucket",
+                            Repo = x.Slug,
+                            Branches = (await RepositoryServiceBB.GetBranches(x.Workspace.Slug, x.Slug, userAccess))
+                                .Value.Values.Select(b =>
                                     new Branch()
                                     {
                                         Name = b.Name,

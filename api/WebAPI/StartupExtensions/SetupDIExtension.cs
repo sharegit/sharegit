@@ -18,6 +18,7 @@ namespace WebAPI.StartupExtensions
             services.AddTransient<IRepositoryServiceGitlab, RepositoryServiceGitlab>();
 
             services.AddTransient<IAccountServiceBitbucket, AccountServiceBitbucket>();
+            services.AddTransient<IRepositoryServiceBitbucket, RepositoryServiceBitbucket>();
 
             services.Configure<AccountDatabaseSettings>(configuration.GetSection(nameof(AccountDatabaseSettings)));
             services.Configure<ShareDatabaseSettings>(configuration.GetSection(nameof(ShareDatabaseSettings)));
