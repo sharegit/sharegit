@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Model.Bitbucket;
 using Core.Model.GitLab;
 using Core.Util;
 using Microsoft.AspNetCore.Authorization;
@@ -22,9 +23,11 @@ namespace WebAPI.Controllers
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IRepositoryServiceGithub RepositoryServiceGH { get; }
         private IRepositoryServiceGitlab RepositoryServiceGL { get; }
+        private IRepositoryServiceBitbucket RepositoryServiceBB { get; }
 
         public ShareController(IRepositoryServiceGithub repositoryServiceGH,
             IRepositoryServiceGitlab repositoryServiceGL,
+            IRepositoryServiceBitbucket repositoryServiceBB,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
@@ -32,6 +35,7 @@ namespace WebAPI.Controllers
             AccountRepository = accountRepository;
             RepositoryServiceGH = repositoryServiceGH;
             RepositoryServiceGL = repositoryServiceGL;
+            RepositoryServiceBB = repositoryServiceBB;
         }
         [HttpGet("branches/{owner}/{repo}")]
         [Authorize(AuthenticationSchemes = "token")]
@@ -118,6 +122,34 @@ namespace WebAPI.Controllers
                                             Owner = rep.Namespace.Path,
                                             Provider = provider.Key,
                                             Repo = rep.Path,
+                                            Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                                        });
+                                }
+                            }
+                            break;
+                        case "bitbucket":
+                            if(user.BitbucketConnection != null)
+                            {
+                                var bitbucketUserAccess = new BitbucketUserAccess()
+                                {
+                                    UserId = user.Id,
+                                    AccessToken = JWT.Decode<string>(user.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                                };
+                                var repositoriesResponseBB = await RepositoryServiceBB.GetRepositories(bitbucketUserAccess);
+                                foreach (var rep in repositoriesResponseBB.Value.Values)
+                                {
+                                    var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                                        x.Owner== rep.Workspace.Slug
+                                     && x.Repo == rep.Slug
+                                     && x.Provider == provider.Key);
+                                    if (dbRepo != null)
+                                        sharedRepositories.Add(new SharedRepository()
+                                        {
+                                            // Id = rep.Id,
+                                            Description = rep.Description,
+                                            Owner = rep.Workspace.Slug,
+                                            Provider = provider.Key,
+                                            Repo = rep.Slug,
                                             Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                                         });
                                 }
