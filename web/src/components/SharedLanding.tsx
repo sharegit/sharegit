@@ -120,7 +120,13 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             return master.name;
         }
         else {
-            return r.branches[0].name;
+            const def = r.branches.find(x=>x.name == 'default');
+            if(def != undefined) {
+                return def.name;
+            }
+            else {
+                return r.branches[0].name;
+            }
         }
     }
     renderTokenValidity() {
