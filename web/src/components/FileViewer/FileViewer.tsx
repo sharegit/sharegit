@@ -2,6 +2,7 @@ import React from 'react'
 import FileViewDriver from './FileViewDriver';
 import SourceFileViewDriver from './SourceFileViewDriver';
 import MDFileViewDriver from './MDFileViewDriver';
+import BinaryFileViewDriver from './BinaryFileViewDriver';
 
 interface IState {
     fileType: string;
@@ -31,19 +32,33 @@ export default class FileViewer extends React.Component<IProps, IState> {
         if(extensionPosition >= 0 && extensionPosition < this.state.fileName.length - 1) {
             this.state.fileType = this.state.fileName.substring(extensionPosition + 1, this.state.fileName.length);
         }
-        const params = {
-            filetype: this.state.fileType,
-            // TODO check encoding, it's not always base64!
-            content: this.b64DecodeUnicode(this.props.displayed.content)
-        }
+        console.log(this.props.displayed.content)
+
         switch(this.state.fileType.toLowerCase()) {
             case 'md':
                 console.log('Creating MD driver');
-                this.state.viewDriver = new MDFileViewDriver(params);
+                this.state.viewDriver = new MDFileViewDriver({
+                    filename: this.state.fileName,
+                    filetype: this.state.fileType,
+                    content: this.b64DecodeUnicode(this.props.displayed.content)
+                });
+                break;
+            case '':
+                console.log('Creating Binary driver')
+                this.state.viewDriver = new BinaryFileViewDriver({
+                    filename: this.state.fileName,
+                    filetype: this.state.fileType,
+                    content: this.props.displayed.content
+                });
                 break;
             case 'txt':
             default:
-                this.state.viewDriver = new SourceFileViewDriver(params);
+                console.log('Creating Text driver')
+                this.state.viewDriver = new SourceFileViewDriver({
+                    filename: this.state.fileName,
+                    filetype: this.state.fileType,
+                    content: this.b64DecodeUnicode(this.props.displayed.content)
+                });
                 break;
         }
     }

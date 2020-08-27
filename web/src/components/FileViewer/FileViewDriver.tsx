@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 
 interface IProps {
     filetype: string;
+    filename: string;
     content: string;
 }
 
