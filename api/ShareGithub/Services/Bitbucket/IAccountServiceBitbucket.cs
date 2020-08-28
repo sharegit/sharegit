@@ -8,5 +8,6 @@ namespace ShareGithub.Services
     {
         Task<APIResponse<BitbucketWebFlowAccessToken>> AuthUserWithBitbucket(string code, string state);
         Task<APIResponse<BitbucketUserInfo>> GetUserInfo(BitbucketUserAccess accessToken);
+        Task<APIResponse<PaginatedBitbucketResponse<BitbucketEmail>>> GetUserEmails(BitbucketUserAccess accessToken);
     }
 }

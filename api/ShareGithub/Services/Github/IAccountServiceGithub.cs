@@ -9,5 +9,6 @@ namespace ShareGithub.Services
         Task<APIResponse<GithubWebFlowAccessToken>> AuthUserWithGithub(string code, string state);
         Task<APIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken);
         Task<APIResponse<GithubUserInfo>> GetUserInfo(GithubUserAccess accessToken);
+        Task<APIResponse<GithubEmail[]>> GetUserEmails(GithubUserAccess access);
     }
 }

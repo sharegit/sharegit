@@ -38,5 +38,15 @@ namespace ShareGithub.Services
                 "/user", HttpMethod.Get,
                 new UserBitbucketAuth(accessToken));
         }
+
+        /// <summary>
+        /// https://developer.atlassian.com/bitbucket/api/2/reference/resource/user/emails
+        /// </summary>
+        public async Task<APIResponse<PaginatedBitbucketResponse<BitbucketEmail>>> GetUserEmails(BitbucketUserAccess accessToken)
+        {
+            return await FetchBitbucketAPIRecursively<BitbucketEmail>(
+                "/user/emails", HttpMethod.Get,
+                new UserBitbucketAuth(accessToken));
+        }
     }
 }

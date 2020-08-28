@@ -4,12 +4,14 @@ using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Services;
 using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -69,6 +71,9 @@ namespace WebAPI.Controllers
             string name = user.Value.DisplayName;
             string bitbucket_id = user.Value.UUID;
 
+            var emails = await AccountServiceBB.GetUserEmails(bitbucketUserAccess);
+            string email = emails.Value.Values.First(x => x.IsPrimary).Email;
+
             var existingUser = await GetExistingAccount("bitbucket", bitbucket_id);
             if (existingUser == null)
             {
@@ -76,7 +81,7 @@ namespace WebAPI.Controllers
                 {
                     Name = name,
                     DisplayName = name,
-                    Email = null,
+                    Email = email,
                     BitbucketConnection = new BitbucketConnectedService()
                     {
                         BitbucketId = bitbucket_id,
@@ -217,7 +222,9 @@ namespace WebAPI.Controllers
 
             string login = user.Value.Login;
             string name = user.Value.Name;
-            string email = user.Value.Email;
+
+            var emails = await AccountServiceGH.GetUserEmails(githubUserAccess);
+            string email = emails.Value.First(x => x.Primary).Email;
             int github_id = user.Value.Id;
 
             var existingUser = await GetExistingAccount("github", github_id);

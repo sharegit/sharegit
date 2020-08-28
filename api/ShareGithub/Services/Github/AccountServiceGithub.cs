@@ -53,5 +53,16 @@ namespace ShareGithub.Services
                 HttpMethod.Get,
                 new UserGithubAuth(access));
         }
+
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/users#list-email-addresses-for-the-authenticated-user
+        /// </summary>
+        public async Task<APIResponse<GithubEmail[]>> GetUserEmails(GithubUserAccess access)
+        {
+            return await FetchAPI<GithubEmail[]>(
+                "/user/emails",
+                HttpMethod.Get,
+                new UserGithubAuth(access));
+        }
     }
 }
