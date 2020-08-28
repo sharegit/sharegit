@@ -64,9 +64,13 @@ export default class FileViewer extends React.Component<IProps, IState> {
     }
     b64DecodeUnicode(str: string) {
         // Going backwards: from bytestream, to percent-encoding, to original string.
-        return decodeURIComponent(atob(str).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
+        try {
+            return decodeURIComponent(atob(str).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        } catch (ex) {
+            return str
+        }
     }
     componentDidMount() {
     }
