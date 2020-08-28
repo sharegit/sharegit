@@ -6,6 +6,7 @@ using ShareGithub.Services;
 using ShareGithub.Settings;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShareGithub
 {
@@ -38,12 +39,12 @@ namespace ShareGithub
         }
 
         /// <summary>
-        /// /projects/:id/repository/files/:file_path
+        /// https://docs.gitlab.com/ee/api/repository_files.html
         /// </summary>
         public async Task<APIResponse<GitlabFile>> GetContent(int projectId, string sha, string uri, GitlabUserAccess userAccess)
         {
             return await FetchAPI<GitlabFile>(
-                $"/projects/{projectId}/repository/files/{uri}",
+                $"/projects/{projectId}/repository/files/{HttpUtility.UrlEncode(uri)}",
                 HttpMethod.Get,
                 new UserGitlabAuth(userAccess),
                 ("ref", sha));
