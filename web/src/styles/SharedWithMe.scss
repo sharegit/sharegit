@@ -3,8 +3,24 @@
     p {
         text-align: center;
     }
+
     h2 {
         margin-top: 10px;
         margin-bottom: 10px;
+    }
+
+    #list {
+        float: left;
+    }
+
+    button {
+        float: right;
+    }
+
+    span {
+        margin-left: 20px;
+        display: list-item;
+        list-style-type: disc;
+        list-style-position: inside;
     }
 }

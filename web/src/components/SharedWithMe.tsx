@@ -4,6 +4,7 @@ import { List, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import styles from '../styles/SharedWithMe.scss';
 import { Token, TokenRepo } from '../models/Tokens';
+import { Tokenizer } from 'marked';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -33,8 +34,15 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
 
             const tokens = JSON.stringify(this.state.tokens);
             localStorage.setItem("alltokens", tokens);
-            
+
             this.setState(this.state);
+        }
+    }
+    renderTokenHeader(token: Token): string {
+        if(!!token.author) {
+            return `${token.author}'s [${token.token}]`
+        } else {
+            return `[${token.token}]`
         }
     }
     render() {
@@ -51,18 +59,23 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                             <List.Item key={token.token}>
                                 <List.Content>
                                     <List.Header>
-                                        <Link to={`/share/${token.token}`}>{`${token.author}'s [${token.token}]`}</Link>
+                                        <Link to={`/share/${token.token}`}>{this.renderTokenHeader(token)}</Link>
                                     </List.Header>
-                                    <List.Description>
-                                        {token.repositories.map((r:TokenRepo) => (
+                                    <List.Description id={styles.list}>
+                                        {token.repositories.length == 0 ?
+                                        <p>Not yet visited</p>
+                                    :
+                                        token.repositories.map((r:TokenRepo) => (
                                             <span key={`${r.provider}/${r.owner}/${r.name}`}>
-                                                {`${r.owner}/${r.name}`}
+                                                {`\[${r.provider}\]/${r.owner}/${r.name}`}
                                             </span>
                                         ))}
                                     </List.Description>
-                                    <Button onClick={(e, d) => {
+                                    <Button secondary onClick={(e, d) => {
                                         this.forget(token.token)
                                     }}>Forget</Button>
+
+                                    <div className="clear"></div>
                                 </List.Content>
                             </List.Item>
                             )
