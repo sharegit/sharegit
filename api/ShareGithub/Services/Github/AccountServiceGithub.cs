@@ -1,4 +1,5 @@
-﻿using Core.Model.Github;
+﻿using Core.Model;
+using Core.Model.Github;
 using Core.Util;
 using Microsoft.Extensions.Options;
 using ShareGithub.GithubAuth;
@@ -10,47 +11,44 @@ namespace ShareGithub.Services
 {
     public class AccountServiceGithub : GithubBaseService, IAccountServiceGithub
     {
-        IOptions<GithubAppSettings> GithubAppSettings { get; }
-        public AccountServiceGithub(IOptions<GithubAppSettings> githubAppSettings)
+        public AccountServiceGithub(IOptions<GithubAppSettings> appSettings): base(appSettings)
         {
-            GithubAppSettings = githubAppSettings;
         }
         /// <summary>
         /// https://docs.github.com/en/developers/apps/identifying-and-authorizing-users-for-github-apps#web-application-flow
         /// </summary>
-        public async Task<GithubAPIResponse<GithubWebFlowAccessToken>> AuthUserWithGithub(string code, string state)
+        public async Task<APIResponse<GithubWebFlowAccessToken>> AuthUserWithGithub(string code, string state)
         {
-            return await FetchGithub<GithubWebFlowAccessToken>(
-                "/login/oauth/access_token", HttpMethod.Post, null,
-                ("client_id", GithubAppSettings.Value.ClientId),
+            return await FetchSite<GithubWebFlowAccessToken>(
+                "/login/oauth/access_token", HttpMethod.Post,
+                ("client_id", AppSettings.ClientId),
                 ("client_secret", RollingEnv.Get("SHARE_GIT_GITHUB_APP_CLIENT_SECRET")),
                 ("code", code),
                 ("state", state),
-                ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
+                ("redirect_uri", AppSettings.RedirectUrl));
         }
 
         /// <summary>
         /// https://docs.github.com/en/developers/apps/refreshing-user-to-server-access-tokens#renewing-a-user-token-with-a-refresh-token
         /// </summary>
-        public async Task<GithubAPIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken)
+        public async Task<APIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken)
         {
-            return await FetchGithub<GithubWebFlowAccessToken>(
+            return await FetchSite<GithubWebFlowAccessToken>(
                 "/login/oauth/access_token",
                 HttpMethod.Post,
-                null,
-                ("client_id", GithubAppSettings.Value.ClientId),
+                ("client_id", AppSettings.ClientId),
                 ("client_secret", RollingEnv.Get("SHARE_GIT_GITHUB_APP_CLIENT_SECRET")),
                 ("refresh_token", refreshToken),
                 ("grant_type", "refresh_token"),
-                ("redirect_uri", GithubAppSettings.Value.RedirectUrl));
+                ("redirect_uri", AppSettings.RedirectUrl));
         }
 
         /// <summary>
         /// https://docs.github.com/en/rest/reference/users#get-the-authenticated-user
         /// </summary>
-        public async Task<GithubAPIResponse<GithubUserInfo>> GetUserInfo(GithubUserAccess access)
+        public async Task<APIResponse<GithubUserInfo>> GetUserInfo(GithubUserAccess access)
         {
-            return await FetchGithubAPI<GithubUserInfo>(
+            return await FetchAPI<GithubUserInfo>(
                 "/user",
                 HttpMethod.Get,
                 new UserGithubAuth(access));

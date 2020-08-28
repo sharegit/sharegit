@@ -1,4 +1,5 @@
-﻿using Core.Model.Bitbucket;
+﻿using Core.Model;
+using Core.Model.Bitbucket;
 using Core.Util;
 using Microsoft.Extensions.Options;
 using ShareGithub.BitbucketAuth;
@@ -11,19 +12,17 @@ namespace ShareGithub.Services
 {
     public class AccountServiceBitbucket : BitbucketBaseService, IAccountServiceBitbucket
     {
-        IOptions<BitbucketAppSettings> BitbucketAppSettings { get; }
-        public AccountServiceBitbucket(IOptions<BitbucketAppSettings> bitbucketAppSettings)
+        public AccountServiceBitbucket(IOptions<BitbucketAppSettings> appSettings) : base(appSettings)
         {
-            BitbucketAppSettings = bitbucketAppSettings;
         }
         /// <summary>
         /// https://support.atlassian.com/bitbucket-cloud/docs/use-oauth-on-bitbucket-cloud/
         /// </summary>
-        public async Task<BitbucketAPIResponse<BitbucketWebFlowAccessToken>> AuthUserWithBitbucket(string code, string state)
+        public async Task<APIResponse<BitbucketWebFlowAccessToken>> AuthUserWithBitbucket(string code, string state)
         {
-            return await FetchBitbucket<BitbucketWebFlowAccessToken>(
+            return await FetchSite<BitbucketWebFlowAccessToken>(
                 "/oauth2/access_token", HttpMethod.Post,
-                new AppBitbucketAuth(BitbucketAppSettings.Value.ClientId, RollingEnv.Get("SHARE_GIT_BITBUCKET_APP_CLIENT_SECRET")),
+                new AppBitbucketAuth(AppSettings.ClientId, RollingEnv.Get("SHARE_GIT_BITBUCKET_APP_CLIENT_SECRET")),
                 new Dictionary<string, string>(){
                     { "grant_type", "authorization_code"},
                     { "code", code}
@@ -33,12 +32,11 @@ namespace ShareGithub.Services
         /// <summary>
         /// https://developer.atlassian.com/bitbucket/api/2/reference/resource/user
         /// </summary>
-        public async Task<BitbucketAPIResponse<BitbucketUserInfo>> GetUserInfo(BitbucketUserAccess accessToken)
+        public async Task<APIResponse<BitbucketUserInfo>> GetUserInfo(BitbucketUserAccess accessToken)
         {
-            return await FetchBitbucketAPI<BitbucketUserInfo>(
+            return await FetchAPI<BitbucketUserInfo>(
                 "/user", HttpMethod.Get,
-                new UserBitbucketAuth(accessToken),
-                null);
+                new UserBitbucketAuth(accessToken));
         }
     }
 }

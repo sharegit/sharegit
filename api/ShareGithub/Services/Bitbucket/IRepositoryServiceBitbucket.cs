@@ -1,14 +1,14 @@
-﻿using Core.Model.Bitbucket;
-using Core.Model.GitLab;
+﻿using Core.Model;
+using Core.Model.Bitbucket;
 using System.Threading.Tasks;
 
 namespace ShareGithub
 {
     public interface IRepositoryServiceBitbucket
     {
-        Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketRepository>>> GetRepositories(BitbucketUserAccess userAccess);
-        Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketBranch>>> GetBranches(string workspaceSlug, string slug, BitbucketUserAccess userAccess);
-        Task<BitbucketAPIResponse<PaginatedBitbucketResponse<BitbucketDirecotryObject>>> GetDirectoryContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
-        Task<BitbucketAPIResponse<string>> GetContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
+        Task<APIResponse<PaginatedBitbucketResponse<BitbucketRepository>>> GetRepositories(BitbucketUserAccess userAccess);
+        Task<APIResponse<PaginatedBitbucketResponse<BitbucketBranch>>> GetBranches(string workspaceSlug, string slug, BitbucketUserAccess userAccess);
+        Task<APIResponse<PaginatedBitbucketResponse<BitbucketDirecotryObject>>> GetDirectoryContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
+        Task<APIResponse<string>> GetContent(string workspace, string slug, string sha, string uri, BitbucketUserAccess userAccess);
     }
 }
