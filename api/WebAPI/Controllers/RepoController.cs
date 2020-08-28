@@ -41,11 +41,41 @@ namespace WebAPI.Controllers
             AccountRepository = accountRepository;
         }
 
+        private bool IsAuthorized(string provider, int id, string user, string repo, string sha)
+        {
+            return (HttpContext.Items.ContainsKey("access")
+                && provider switch
+                {
+                    "github" => ((HttpContext.Items["access"] as Repository[])
+                        ?.Any(x =>
+                              x.Provider == "github"
+                           && x.Owner == user
+                           && x.Repo == repo
+                           && x.Branches.Contains(sha)) ?? false),
+
+                    "gitlab" => ((HttpContext.Items["access"] as Repository[])
+                        ?.Any(x =>
+                              x.Provider == "gitlab"
+                           && x.RepoId == id
+                           && x.Branches.Contains(sha)) ?? false),
+
+                    "bitbucket" => ((HttpContext.Items["access"] as Repository[])
+                        ?.Any(x =>
+                              x.Provider == "bitbucket"
+                           && x.Owner == user
+                           && x.Repo == repo
+                           && x.Branches.Contains(sha)) ?? false),
+
+                    _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
+                });
+        }
 
         [HttpGet("{provider}/{id}/{user}/{repo}/blob/{sha}/{**uri}")]
         [Produces("application/json")]
         public async Task<ActionResult<BlobResult>> GetRepoBlob(string provider, int id, string user, string repo, string sha, string uri)
         {
+            if (!IsAuthorized(provider, id, user, repo, sha))
+                return new ForbidResult("token");
             switch (provider)
             {
                 case "github":
@@ -108,7 +138,9 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<TreeResult.TreeNode[]>> GetRepoTree(string provider, int id, string user, string repo, string sha, string uri)
         {
-            switch(provider)
+            if (!IsAuthorized(provider, id, user, repo, sha))
+                return new ForbidResult("token");
+            switch (provider)
             {
                 case "github":
                     {
