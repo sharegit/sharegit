@@ -76,7 +76,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             
             localStorage.setItem('alltokens', JSON.stringify(tokens))
             localStorage.setItem('token', this.props.token)
-        } catch {
+        } catch(error) {
+            console.log(error)
             this.state.tokenValid = false;
             this.setState(this.state);
         }
