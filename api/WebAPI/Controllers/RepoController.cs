@@ -116,6 +116,8 @@ namespace WebAPI.Controllers
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            RefreshToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            AccessTokenExp = sharingUser.BitbucketConnection.AccessTokenExp,
                             UserId = sharingUser.Id
                         };
                         var content = await RepositoryServiceBB.GetContent(user, repo, sha, uri, userAccessToken);
@@ -183,6 +185,8 @@ namespace WebAPI.Controllers
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            RefreshToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                            AccessTokenExp = sharingUser.BitbucketConnection.AccessTokenExp,
                             UserId = sharingUser.Id
                         };
 

@@ -58,11 +58,13 @@ namespace WebAPI.Controllers
 
             var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
             var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
+            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 90).ToUnixTimeSeconds();
 
             var bitbucketUserAccess = new BitbucketUserAccess()
             {
                 AccessToken = accessToken,
+                AccessTokenExp = accessTokenExp,
+                RefreshToken = refreshToken,
                 UserId = null
             };
             var user = await AccountServiceBB.GetUserInfo(bitbucketUserAccess);
@@ -209,8 +211,8 @@ namespace WebAPI.Controllers
 
             var encodedAccessToken = JWT.Encode(accessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
             var encodedRefreshToken = JWT.Encode(refreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
-            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 10).ToUnixTimeSeconds();
-            var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 10).ToUnixTimeSeconds();
+            var accessTokenExp = DateTimeOffset.UtcNow.AddSeconds(accessTokenExpIn - 90).ToUnixTimeSeconds();
+            var refreshTokenExp = DateTimeOffset.UtcNow.AddSeconds(refreshTokenExpIn - 90).ToUnixTimeSeconds();
 
 
             var githubUserAccess = new GithubUserAccess()

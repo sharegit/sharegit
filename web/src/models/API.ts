@@ -57,6 +57,7 @@ export interface DashboardResponse {
 }
 export interface SettingsReponse {
     displayName?: string;
+    email?: string;
     githubConnected?: boolean;
     gitLabConnected?: boolean;
     bitbucketConnected?: boolean;

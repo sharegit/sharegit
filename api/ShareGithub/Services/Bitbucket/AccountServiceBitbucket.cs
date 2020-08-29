@@ -3,6 +3,8 @@ using Core.Model.Bitbucket;
 using Core.Util;
 using Microsoft.Extensions.Options;
 using ShareGithub.BitbucketAuth;
+using ShareGithub.Models;
+using ShareGithub.Repositories;
 using ShareGithub.Settings;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -12,7 +14,8 @@ namespace ShareGithub.Services
 {
     public class AccountServiceBitbucket : BitbucketBaseService, IAccountServiceBitbucket
     {
-        public AccountServiceBitbucket(IOptions<BitbucketAppSettings> appSettings) : base(appSettings)
+        public AccountServiceBitbucket(IOptions<BitbucketAppSettings> appSettings,
+            IRepository<Account, AccountDatabaseSettings> accountRepository) : base(appSettings, accountRepository)
         {
         }
         /// <summary>
@@ -34,6 +37,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<APIResponse<BitbucketUserInfo>> GetUserInfo(BitbucketUserAccess accessToken)
         {
+            RefreshTokenIfNecessary(accessToken);
             return await FetchAPI<BitbucketUserInfo>(
                 "/user", HttpMethod.Get,
                 new UserBitbucketAuth(accessToken));
@@ -44,6 +48,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<APIResponse<PaginatedBitbucketResponse<BitbucketEmail>>> GetUserEmails(BitbucketUserAccess accessToken)
         {
+            RefreshTokenIfNecessary(accessToken);
             return await FetchBitbucketAPIRecursively<BitbucketEmail>(
                 "/user/emails", HttpMethod.Get,
                 new UserBitbucketAuth(accessToken));

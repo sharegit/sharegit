@@ -134,6 +134,8 @@ namespace WebAPI.Controllers
                                 {
                                     UserId = user.Id,
                                     AccessToken = JWT.Decode<string>(user.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                                    RefreshToken = JWT.Decode<string>(user.BitbucketConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                                    AccessTokenExp = user.BitbucketConnection.AccessTokenExp
                                 };
                                 var repositoriesResponseBB = await RepositoryServiceBB.GetRepositories(bitbucketUserAccess);
                                 foreach (var rep in repositoriesResponseBB.Value.Values)

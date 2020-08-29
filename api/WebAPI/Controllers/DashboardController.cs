@@ -177,6 +177,8 @@ namespace WebAPI.Controllers
                     var userAccess = new BitbucketUserAccess()
                     {
                         AccessToken = JWT.Decode<string>(bitbucket.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                        RefreshToken = JWT.Decode<string>(bitbucket.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                        AccessTokenExp = bitbucket.AccessTokenExp,
                         UserId = user.Id
                     };
                     var repositories = await RepositoryServiceBB.GetRepositories(userAccess);
@@ -235,6 +237,8 @@ namespace WebAPI.Controllers
             var bitbucketuserAccess = bitbucket == null ? null : new BitbucketUserAccess()
             {
                 AccessToken = JWT.Decode<string>(bitbucket.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                RefreshToken = JWT.Decode<string>(bitbucket.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                AccessTokenExp = bitbucket.AccessTokenExp,
                 UserId = user.Id
             };
             var githubRepos = github == null ? new GithubRepository[0] : await RepositoryServiceGH.GetUserInstallationRepositories(githubUserAccess);
