@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EmailTemplates</name>
+    </assembly>
+    <members>
+        <member name="T:EmailTemplates.ViewModels.ConfirmationViewModel">
+            <summary>ViewModel for a confirmation type email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Title">
+            <summary>Title of the page</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.PreHeader">
+            <summary>PreHeader for this email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Hero">
+            <summary>Hero at the top of this email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.EmailDisclaimer">
+            <summary>Disclaimers in the footer</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Greeting">
+            <summary>Greeting for the reader</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Intro">
+            <summary>First paragraph</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Cheers">
+            <summary>Greeting at the end</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.BadButton">
+            <summary>Text in case the button doesn't work for the user what to do</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.Button">
+            <summary>Button for confitming the subject</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.ShareGitTeam">
+            <summary>Team name</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.ConfirmationViewModel.SiteBaseUrl">
+            <summary>Base URL for the website for static resources</summary>
+        </member>
+        <member name="T:EmailTemplates.ViewModels.EmailButtonViewModel">
+            <summary>ViewModel for a button in an email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.EmailButtonViewModel.Text">
+            <summary>Text written on the button</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.EmailButtonViewModel.Url">
+            <summary>Url that this button direct to when clicked</summary>
+        </member>
+        <member name="T:EmailTemplates.ViewModels.InformationViewModel">
+            <summary>ViewModel for a confirmation type email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.Title">
+            <summary>Title of the page</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.PreHeader">
+            <summary>PreHeader for this email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.Hero">
+            <summary>Hero at the top of this email</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.EmailDisclaimer">
+            <summary>Disclaimers in the footer</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.Greeting">
+            <summary>Greeting for the reader</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.Intro">
+            <summary>First paragraph</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.Cheers">
+            <summary>Greeting at the end</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.ShareGitTeam">
+            <summary>Team name</summary>
+        </member>
+        <member name="P:EmailTemplates.ViewModels.InformationViewModel.SiteBaseUrl">
+            <summary>Base URL for the website for static resources</summary>
+        </member>
+    </members>
+</doc>

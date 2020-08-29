@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EmailTemplates;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ShareGithub;
 using ShareGithub.Repositories;
@@ -19,6 +20,8 @@ namespace WebAPI.StartupExtensions
 
             services.AddTransient<IAccountServiceBitbucket, AccountServiceBitbucket>();
             services.AddTransient<IRepositoryServiceBitbucket, RepositoryServiceBitbucket>();
+
+            services.AddTransient<IRazorStringRenderer, RazorStringRenderer>();
 
             services.Configure<AccountDatabaseSettings>(configuration.GetSection(nameof(AccountDatabaseSettings)));
             services.Configure<ShareDatabaseSettings>(configuration.GetSection(nameof(ShareDatabaseSettings)));

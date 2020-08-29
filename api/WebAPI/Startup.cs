@@ -18,6 +18,8 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMvc();
+
             services.AddControllers();
 
             services.SetupServices(Configuration);
