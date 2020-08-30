@@ -40,7 +40,14 @@ export default class Settings extends React.Component {
     onValueChange(target: string, value: string) {
         this.state.changedSettings[target] = value;
         if(this.state.originalSettings != undefined)
-            this.state.originalSettings.displayName = value;
+            switch (target) {
+                case 'displayName':
+                    this.state.originalSettings.displayName = value;
+                    break;
+                case 'email':
+                    this.state.originalSettings.email = value;
+                    break;
+            }
         this.setState(this.state);
     }
     async onSubmit(event: React.FormEvent<HTMLFormElement>, data: FormProps) {
@@ -65,6 +72,12 @@ export default class Settings extends React.Component {
                             <Form.Field id="displayname">
                                 <label>Display Name</label>
                                 <input id="displayname" value={this.state.originalSettings.displayName} onChange={(e) => {
+                                    this.onValueChange(e.target.id, e.target.value);
+                                }} placeholder='Display Name' />
+                            </Form.Field>
+                            <Form.Field id="email">
+                                <label>Email address</label>
+                                <input id="email" value={this.state.originalSettings.email} onChange={(e) => {
                                     this.onValueChange(e.target.id, e.target.value);
                                 }} placeholder='Display Name' />
                             </Form.Field>

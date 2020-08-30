@@ -64,9 +64,10 @@ namespace WebAPI.Controllers
             var user = AccountRepository.Get(userId.Value);
 
             if (newSettings.DisplayName != null)
-            {
                 user.DisplayName = newSettings.DisplayName;
-            }
+
+            if (newSettings.Email != null)
+                user.Email = newSettings.Email;
 
             AccountRepository.Update(user.Id, user);
             return new OkResult();
@@ -80,6 +81,7 @@ namespace WebAPI.Controllers
             return new SettingsInfo()
             {
                 DisplayName = user.DisplayName,
+                Email = user.Email,
                 GithubConnected = user.GithubConnection != null,
                 GitLabConnected = user.GitlabConnection != null,
                 BitbucketConnected = user.BitbucketConnection != null,
