@@ -184,6 +184,32 @@ export default class API {
             });
         });
     }
+    static async delete<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        console.log(`Requesting: ${request}`);
+
+        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
+        if (additionalConfig != undefined)
+            Object.assign(config, additionalConfig);
+        return new Promise<APIResponse<T>>((resolve, reject) => {
+            axios.delete<T>(request, config)
+            .then((res: AxiosResponse<T>) => {
+                if(res.status >= 200 && res.status < 400) {
+                    console.log(`Got a response for ${request} (${res.status})`)
+                    resolve({
+                        data: res.data,
+                        statusCode: res.status
+                    })
+                } else {
+                    console.error(`Error while requesting ${request} ${res.status}`)
+                    reject();
+                }
+            })
+            .catch((error) => {
+                console.error(`Error while requesting ${request} ${error}`)
+                reject();
+            });
+        });
+    }
 
     static async getData<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
         const result = await this.get<T>(request, cancelToken)
@@ -237,5 +263,13 @@ export default class API {
     static async deleteToken(token: string, cancelToken: CancelToken): Promise<any> {
         const request = `${config.apiUrl}/dashboard/deletetoken/${token}`;
         return await this.post<any>(request, {}, cancelToken);
+    }
+    static async startDeleteAccount(cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/dashboard`;
+        return await this.put<any>(request, {}, cancelToken);
+    }
+    static async deleteAccount(token: string, cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/dashboard/${token}`;
+        return await this.delete<any>(request, cancelToken);
     }
 }

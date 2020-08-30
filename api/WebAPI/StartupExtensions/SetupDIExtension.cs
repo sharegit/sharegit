@@ -30,6 +30,7 @@ namespace WebAPI.StartupExtensions
             services.Configure<GithubAppSettings>(configuration.GetSection(nameof(GithubAppSettings)));
             services.Configure<GitlabAppSettings>(configuration.GetSection(nameof(GitlabAppSettings)));
             services.Configure<BitbucketAppSettings>(configuration.GetSection(nameof(BitbucketAppSettings)));
+            services.Configure<ShareGitCommonSettings>(configuration.GetSection(nameof(ShareGitCommonSettings)));
             services.Configure<NoreplyEmailSettings>(configuration.GetSection(nameof(NoreplyEmailSettings)));
 
             services.AddTransient(typeof(IRepository<,>), typeof(RepositoryBase<,>));

@@ -6,9 +6,7 @@ import Dashboard, {IProps as IDashboardProps} from './Dashboard';
 import Authentication, {IProps as IAuthenticationProps} from './Authentication';
 import {
   BrowserRouter as Router,
-  RouteProps,
   Route,
-  Link,
   RouteComponentProps
 } from 'react-router-dom';
 import styles from '../styles/App.scss';
@@ -17,6 +15,7 @@ import highlight from 'highlight.js'
 import NavMenuItem from './NavMenuItem';
 import Logout from './Logout';
 import Settings from './Settings';
+import ConfirmAccountDeletion, {IProps as IConfirmAccountDeletionProps} from './ConfirmAccountDeletion';
 highlight.configure({
   tabReplace: '    '
 })
@@ -113,6 +112,13 @@ export default class App extends React.Component<IProps, IState> {
               <Route path="/dashboard/settings" exact component={(props: any) => (
                 <Settings
                   {...props}
+                  {...props.match.params}/>
+              )}></Route>
+              
+              <Route path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
+                <ConfirmAccountDeletion
+                  {...props}
+                  logout={this.logout.bind(this)}
                   {...props.match.params}/>
               )}></Route>
             </div>

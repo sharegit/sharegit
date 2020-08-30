@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, FormProps, Segment, Icon } from 'semantic-ui-react';
+import { Form, Button, FormProps, Segment, Icon, Confirm } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { SettingsReponse } from '../models/API';
 import Dictionary from '../util/Dictionary';
@@ -12,6 +12,7 @@ interface IState extends BaseState {
     state: string;
     originalSettings?: SettingsReponse;
     changedSettings: Dictionary<string>;
+    accountDeletionOpen: boolean;
 }
 
 export default class Settings extends React.Component {
@@ -20,6 +21,7 @@ export default class Settings extends React.Component {
         changedSettings: {},
         cancelToken: API.aquireNewCancelToken(),
         state: this.constructState(),
+        accountDeletionOpen: false
     }
     constructState(): string {
         return btoa(JSON.stringify({
@@ -129,6 +131,33 @@ export default class Settings extends React.Component {
                             </Button>
                         }
                     </Segment>
+                    <Segment id={styles.dangerZone} className={styles.segment}>
+                        <h2>Danger zone</h2>
+                        <Button primary onClick={() => {
+                            this.state.accountDeletionOpen = true;
+                            this.setState(this.state);
+                        }}>
+                            <Icon name='delete'></Icon>
+                            Delete my account
+                        </Button>
+                    </Segment>
+
+                    <Confirm
+                        open={this.state.accountDeletionOpen}
+                        onCancel={() => {
+                            this.state.accountDeletionOpen = false;
+                            this.setState(this.state);
+                        }}
+                        onConfirm={async () => {
+                            await API.startDeleteAccount(this.state.cancelToken);
+                            this.state.accountDeletionOpen = false;
+                            this.setState(this.state);
+                        }}
+                        header='Confirm Account deletion'
+                        content='An email confirmation will be sent to your provided email address. Please follow the instructions described there to completely remove your account from our services.'
+                        cancelButton='Cancel'
+                        confirmButton="Send Email confirmation">
+                    </Confirm>
                 </div>
             );
         }

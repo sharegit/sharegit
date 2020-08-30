@@ -3,13 +3,17 @@ using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
+using EmailTemplates;
+using EmailTemplates.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using ShareGithub;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
+using ShareGithub.Services;
 using ShareGithub.Settings;
 using System;
 using System.Collections.Generic;
@@ -30,18 +34,87 @@ namespace WebAPI.Controllers
         private IRepositoryServiceGithub RepositoryServiceGH { get; }
         private IRepositoryServiceGitlab RepositoryServiceGL { get; }
         private IRepositoryServiceBitbucket RepositoryServiceBB { get; }
+        private IRazorStringRenderer RazorViewToStringRenderer { get; }
+        private ShareGitCommonSettings ShareGitCommonSettings { get; }
+        private IEmailService EmailService { get; }
 
         public DashboardController(IRepositoryServiceGithub repositoryServiceGH,
             IRepositoryServiceGitlab repositoryServiceGL,
             IRepositoryServiceBitbucket repositoryServiceBB,
+            IRazorStringRenderer razorViewToStringRenderer,
+            IEmailService emailService,
+            IOptions<ShareGitCommonSettings> shareGitCommonSettings,
             IRepository<Account, AccountDatabaseSettings> accountRepository,
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             RepositoryServiceGH = repositoryServiceGH;
             RepositoryServiceGL = repositoryServiceGL;
             RepositoryServiceBB = repositoryServiceBB;
+
+            EmailService = emailService;
+
+            ShareGitCommonSettings = shareGitCommonSettings.Value;
+            RazorViewToStringRenderer = razorViewToStringRenderer;
+
             AccountRepository = accountRepository;
             ShareRepository = shareRepository;
+        }
+
+        [HttpPut()]
+        public async Task<ActionResult> StartDeleteRegistrationProcess()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+
+            using RandomNumberGenerator rng = new RNGCryptoServiceProvider();
+            byte[] tokenData = new byte[64];
+            rng.GetBytes(tokenData);
+            var requestedDeletionToken = Base64UrlTextEncoder.Encode(tokenData);
+
+            user.RequestedDeletionToken = requestedDeletionToken;
+            AccountRepository.Update(user.Id, user);
+
+            var body = await RazorViewToStringRenderer.RenderAsync<object>("/Views/Emails/Confirmation/ConfirmationHtml.cshtml", new ConfirmationViewModel()
+            {
+                PreHeader = "Confirm account deletion!",
+                Title = "Account deletion",
+                Hero = "Account deletion",
+                Greeting = $"Dear {user.DisplayName},",
+                Intro = "You requested us to delete all of your personal information from our services. This means that we will vipe all shared repository informations and all of your personal information from our services. Please note that you will have to manually disconnect any OAuth providers from Github, Gitlab or Bitbucket. This also means that the tokens you shared will become invalid as soon as your account information is removed. We ask you to confirm by clicking on the button down below.",
+                SiteBaseUrl = ShareGitCommonSettings.SiteUrl,
+                Cheers = "Kind Regards, ",
+                ShareGitTeam = "ShareGit Team",
+                EmailDisclaimer = "If you did not request the account deletion please ignore this email.",
+                BadButton = "If the button does not work please copy and past this link into your browser.",
+                Button = new EmailButtonViewModel()
+                {
+                    Text = "Delete my account!",
+                    Url = $"{ShareGitCommonSettings.SiteUrl}/dashboard/confirmaccountdeletion/${requestedDeletionToken}"
+                }
+            });
+            await EmailService.SendMailAsync(user.DisplayName, user.Email, "Account Deletion", body);
+            return new OkResult();
+        }
+
+        [HttpDelete("{token}")]
+        public async Task<ActionResult> DeleteRegistration(string token)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+            if (user.RequestedDeletionToken == token)
+            {
+                user.SharedTokens.ForEach(x =>
+                {
+                    var entry = ShareRepository.Find(x => x.Token == x.Token);
+                    ShareRepository.Remove(entry.Id);
+                });
+                AccountRepository.Remove(user.Id);
+                return new OkResult();
+            }
+            else
+            {
+                return new ForbidResult("jwt");
+            }
         }
 
         [HttpGet()]
@@ -248,14 +321,14 @@ namespace WebAPI.Controllers
             var bitbucketRepos = bitbucket == null ? new BitbucketRepository[0] : (await RepositoryServiceBB.GetRepositories(bitbucketuserAccess)).Value.Values;
             if (createToken.Repositories.Any(c => !githubRepos.Any(r => c.Provider == "github" && c.Owner == r.Owner.Login && c.Repo == r.Name)
                                                 && !gitlabRepos.Any(r => c.Provider == "gitlab" && c.Id == r.Id)
-                                                && !bitbucketRepos.Any(r=>c.Provider == "bitbucket" && c.Owner == r.Workspace.Slug && c.Repo == r.Slug)))
+                                                && !bitbucketRepos.Any(r => c.Provider == "bitbucket" && c.Owner == r.Workspace.Slug && c.Repo == r.Slug)))
             {
                 return new ForbidResult();
             }
 
             async Task<string[]> TranslateBranches(CreateToken.Repository repository)
             {
-                switch(repository.Provider)
+                switch (repository.Provider)
                 {
                     case "github":
                         var brDicGH = (await RepositoryServiceGH.GetBranches(repository.Owner, repository.Repo, githubUserAccess)).Value.ToDictionary(x => x.Name, x => x);

@@ -4,7 +4,6 @@ using Core.Model.Github;
 using Core.Model.GitLab;
 using Core.Util;
 using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Math.EC.Rfc7748;
 using ShareGithub.Models;
 using ShareGithub.Repositories;
 using ShareGithub.Services;
@@ -33,17 +32,9 @@ namespace WebAPI.Controllers
             AccountServiceGH = accountServiceGH;
             AccountServiceGL = accountServiceGL;
             AccountServiceBB = accountServiceBB;
-            AccountRepository = accountRepository;
-        }
 
-        /// <summary>
-        /// https://stackoverflow.com/questions/2715532/synchronizing-access-to-a-member-of-the-asp-net-session
-        /// https://docs.microsoft.com/en-us/previous-versions/dotnet/articles/aa479041(v=msdn.10)?redirectedfrom=MSDN
-        /// </summary>
-        /// <returns></returns>
-        public async Task<ActionResult> RefreshToken()
-        {
-            return new OkResult();
+
+            AccountRepository = accountRepository;
         }
 
         [HttpGet("bitbucket/{code}/{state}")]
@@ -69,7 +60,7 @@ namespace WebAPI.Controllers
             };
             var user = await AccountServiceBB.GetUserInfo(bitbucketUserAccess);
 
-            
+
             string name = user.Value.DisplayName;
             string bitbucket_id = user.Value.UUID;
 
