@@ -23,7 +23,7 @@ namespace ShareGithub.Services
             AccountRepository = accountRepository;
         }
 
-        public async Task<APIResponse<BitbucketWebFlowAccessToken>> RefreshTokenIfNecessary(BitbucketUserAccess userAccess)
+        public async Task<BitbucketUserAccess> RefreshTokenIfNecessary(BitbucketUserAccess userAccess)
         {
             if (userAccess.AccessTokenExp < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
             {
@@ -49,10 +49,19 @@ namespace ShareGithub.Services
 
                     account.BitbucketConnection.EncodedAccessToken = encodedAccessToken;
                     account.BitbucketConnection.AccessTokenExp = accessTokenExp;
+
+                    AccountRepository.Update(account.Id, account);
+                    return new BitbucketUserAccess()
+                    {
+                        AccessToken = accessToken,
+                        AccessTokenExp = accessTokenExp,
+                        RefreshToken = userAccess.RefreshToken,
+                        UserId = userAccess.UserId
+                    };
                 }
             }
 
-            return null;
+            return userAccess;
         }
 
         protected async Task<APIResponse<PaginatedBitbucketResponse<T>>> FetchBitbucketAPIRecursively<T>(string url, HttpMethod method, AuthMode authMode = null, Dictionary<string, string> body = null, params (string key, string value)[] queryOptions)

@@ -37,7 +37,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<APIResponse<BitbucketUserInfo>> GetUserInfo(BitbucketUserAccess accessToken)
         {
-            RefreshTokenIfNecessary(accessToken);
+            accessToken = await RefreshTokenIfNecessary(accessToken);
             return await FetchAPI<BitbucketUserInfo>(
                 "/user", HttpMethod.Get,
                 new UserBitbucketAuth(accessToken));
@@ -48,7 +48,7 @@ namespace ShareGithub.Services
         /// </summary>
         public async Task<APIResponse<PaginatedBitbucketResponse<BitbucketEmail>>> GetUserEmails(BitbucketUserAccess accessToken)
         {
-            RefreshTokenIfNecessary(accessToken);
+            accessToken = await RefreshTokenIfNecessary(accessToken);
             return await FetchBitbucketAPIRecursively<BitbucketEmail>(
                 "/user/emails", HttpMethod.Get,
                 new UserBitbucketAuth(accessToken));
