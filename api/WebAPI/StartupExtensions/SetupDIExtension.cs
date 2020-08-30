@@ -22,6 +22,7 @@ namespace WebAPI.StartupExtensions
             services.AddTransient<IRepositoryServiceBitbucket, RepositoryServiceBitbucket>();
 
             services.AddTransient<IRazorStringRenderer, RazorStringRenderer>();
+            services.AddTransient<IEmailService, EmailService>();
 
             services.Configure<AccountDatabaseSettings>(configuration.GetSection(nameof(AccountDatabaseSettings)));
             services.Configure<ShareDatabaseSettings>(configuration.GetSection(nameof(ShareDatabaseSettings)));
@@ -29,6 +30,7 @@ namespace WebAPI.StartupExtensions
             services.Configure<GithubAppSettings>(configuration.GetSection(nameof(GithubAppSettings)));
             services.Configure<GitlabAppSettings>(configuration.GetSection(nameof(GitlabAppSettings)));
             services.Configure<BitbucketAppSettings>(configuration.GetSection(nameof(BitbucketAppSettings)));
+            services.Configure<NoreplyEmailSettings>(configuration.GetSection(nameof(NoreplyEmailSettings)));
 
             services.AddTransient(typeof(IRepository<,>), typeof(RepositoryBase<,>));
         }
