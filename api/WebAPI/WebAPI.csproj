@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
-    <ProjectReference Include="..\EmailTemplates\EmailTemplates.csproj" />
+    <ProjectReference Include="..\EmailTemplate\EmailTemplate.csproj" />
     <ProjectReference Include="..\ShareGit\ShareGit.csproj" />
   </ItemGroup>
 

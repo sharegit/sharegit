@@ -18,7 +18,7 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddRazorPages();
 
             services.AddControllers();
 
