@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30128.74
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{472B5D10-8B6D-4EC3-AB18-956E9ED3B311}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{2EC5EB7D-924C-46CB-B24B-D4D893274285}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShareGit", "ShareGit\ShareGit.csproj", "{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailTemplates", "EmailTemplates\EmailTemplates.csproj", "{B20DB3F9-4449-4094-A71E-3C3E8A015832}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{472B5D10-8B6D-4EC3-AB18-956E9ED3B311}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{472B5D10-8B6D-4EC3-AB18-956E9ED3B311}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{472B5D10-8B6D-4EC3-AB18-956E9ED3B311}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{472B5D10-8B6D-4EC3-AB18-956E9ED3B311}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EC5EB7D-924C-46CB-B24B-D4D893274285}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EC5EB7D-924C-46CB-B24B-D4D893274285}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EC5EB7D-924C-46CB-B24B-D4D893274285}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EC5EB7D-924C-46CB-B24B-D4D893274285}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {811FE388-604E-4082-945F-C2782322DDE6}
+	EndGlobalSection
+EndGlobal

@@ -40,7 +40,7 @@ namespace WebAPI
             }
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v0/swagger.json", "Share-Github API v0");
+                c.SwaggerEndpoint("/swagger/v0/swagger.json", "Share-Git API v0");
                 c.RoutePrefix = string.Empty;
             });
 

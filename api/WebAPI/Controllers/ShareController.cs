@@ -4,10 +4,10 @@ using Core.Model.GitLab;
 using Core.Util;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ShareGithub;
-using ShareGithub.Models;
-using ShareGithub.Repositories;
-using ShareGithub.Settings;
+using ShareGit;
+using ShareGit.Models;
+using ShareGit.Repositories;
+using ShareGit.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         {
             if (HttpContext.Items.ContainsKey("access"))
             {
-                var repos = HttpContext.Items["access"] as ShareGithub.Models.Repository[];
+                var repos = HttpContext.Items["access"] as ShareGit.Models.Repository[];
                 var sharedRepo = repos.FirstOrDefault(x => x.Owner == owner && x.Repo == repo);
                 if (sharedRepo != null)
                     return sharedRepo.Branches.Select(x => new Branch()

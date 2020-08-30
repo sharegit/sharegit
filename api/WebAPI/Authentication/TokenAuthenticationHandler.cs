@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using ShareGithub.Models;
-using ShareGithub.Repositories;
-using ShareGithub.Settings;
+using ShareGit.Models;
+using ShareGit.Repositories;
+using ShareGit.Settings;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;

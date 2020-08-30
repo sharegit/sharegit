@@ -1,10 +1,10 @@
 ﻿using EmailTemplates;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ShareGithub;
-using ShareGithub.Repositories;
-using ShareGithub.Services;
-using ShareGithub.Settings;
+using ShareGit;
+using ShareGit.Repositories;
+using ShareGit.Services;
+using ShareGit.Settings;
 
 namespace WebAPI.StartupExtensions
 {

@@ -46,8 +46,8 @@ namespace WebAPI.StartupExtensions
                 c.SwaggerDoc("v0", new OpenApiInfo
                 {
                     Version = "v0",
-                    Title = "Share-Github API",
-                    Description = "API for the Share-Github project"
+                    Title = "Share-Git API",
+                    Description = "API for the Share-Git project"
                 });
                 c.AddSecurity("token");
                 c.AddSecurity("jwt");

@@ -10,11 +10,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ShareGithub;
-using ShareGithub.Models;
-using ShareGithub.Repositories;
-using ShareGithub.Services;
-using ShareGithub.Settings;
+using ShareGit;
+using ShareGit.Models;
+using ShareGit.Repositories;
+using ShareGit.Services;
+using ShareGit.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -379,7 +379,7 @@ namespace WebAPI.Controllers
             rng.GetBytes(tokenData);
             var share = new Share()
             {
-                Token = new ShareGithub.Models.SharedToken()
+                Token = new ShareGit.Models.SharedToken()
                 {
                     Token = Base64UrlTextEncoder.Encode(tokenData),
                     SharingUserId = user.Id,
@@ -388,7 +388,7 @@ namespace WebAPI.Controllers
                 AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
             };
 
-            user.SharedTokens.Add(new ShareGithub.Models.SharedToken()
+            user.SharedTokens.Add(new ShareGit.Models.SharedToken()
             {
                 Token = share.Token.Token,
                 Stamp = createToken.Stamp
