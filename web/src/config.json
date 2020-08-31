@@ -2,16 +2,16 @@
     "apiUrl": "unknown",
     "github_auth": {
         "client_id": "Iv1.d6a2ae76af24c59e",
-        "redirect_uri": "http://share.akromentos.studio/auth/github"
+        "redirect_uri": "https://sharegit.com/auth/github"
     },
     "gitlab_auth": {
         "client_id": "5608c28d28df8138123152dfdc0af45a0492b6cec1f3624e76fd515f4ff363d4",
-        "redirect_uri": "http://share.akromentos.studio/auth/gitlab"
+        "redirect_uri": "https://sharegit.com/auth/gitlab"
     },
     "bitbucket_auth": {
         "client_id": "bLJYWcbNLW9RAg9HQD",
-        "redirect_uri": "http://share.akromentos.studio/auth/bitbucket"
+        "redirect_uri": "https://sharegit.com/auth/bitbucket"
     },
-    "share_uri": "http://share.akromentos.studio/share",
+    "share_uri": "https://sharegit.com/share",
     "isDev": true
 }
