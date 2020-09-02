@@ -1,6 +1,7 @@
 import config from '../config'
 import axios, {AxiosResponse, AxiosRequestConfig, AxiosError, CancelToken as AxiosCancelToken} from 'axios'
 import Mutex from '../util/Mutex';
+import RCache from './RCache';
 
 export interface APIResponse<T = any> {
     data: T;
@@ -81,6 +82,8 @@ export interface DashboardAnalyticsInfo {
 }
 
 export default class API {
+    static cache: RCache = new RCache('share-git');
+
     static aquireNewCancelToken(): CancelToken {
         return axios.CancelToken.source()
     }
@@ -223,18 +226,23 @@ export default class API {
         const result = await this.get<T>(request, cancelToken)
         return result.data;
     }
+    static async getDataCached<T = any>(request: string, cancelToken: CancelToken, ttl: number = 3600): Promise<T> {
+        return await this.cache.getOrPutAndGet<T>(request, 
+            async () =>  (await this.getData<T>(request, cancelToken)),
+            ttl);
+    }
 
     static async getSharedBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
         const request = `${config.apiUrl}/share/branches/${owner}/${repo}`;
-        return await this.getData<Branch[]>(request, cancelToken);
+        return await this.getDataCached<Branch[]>(request, cancelToken, 3600);
     }
     static async getRepoTree(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
         const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/tree/${sha}/${uri}`;
-        return await this.getData<TreeNode[]>(request, cancelToken);
+        return await this.getDataCached<TreeNode[]>(request, cancelToken, 3600);
     }
     static async getRepoBlob(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
         const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/blob/${sha}/${uri}`;
-        return await this.getData<BlobResult>(request, cancelToken);
+        return await this.getDataCached<BlobResult>(request, cancelToken, 3600);
     }
     static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {
         const request = `${config.apiUrl}/share/${token}`;
@@ -282,7 +290,7 @@ export default class API {
     }
     static async getAnalytics(cancelToken: CancelToken): Promise<DashboardAnalyticsInfo> {
         const request = `${config.apiUrl}/dashboard/analytics`;
-        return await this.getData<DashboardAnalyticsInfo>(request, cancelToken);
+        return await this.getDataCached(request, cancelToken, 3600);
     }
     static async pushHit(path: string, cid: string, cancelToken: CancelToken): Promise<any> {
         const request = `${config.apiUrl}/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;

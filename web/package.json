@@ -55,6 +55,7 @@
     "dompurify": "^2.0.12",
     "file-loader": "^6.0.0",
     "highlight.js": "^10.1.2",
+    "idb": "^5.0.4",
     "marked": "^1.1.1",
     "prop-types": "15.7.2",
     "react": "16.8.6",
