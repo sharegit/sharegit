@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ShareGit;
 using ShareGit.Repositories;
 using ShareGit.Services;
+using ShareGit.Services.Google;
 using ShareGit.Settings;
 
 namespace WebAPI.StartupExtensions
@@ -24,6 +25,9 @@ namespace WebAPI.StartupExtensions
             services.AddTransient<IRazorStringRenderer, RazorStringRenderer>();
             services.AddTransient<IEmailService, EmailService>();
 
+            services.AddHttpContextAccessor();
+            services.AddTransient<IMeasurementService, GoogleMeasurementService>();
+
             services.Configure<AccountDatabaseSettings>(configuration.GetSection(nameof(AccountDatabaseSettings)));
             services.Configure<ShareDatabaseSettings>(configuration.GetSection(nameof(ShareDatabaseSettings)));
 
@@ -32,6 +36,7 @@ namespace WebAPI.StartupExtensions
             services.Configure<BitbucketAppSettings>(configuration.GetSection(nameof(BitbucketAppSettings)));
             services.Configure<ShareGitCommonSettings>(configuration.GetSection(nameof(ShareGitCommonSettings)));
             services.Configure<NoreplyEmailSettings>(configuration.GetSection(nameof(NoreplyEmailSettings)));
+            services.Configure<GoogleAnalyticsSettings>(configuration.GetSection(nameof(GoogleAnalyticsSettings)));
 
             services.AddTransient(typeof(IRepository<,>), typeof(RepositoryBase<,>));
         }

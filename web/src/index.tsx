@@ -4,8 +4,13 @@ import React from 'react';
 import App from './components/App';
 
 import 'semantic-ui-css/semantic.min.css';
+import { BrowserRouter, Route } from 'react-router-dom';
 
-ReactDOM.render(<App/>, document.querySelector('#container'));
+ReactDOM.render(
+  <BrowserRouter>
+    <Route component={App} />
+  </BrowserRouter>,
+document.querySelector('#container'));
 
 if (module && module.hot) {
   module.hot.accept();

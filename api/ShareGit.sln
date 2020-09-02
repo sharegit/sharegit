@@ -9,9 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShareGit", "ShareGit\ShareGit.csproj", "{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailTemplates", "EmailTemplates\EmailTemplates.csproj", "{B20DB3F9-4449-4094-A71E-3C3E8A015832}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailTemplate", "EmailTemplate\EmailTemplate.csproj", "{5A6FCFD5-1D35-405C-96A7-CD42E1168F78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailTemplate", "EmailTemplate\EmailTemplate.csproj", "{5A6FCFD5-1D35-405C-96A7-CD42E1168F78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +29,6 @@ Global
 		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A94B0DE8-5B26-4D04-9C29-DF1AE5AD4471}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B20DB3F9-4449-4094-A71E-3C3E8A015832}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A6FCFD5-1D35-405C-96A7-CD42E1168F78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A6FCFD5-1D35-405C-96A7-CD42E1168F78}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A6FCFD5-1D35-405C-96A7-CD42E1168F78}.Release|Any CPU.ActiveCfg = Release|Any CPU

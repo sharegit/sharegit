@@ -5,6 +5,10 @@ using Core.Model.GitLab;
 using Core.Util;
 using EmailTemplates;
 using EmailTemplates.ViewModels;
+using Google.Apis.AnalyticsReporting.v4;
+using Google.Apis.AnalyticsReporting.v4.Data;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -17,6 +21,7 @@ using ShareGit.Services;
 using ShareGit.Settings;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -58,6 +63,76 @@ namespace WebAPI.Controllers
 
             AccountRepository = accountRepository;
             ShareRepository = shareRepository;
+        }
+
+        [HttpGet("analytics")]
+        public async Task<ActionResult<DashboardAnalyticsInfo>> GetAnalytics()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = AccountRepository.Get(userId.Value);
+
+            if (!user.SharedTokens.Any())
+                return new OkResult();
+
+            var gaTokenFilter = user.SharedTokens.First().Token;
+
+            // Create the service.
+            string[] scopes = new string[] { AnalyticsReportingService.Scope.Analytics };
+
+            GoogleCredential credential;
+            using (var stream = new FileStream(RollingEnv.Get("SHARE_GIT_GOOGLE_ANALYTICS_KEY_LOC"), FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream)
+                     .CreateScoped(scopes);
+            }
+
+            // Create the  Analytics service.
+            var service = new AnalyticsReportingService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "ShareGit",
+            });
+
+            // Run the request.
+            var reportsResource = new ReportsResource(service);
+            var tokens = user.SharedTokens;
+            var now = DateTime.UtcNow;
+            var nowStr = $"{now.Year}-{now.Month:D2}-{now.Day:D2}";
+            ReportsResource.BatchGetRequest a = reportsResource.BatchGet(new GetReportsRequest()
+            {
+                ReportRequests = tokens.Select(x =>
+                    new ReportRequest()
+                    {
+                        ViewId = "227818537",
+                        DateRanges = new List<DateRange>() {
+                            new DateRange()
+                            {
+                                StartDate = "2005-01-01",
+                                EndDate = nowStr
+                            }
+                        },
+                        Metrics = new List<Metric>()
+                        {
+                            // https://ga-dev-tools.appspot.com/dimensions-metrics-explorer/
+                            new Metric() { Expression = "ga:uniquePageViews" },
+                            new Metric() { Expression = "ga:pageViews" }
+                        },
+                        // https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filterSyntax
+                        // https://ga-dev-tools.appspot.com/dimensions-metrics-explorer/
+                        FiltersExpression = @$"ga:pagePath=@share/{x.Token}"
+                    }).ToList()
+            });
+            GetReportsResponse result = await a.ExecuteAsync();
+
+            return new DashboardAnalyticsInfo()
+            {
+                Analytics = tokens.Zip(result.Reports).Select(x => new DashboardAnalyticsInfo.Analytic()
+                {
+                    Token = x.First.Token,
+                    UniquePageViews = int.Parse(x.Second.Data.Totals[0].Values[0]),
+                    PageViews = int.Parse(x.Second.Data.Totals[0].Values[1]),
+                }).ToArray()
+            };
         }
 
         [HttpPut()]

@@ -1,8 +1,8 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { BaseState } from '../models/BaseComponent';
-import API, { SharedRepository, SharedToken } from '../models/API';
-import { List, Accordion, Icon, AccordionTitleProps, Button, Modal } from 'semantic-ui-react';
+import API, { SharedRepository, SharedToken, Analytic } from '../models/API';
+import { List, Accordion, Icon, AccordionTitleProps, Button, Modal, Segment } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import NewTokenCreation from './NewTokenCreation';
 import config from '../config';
@@ -10,6 +10,7 @@ import config from '../config';
 interface IState extends BaseState {
     name: string;
     sharedTokens: SharedToken[];
+    analytics: Analytic[];
     activeTokenIndex: number;
     repositories: { [K in number]: SharedRepository[] };
 }
@@ -23,7 +24,8 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         name: '',
         sharedTokens: [],
         activeTokenIndex: -1,
-        repositories: []
+        repositories: [],
+        analytics: []
     }
     constructor(props: IProps) {
         super(props);
@@ -32,6 +34,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         if (localStorage.getItem('OAuthJWT')) {
             const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
             const tokensRequest = API.getSharedTokens(this.state.cancelToken)
+            const analyticsRequest = API.getAnalytics(this.state.cancelToken)
 
             const essentials = await essentialsRequest;
             this.state.name = essentials.name;
@@ -42,6 +45,9 @@ export default class Dashboard extends React.Component<IProps, IState>  {
             tokens.forEach((_, index) => {
                 this.state.repositories[index] = []
             });
+
+            const analytics = await analyticsRequest;
+            this.state.analytics = analytics.analytics;
             this.setState(this.state);
         } else {
             this.props.history.push(`/auth`);
@@ -90,6 +96,14 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                     Dashboard
                 </h2>
                 <p>Hello {this.state.name}</p>
+                <Segment>
+                    <h2>Analytics</h2>
+                    <ul>
+                        {this.state.analytics.map(x=> (
+                            <li key={x.token}>{x.token}: unique ({x.uniquePageViews}) | clicks ({x.pageViews})</li>
+                        ))}
+                    </ul>
+                </Segment>
                <NewTokenCreation tokenCreatedCallback={this.addToken.bind(this)}></NewTokenCreation>
                 <Accordion fluid styled>
                     {

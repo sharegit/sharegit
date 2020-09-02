@@ -4,11 +4,7 @@ import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
 import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
 import Dashboard, {IProps as IDashboardProps} from './Dashboard';
 import Authentication, {IProps as IAuthenticationProps} from './Authentication';
-import {
-  BrowserRouter as Router,
-  Route,
-  RouteComponentProps
-} from 'react-router-dom';
+import { Route,  RouteComponentProps } from 'react-router-dom';
 import styles from '../styles/App.scss';
 
 import highlight from 'highlight.js'
@@ -16,20 +12,49 @@ import NavMenuItem from './NavMenuItem';
 import Logout from './Logout';
 import Settings from './Settings';
 import ConfirmAccountDeletion, {IProps as IConfirmAccountDeletionProps} from './ConfirmAccountDeletion';
+import { UnregisterCallback, Location, LocationState, Action } from 'history';
+import API from '../models/API';
+import { BaseState } from '../models/BaseComponent';
+import Cookies from 'universal-cookie';
+import { v4 as uuidv4 } from 'uuid';
+
 highlight.configure({
   tabReplace: '    '
 })
 highlight.initHighlightingOnLoad();
 
-interface IProps {
+interface IProps extends RouteComponentProps<any> {
 }
-interface IState {
+interface IState extends BaseState {
   isLoggedIn: boolean;
+  unreg?: UnregisterCallback;
+  cookies: Cookies;
 }
 
 export default class App extends React.Component<IProps, IState> {
   state: IState = {
-    isLoggedIn: localStorage.getItem('OAuthJWT') != undefined
+    isLoggedIn: localStorage.getItem('OAuthJWT') != undefined,
+    cancelToken: API.aquireNewCancelToken(),
+    cookies: new Cookies()
+  }
+  componentDidMount() {
+    const clientId = this.state.cookies.get('clientId')
+    if(clientId == undefined) {
+      const d = new Date();
+      this.state.cookies.set('clientId', uuidv4(), { path: '/' , expires: new Date(d.getFullYear() + 2, d.getMonth(), d.getDate())});
+    }
+
+    this.state.unreg = this.props.history.listen(this.locationChanged.bind(this))
+    this.locationChanged(this.props.location, 'PUSH');
+  }
+  componentWillUnmount() {
+    if(this.state.unreg != undefined)
+      this.state.unreg();
+  }
+  locationChanged(location: Location<LocationState>, action: Action) {
+    console.log(location);
+    const clientId = this.state.cookies.get('clientId')
+    API.pushHit(location.pathname, clientId, this.state.cancelToken);
   }
   login() {
     this.state.isLoggedIn = true;
@@ -42,7 +67,6 @@ export default class App extends React.Component<IProps, IState> {
   render() {
     return (
         <div id={styles.app}>
-          <Router>
             <nav>
               <div id={styles.leftMenu}>
                 <ul>
@@ -122,7 +146,6 @@ export default class App extends React.Component<IProps, IState> {
                   {...props.match.params}/>
               )}></Route>
             </div>
-          </Router>
         </div>
 
       )

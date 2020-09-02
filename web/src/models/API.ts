@@ -71,6 +71,14 @@ export interface Branch {
     sha: boolean;
 }
 
+export interface Analytic {
+    token: string;
+    pageViews: string;
+    uniquePageViews: string;
+}
+export interface DashboardAnalyticsInfo {
+    analytics: Analytic[];
+}
 
 export default class API {
     static aquireNewCancelToken(): CancelToken {
@@ -271,5 +279,13 @@ export default class API {
     static async deleteAccount(token: string, cancelToken: CancelToken): Promise<any> {
         const request = `${config.apiUrl}/dashboard/${token}`;
         return await this.delete<any>(request, cancelToken);
+    }
+    static async getAnalytics(cancelToken: CancelToken): Promise<DashboardAnalyticsInfo> {
+        const request = `${config.apiUrl}/dashboard/analytics`;
+        return await this.getData<DashboardAnalyticsInfo>(request, cancelToken);
+    }
+    static async pushHit(path: string, cid: string, cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
+        return await this.post(request, {}, cancelToken);
     }
 }
