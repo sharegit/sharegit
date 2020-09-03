@@ -9,6 +9,7 @@ export interface CacheElement<T> {
 }
 
 export default class RCache {
+    private dictionary?: Dictionary<any>;
     private cache?: IDBPDatabase;
     private dbName: string;
 
@@ -17,28 +18,33 @@ export default class RCache {
     }
 
     async init() {
-        this.cache = await openDB(this.dbName, 1, {
-            upgrade(db, oldVersion, newVersion, transaction) {
-              switch (oldVersion) {
-                  case 0:
-                      console.log(`Creating ${DB_CACHE_OBJECT_STORE} for the first time`);
-                      db.createObjectStore(DB_CACHE_OBJECT_STORE);
-                      break;
-                default:
-                    break;
-              }
-            },
-            blocked() {
-              // …
-            },
-            blocking() {
-              // …
-            },
-            terminated() {
-              // …
-            },
-          });
-
+        try {
+            this.cache = await openDB(this.dbName, 1, {
+                upgrade(db, oldVersion, newVersion, transaction) {
+                switch (oldVersion) {
+                    case 0:
+                        console.log(`Creating ${DB_CACHE_OBJECT_STORE} for the first time`);
+                        db.createObjectStore(DB_CACHE_OBJECT_STORE);
+                        break;
+                    default:
+                        break;
+                }
+                },
+                blocked() {
+                },
+                blocking() {
+                },
+                terminated() {
+                }
+            });
+            this.dictionary = undefined;
+            console.log('Using IndexedDB cache!')
+        }
+        catch(e){
+            this.dictionary = {}
+            this.cache = undefined;
+            console.log('IndexedDB cache initialization failed, using in-memory caching!');
+        }
     }
 
     async getOrPutAndGet<T>(key: string, value: () => Promise<T>, ttl: number): Promise<T> {
@@ -54,13 +60,12 @@ export default class RCache {
     }
 
     async get<T>(key: string): Promise<T | undefined> {
-        console.log(this.cache);
-        if (this.cache == undefined)
-            return undefined;
-
-        const c = await this.cache.get(DB_CACHE_OBJECT_STORE, key) as CacheElement<T>;
-        console.log(c);
-        
+        let c: CacheElement<T> | undefined = undefined
+        if (this.cache != undefined)
+            c = await this.cache.get(DB_CACHE_OBJECT_STORE, key) as CacheElement<T>;
+        else if (this.dictionary != undefined)
+            c = this.dictionary[key]
+                
         if (c == undefined || c.exp < new Date().getTime() / 1000)
             return undefined;
         else
@@ -69,13 +74,13 @@ export default class RCache {
 
     // TTL in seconds!! 
     async put<T>(key: string, value: T, ttl: number = 3600) : Promise<any> {
-        if (this.cache == undefined)
-            return undefined;
-
         const c = {
             exp: new Date().getTime() / 1000 + ttl,
             data: value
         };
-        await this.cache.put(DB_CACHE_OBJECT_STORE, c, key);
+        if (this.cache != undefined)
+            await this.cache.put(DB_CACHE_OBJECT_STORE, c, key);
+        else if (this.dictionary != undefined)
+            this.dictionary[key] = c;
     }
 }
