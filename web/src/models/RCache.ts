@@ -1,5 +1,5 @@
 import Dictionary from "../util/Dictionary";
-import { IDBPDatabase, openDB } from 'idb';
+import { IDBPDatabase, openDB } from '../vendor/idb/index';
 
 const DB_CACHE_OBJECT_STORE : string = 'share-git-cache';
 
