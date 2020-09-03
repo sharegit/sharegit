@@ -1,6 +1,6 @@
 
 .authSegment {
-    a {
+    :global(a.button) {
         display: block !important;
         width: 300px;
         margin: 10px auto 10px auto !important;

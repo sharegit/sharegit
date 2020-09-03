@@ -76,7 +76,8 @@ export default class App extends React.Component<IProps, IState> {
               </div>
               <div id={styles.rightMenu}>
                 <ul>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/auth">Login</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
                   <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard/settings">Settings</NavMenuItem>
                   <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
                 </ul>
@@ -123,6 +124,15 @@ export default class App extends React.Component<IProps, IState> {
               <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
                 <Authentication
                 {...props}
+                mode='signin'
+                login={this.login.bind(this)}
+                {...props.match.params}/>
+              )}></Route>
+              
+              <Route path="/signup/:provider?" component={(props: IAuthenticationProps) => (
+                <Authentication
+                {...props}
+                mode='signup'
                 login={this.login.bind(this)}
                 {...props.match.params}/>
               )}></Route>

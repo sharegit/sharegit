@@ -27,7 +27,7 @@ export default class Settings extends React.Component {
         return btoa(JSON.stringify({
             t: Random.str(64),
             d: config.isDev,
-            addToAccount: true
+            m: 'add'
         }));
     }
     async componentDidMount() {
