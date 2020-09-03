@@ -30,7 +30,7 @@ namespace ShareGit.Services
                 // No need to lock per user, we can refresh this token multiple times:
                 // https://community.atlassian.com/t5/Bitbucket-questions/Does-refreshing-a-token-causes-the-old-token-to-be-revoked/qaq-p/1305347
 
-                var account = AccountRepository.Get(userAccess.UserId);
+                var account = await AccountRepository.GetAsync(userAccess.UserId);
                 if(account?.BitbucketConnection != null)
                 {
                     var newAccess = await FetchSite<BitbucketWebFlowAccessToken>(
@@ -50,7 +50,7 @@ namespace ShareGit.Services
                     account.BitbucketConnection.EncodedAccessToken = encodedAccessToken;
                     account.BitbucketConnection.AccessTokenExp = accessTokenExp;
 
-                    AccountRepository.Update(account.Id, account);
+                    await AccountRepository.UpdateAsync(account.Id, account);
                     return new BitbucketUserAccess()
                     {
                         AccessToken = accessToken,

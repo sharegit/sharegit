@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<DashboardAnalyticsInfo>> GetAnalytics()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
 
             if (!user.SharedTokens.Any())
                 return new DashboardAnalyticsInfo();
@@ -139,7 +139,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> StartDeleteRegistrationProcess()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
 
             using RandomNumberGenerator rng = new RNGCryptoServiceProvider();
             byte[] tokenData = new byte[64];
@@ -147,7 +147,7 @@ namespace WebAPI.Controllers
             var requestedDeletionToken = Base64UrlTextEncoder.Encode(tokenData);
 
             user.RequestedDeletionToken = requestedDeletionToken;
-            AccountRepository.Update(user.Id, user);
+            await AccountRepository.UpdateAsync(user.Id, user);
 
             var body = await RazorViewToStringRenderer.RenderAsync<object>("/Views/Emails/Confirmation/ConfirmationHtml.cshtml", new ConfirmationViewModel()
             {
@@ -175,15 +175,15 @@ namespace WebAPI.Controllers
         public async Task<ActionResult> DeleteRegistration(string token)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             if (user.RequestedDeletionToken == token)
             {
-                user.SharedTokens.ForEach(x =>
+                await Task.WhenAll(user.SharedTokens.Select(async x =>
                 {
                     var entry = ShareRepository.Find(x => x.Token == x.Token);
-                    ShareRepository.Remove(entry.Id);
-                });
-                AccountRepository.Remove(user.Id);
+                    await ShareRepository.RemoveAsync(entry.Id);
+                }));
+                await AccountRepository.RemoveAsync(user.Id);
                 return new OkResult();
             }
             else
@@ -197,7 +197,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<EssentialDashboardInfo>> GetEssentialDashboardInfo()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             return new EssentialDashboardInfo()
             {
                 Name = user.Name
@@ -209,7 +209,7 @@ namespace WebAPI.Controllers
         {
             // TODO: Validate user settings
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
 
             if (newSettings.DisplayName != null)
                 user.DisplayName = newSettings.DisplayName;
@@ -217,7 +217,7 @@ namespace WebAPI.Controllers
             if (newSettings.Email != null)
                 user.Email = newSettings.Email;
 
-            AccountRepository.Update(user.Id, user);
+            await AccountRepository.UpdateAsync(user.Id, user);
             return new OkResult();
         }
         [HttpGet("settings")]
@@ -225,7 +225,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<SettingsInfo>> GetSettingsInfo()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             return new SettingsInfo()
             {
                 DisplayName = user.DisplayName,
@@ -241,7 +241,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<Core.APIModels.SharedToken>>> GetTokens()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             return user.SharedTokens.Select(x => new Core.APIModels.SharedToken()
             {
                 Token = x.Token
@@ -253,7 +253,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<SharedRepository>>> GetRepos()
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
 
             List<SharedRepository> sharedRepositories = new List<SharedRepository>();
             {
@@ -365,7 +365,7 @@ namespace WebAPI.Controllers
             }
 
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             if (user.SharedTokens.Any(x => x.Stamp == createToken.Stamp))
             {
                 return new BadRequestResult();
@@ -468,8 +468,8 @@ namespace WebAPI.Controllers
                 Token = share.Token.Token,
                 Stamp = createToken.Stamp
             });
-            ShareRepository.Create(share);
-            AccountRepository.Update(user.Id, user);
+            await ShareRepository.CreateAsync(share);
+            await AccountRepository.UpdateAsync(user.Id, user);
 
             return new Core.APIModels.SharedToken()
             {
@@ -481,14 +481,14 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> DeleteToken(string token)
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = AccountRepository.Get(userId.Value);
+            var user = await AccountRepository.GetAsync(userId.Value);
             if (user.SharedTokens.Any(x => x.Token == token))
             {
                 user.SharedTokens.RemoveAll(x => x.Token == token);
                 var share = ShareRepository.Find(x => x.Token.Token == token);
                 if (share != null)
-                    ShareRepository.Remove(share.Id);
-                AccountRepository.Update(user.Id, user);
+                    await ShareRepository.RemoveAsync(share.Id);
+                await AccountRepository.UpdateAsync(user.Id, user);
                 return new OkResult();
             }
             else

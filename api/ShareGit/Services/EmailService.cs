@@ -48,7 +48,7 @@ namespace ShareGit.Services
 
                 await client.DisconnectAsync(true);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }

@@ -43,7 +43,7 @@ namespace WebAPI.Controllers
         {
             if (HttpContext.Items.ContainsKey("access"))
             {
-                var repos = HttpContext.Items["access"] as ShareGit.Models.Repository[];
+                var repos = HttpContext.Items["access"] as Repository[];
                 var sharedRepo = repos.FirstOrDefault(x => x.Owner == owner && x.Repo == repo);
                 if (sharedRepo != null)
                     return sharedRepo.Branches.Select(x => new Branch()
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<SharedRepositories>> GetList(string token)
         {
             var share = ShareRepository.Find(x => x.Token.Token == token);
-            var user = AccountRepository.Get(share.Token.SharingUserId);
+            var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
             if (share != null && user != null)
             {
                 var accessibleRepositories = share.AccessibleRepositories;

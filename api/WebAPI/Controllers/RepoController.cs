@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
-                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         GitlabUserAccess userAccessToken = new GitlabUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.GitlabConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
-                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
-                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         GitlabUserAccess userAccessToken = new GitlabUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.GitlabConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
@@ -181,7 +181,7 @@ namespace WebAPI.Controllers
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
-                        var sharingUser = AccountRepository.Get(token.Token.SharingUserId);
+                        var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {
                             AccessToken = JWT.Decode<string>(sharingUser.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
@@ -204,7 +204,6 @@ namespace WebAPI.Controllers
                             }
                         }).ToArray();
                     }
-                    break;
                 default:
                     throw new ArgumentException("Invalid argument: provider: [" + provider + "]");
             }

@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
             var user = await AccountServiceBB.GetUserInfo(bitbucketUserAccess);
             var bitbucket_id = user.Value.UUID;
 
-            var existingUser = GetExistingAccount("bitbucket", bitbucket_id);
+            var existingUser = await GetExistingAccount("bitbucket", bitbucket_id);
             if (existingUser != null)
             {
                 existingUser.BitbucketConnection = new BitbucketConnectedService()
@@ -68,7 +68,7 @@ namespace WebAPI.Controllers
                     EncodedRefreshToken = encodedRefreshToken,
                     AccessTokenExp = accessTokenExp
                 };
-                AccountRepository.Update(existingUser.Id, existingUser);
+                await AccountRepository.UpdateAsync(existingUser.Id, existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
             int gitlab_id = user.Value.Id;
             string login = user.Value.Login;
 
-            var existingUser = GetExistingAccount("gitlab", gitlab_id);
+            var existingUser = await GetExistingAccount("gitlab", gitlab_id);
             if (existingUser != null)
             {
                 existingUser.GitlabConnection = new GitlabConnectedService()
@@ -106,7 +106,7 @@ namespace WebAPI.Controllers
                     EncodedAccessToken = encodedAccessToken,
                     EncodedRefreshToken = encodedRefreshToken
                 };
-                AccountRepository.Update(existingUser.Id, existingUser);
+                await AccountRepository.UpdateAsync(existingUser.Id, existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -133,7 +133,7 @@ namespace WebAPI.Controllers
             string login = user.Value.Login;
             int github_id = user.Value.Id;
 
-            var existingUser = GetExistingAccount("github", github_id);
+            var existingUser = await GetExistingAccount("github", github_id);
             if (existingUser != null)
             {
                 existingUser.GithubConnection = new GithubConnectedService()
@@ -142,7 +142,7 @@ namespace WebAPI.Controllers
                     GithubId = github_id,
                     EncodedAccessToken = encodedAccessToken,
                 };
-                AccountRepository.Update(existingUser.Id, existingUser);
+                await AccountRepository.UpdateAsync(existingUser.Id, existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -176,7 +176,7 @@ namespace WebAPI.Controllers
             string bitbucket_id = user.Value.UUID;
 
 
-            var existingUser = GetExistingAccount("bitbucket", bitbucket_id);
+            var existingUser = await GetExistingAccount("bitbucket", bitbucket_id);
             if (existingUser == null)
             {
                 var emails = await AccountServiceBB.GetUserEmails(bitbucketUserAccess);
@@ -195,7 +195,7 @@ namespace WebAPI.Controllers
                         AccessTokenExp = accessTokenExp
                     }
                 };
-                existingUser = AccountRepository.Create(existingUser);
+                existingUser = await AccountRepository.CreateAsync(existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -223,7 +223,7 @@ namespace WebAPI.Controllers
 
             int gitlab_id = user.Value.Id;
 
-            var existingUser = GetExistingAccount("gitlab", gitlab_id);
+            var existingUser = await GetExistingAccount("gitlab", gitlab_id);
             if (existingUser == null)
             {
                 existingUser = new Account()
@@ -239,7 +239,7 @@ namespace WebAPI.Controllers
                         EncodedRefreshToken = encodedRefreshToken,
                     }
                 };
-                existingUser = AccountRepository.Create(existingUser);
+                existingUser = await AccountRepository.CreateAsync(existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -266,7 +266,7 @@ namespace WebAPI.Controllers
             var user = await AccountServiceGH.GetUserInfo(githubUserAccess);
             int github_id = user.Value.Id;
 
-            var existingUser = GetExistingAccount("github", github_id);
+            var existingUser = await GetExistingAccount("github", github_id);
             if (existingUser == null)
             {
                 var emails = await AccountServiceGH.GetUserEmails(githubUserAccess);
@@ -283,7 +283,7 @@ namespace WebAPI.Controllers
                         EncodedAccessToken = encodedAccessToken,
                     }
                 };
-                existingUser = AccountRepository.Create(existingUser);
+                existingUser = await AccountRepository.CreateAsync(existingUser);
 
                 return ConstructJWT(existingUser.Id);
             }
@@ -293,7 +293,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        private Account GetLoggedInUser()
+        private async Task<Account> GetLoggedInUser()
         {
             if (Request.Headers.ContainsKey("jwt"))
             {
@@ -303,7 +303,7 @@ namespace WebAPI.Controllers
                     var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
                     if (validatedJWT != null)
                     {
-                        return AccountRepository.Get(validatedJWT["id"]);
+                        return await AccountRepository.GetAsync(validatedJWT["id"]);
                     }
                 }
                 catch
@@ -313,7 +313,7 @@ namespace WebAPI.Controllers
             }
             return null;
         }
-        private Account GetExistingAccount(string provider, object id)
+        private async Task<Account> GetExistingAccount(string provider, object id)
         {
             var existingAccount = provider switch
             {
@@ -322,7 +322,7 @@ namespace WebAPI.Controllers
                 "bitbucket" => AccountRepository.Find(x => x.BitbucketConnection?.BitbucketId.Equals(id) ?? false),
                 _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]"),
             };
-            var loggedInUser = GetLoggedInUser();
+            var loggedInUser = await GetLoggedInUser();
             if (existingAccount == null && loggedInUser == null)
                 return null;
             else if (existingAccount != null && loggedInUser == null)
