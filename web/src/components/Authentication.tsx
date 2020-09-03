@@ -37,7 +37,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             mode: this.props.mode,
             cancelToken: API.aquireNewCancelToken(),
             processing: false,
-            failed: false,
+            failed: false
         }
     }
     async componentDidMount() {

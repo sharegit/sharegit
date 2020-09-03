@@ -100,7 +100,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                 provider: r.provider,
                 description: r.description,
                 snapshot: r.snapshot,
-                branches: [],
+                branches: []
             });
             this.setState(this.state);
         }
