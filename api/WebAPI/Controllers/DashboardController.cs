@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
             var user = AccountRepository.Get(userId.Value);
 
             if (!user.SharedTokens.Any())
-                return new OkResult();
+                return new DashboardAnalyticsInfo();
 
             var gaTokenFilter = user.SharedTokens.First().Token;
 

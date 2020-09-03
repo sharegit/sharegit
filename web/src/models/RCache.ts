@@ -44,8 +44,9 @@ export default class RCache {
     async getOrPutAndGet<T>(key: string, value: () => Promise<T>, ttl: number): Promise<T> {
         const g = await this.get<T>(key)
         if (g == undefined) {
-            const v : T = await value()
-            await this.put<T>(key, v, ttl);
+            const v : T = await value();
+            if (v)
+                await this.put<T>(key, v, ttl);
             return v;
         } else {
             return g;
