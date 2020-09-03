@@ -1,5 +1,5 @@
 import React from 'react';
-import { Form, Button, FormProps, Segment, Icon, Confirm } from 'semantic-ui-react';
+import { Form, Button, FormProps, Segment, Icon, Confirm, Message } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { SettingsReponse } from '../models/API';
 import Dictionary from '../util/Dictionary';
@@ -13,6 +13,7 @@ interface IState extends BaseState {
     originalSettings?: SettingsReponse;
     changedSettings: Dictionary<string>;
     accountDeletionOpen: boolean;
+    successfullSave?: boolean;
 }
 
 export default class Settings extends React.Component {
@@ -55,17 +56,36 @@ export default class Settings extends React.Component {
     async onSubmit(event: React.FormEvent<HTMLFormElement>, data: FormProps) {
         console.log(this.state.changedSettings);
         // todo: validate settings
-        const settings = this.state.changedSettings as SettingsReponse;
-        await API.updateSettings(settings, this.state.cancelToken);
+        try {
+            const settings = this.state.changedSettings as SettingsReponse;
+            await API.updateSettings(settings, this.state.cancelToken);
+            this.setState({successfullSave: true});
+        } catch(e) {
+            this.setState({successfullSave: false});
+        }
     }
     render() {
         if(this.state.originalSettings == undefined) {
             return(
-                <p>Loading...</p>
+                <Message icon>
+                    <Icon name='circle notched' loading />
+                    <Message.Content>
+                    <Message.Header>Just one second</Message.Header>
+                    Loading Settings.
+                    </Message.Content>
+                </Message>
             );
         } else {
             return (
                 <div>
+                    {this.state.successfullSave == undefined ? 
+                    null
+                :
+                    <Message className={`${this.state.successfullSave === false ? 'warning' : 'positive' }`}
+                        onDismiss={() => this.setState({successfullSave: undefined})}
+                        header={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Successfully saved!'}
+                    />
+                    }
                     <Segment className={styles.segment}>
                         <h2>Account settings</h2>
                         <Form onSubmit={async (e, d) => {
