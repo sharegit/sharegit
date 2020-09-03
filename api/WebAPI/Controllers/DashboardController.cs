@@ -164,7 +164,7 @@ namespace WebAPI.Controllers
                 Button = new EmailButtonViewModel()
                 {
                     Text = "Delete my account!",
-                    Url = $"{ShareGitCommonSettings.SiteUrl}/dashboard/confirmaccountdeletion/${requestedDeletionToken}"
+                    Url = $"{ShareGitCommonSettings.SiteUrl}/dashboard/confirmaccountdeletion/{requestedDeletionToken}"
                 }
             });
             await EmailService.SendMailAsync(user.DisplayName, user.Email, "Account Deletion", body);
