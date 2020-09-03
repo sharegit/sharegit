@@ -6,6 +6,7 @@ using ShareGit.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShareGit.Repositories
 {
@@ -30,6 +31,10 @@ namespace ShareGit.Repositories
         {
             return data.Find(x => true).ToList();
         }
+        public async Task<List<T>> GetAsync()
+        {
+            return (await data.FindAsync(x => true)).ToList();
+        }
 
         public T Find(Func<T, bool> predicate)
         {
@@ -40,10 +45,20 @@ namespace ShareGit.Repositories
         {
             return data.Find<T>(x => x.Id == id).FirstOrDefault();
         }
+        public async Task<T> GetAsync(string id)
+        {
+            var find = await data.FindAsync(x => x.Id == id);
+            return await find.FirstOrDefaultAsync();
+        }
 
         public T Create(T newEntry)
         {
             data.InsertOne(newEntry);
+            return newEntry;
+        }
+        public async Task<T> CreateAsync(T newEntry)
+        {
+            await data.InsertOneAsync(newEntry);
             return newEntry;
         }
 
@@ -51,15 +66,27 @@ namespace ShareGit.Repositories
         {
             data.ReplaceOne(x => x.Id == id, TIn);
         }
+        public async Task UpdateAsync(string id, T TIn)
+        {
+            await data.ReplaceOneAsync(x => x.Id == id, TIn);
+        }
 
         public void Remove(T TIn)
         {
             data.DeleteOne(x => x.Id == TIn.Id);
         }
+        public async Task RemoveAsync(T TIn)
+        {
+            await data.DeleteOneAsync(x => x.Id == TIn.Id);
+        }
 
         public void Remove(string id)
         {
             data.DeleteOne(x => x.Id == id);
+        }
+        public async Task RemoveAsync(string id)
+        {
+            await data.DeleteOneAsync(x => x.Id == id);
         }
     }
 }
