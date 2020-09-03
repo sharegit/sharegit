@@ -36,6 +36,10 @@ nav {
     ul {
         list-style: none;
         list-style-type: none;
+        height: 100%;
+    }
+    a {
+        height: 100%;
     }
      /* unvisited link */
     a:link {
@@ -62,13 +66,24 @@ nav {
     }
     li {
         margin: 0px 15px 0px 15px;
+        height: 100%;
+    }
+    #logo {
+        float: left;
+        margin-left: 10px;
     }
     #leftMenu {
         float: left;
-        margin-left: 50px;
+        margin-left: 40px;
+        height: 100%;
     }
     #rightMenu {
         float: right;
         margin-right: 50px;
+        height: 100%;
     }
+}
+
+img.logo {
+    height: 100%;
 }

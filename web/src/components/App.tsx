@@ -4,7 +4,7 @@ import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
 import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
 import Dashboard, {IProps as IDashboardProps} from './Dashboard';
 import Authentication, {IProps as IAuthenticationProps} from './Authentication';
-import { Route,  RouteComponentProps } from 'react-router-dom';
+import { Route,  RouteComponentProps, Link } from 'react-router-dom';
 import styles from '../styles/App.scss';
 
 import highlight from 'highlight.js'
@@ -17,6 +17,7 @@ import API from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import Cookies from 'universal-cookie';
 import { v4 as uuidv4 } from 'uuid';
+import Landing from './Landing';
 
 highlight.configure({
   tabReplace: '    '
@@ -68,9 +69,13 @@ export default class App extends React.Component<IProps, IState> {
     return (
         <div id={styles.app}>
             <nav>
+              <Link id={styles.logo} to="/">
+                  <img className={styles.logo} src='/static/img/logo_big_w.png' alt='logo'/>
+              </Link>
               <div id={styles.leftMenu}>
                 <ul>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/">Shared with me</NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/share"></NavMenuItem>
+                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/share">Shared with me</NavMenuItem>
                   <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
                 </ul>
               </div>
@@ -87,7 +92,11 @@ export default class App extends React.Component<IProps, IState> {
 
             <div className={styles.appContentContainer}>
 
-
+              <Route path='/' exact component={(props: any) => (
+                <Landing
+                 {...props}
+                 {...props.match.params} />
+              )}></Route>
 
               <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
                 <Repository
@@ -109,7 +118,7 @@ export default class App extends React.Component<IProps, IState> {
                 {...props.match.params}/>
                 )}></Route>
 
-              <Route path="/" exact component={(props: ISharedWithMeProps) => (
+              <Route path="/share" exact component={(props: ISharedWithMeProps) => (
                 <SharedWithMe 
                 {...props}
                 {...props.match.params}/>
