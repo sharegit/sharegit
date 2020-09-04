@@ -91,9 +91,9 @@ export default class Settings extends React.Component {
                         <Form onSubmit={async (e, d) => {
                             await this.onSubmit(e, d)
                         }}>
-                            <Form.Field id="displayname">
+                            <Form.Field id="displayName">
                                 <label>Display Name</label>
-                                <input id="displayname" value={this.state.originalSettings.displayName} onChange={(e) => {
+                                <input id="displayName" value={this.state.originalSettings.displayName} onChange={(e) => {
                                     this.onValueChange(e.target.id, e.target.value);
                                 }} placeholder='Display Name' />
                             </Form.Field>

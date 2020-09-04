@@ -199,7 +199,7 @@ namespace WebAPI.Controllers
             var user = await AccountRepository.GetAsync(userId.Value);
             return new EssentialDashboardInfo()
             {
-                Name = user.Name
+                Name = user.DisplayName
             };
         }
         [HttpPut("settings")]
