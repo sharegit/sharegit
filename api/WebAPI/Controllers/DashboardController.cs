@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
@@ -73,8 +74,6 @@ namespace WebAPI.Controllers
 
             if (!user.SharedTokens.Any())
                 return new DashboardAnalyticsInfo();
-
-            var gaTokenFilter = user.SharedTokens.First().Token;
 
             // Create the service.
             string[] scopes = new string[] { AnalyticsReportingService.Scope.Analytics };
@@ -451,12 +450,23 @@ namespace WebAPI.Controllers
 
             using RandomNumberGenerator rng = new RNGCryptoServiceProvider();
             byte[] tokenData = new byte[64];
-            rng.GetBytes(tokenData);
+            byte[] rngBytes = new byte[12];
+            rng.GetBytes(rngBytes);
+            byte[] timeStamp = Encoding.ASCII.GetBytes(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString("D20"));
+            HashAlgorithm sha = SHA256.Create();
+            byte[] result = sha.ComputeHash(Encoding.ASCII.GetBytes(user.Id));
+
+            Buffer.BlockCopy(rngBytes, 0, tokenData, 0, 12);
+            Buffer.BlockCopy(timeStamp, 0, tokenData, 12, 20);
+            Buffer.BlockCopy(result, 0, tokenData, 32, 32);
+
+            var tokenStr = Base64UrlTextEncoder.Encode(tokenData);
             var share = new Share()
             {
+                Id = tokenStr,
                 Token = new ShareGit.Models.SharedToken()
                 {
-                    Token = Base64UrlTextEncoder.Encode(tokenData),
+                    Token = tokenStr,
                     SharingUserId = user.Id,
                     Stamp = null
                 },
@@ -485,7 +495,7 @@ namespace WebAPI.Controllers
             if (user.SharedTokens.Any(x => x.Token == token))
             {
                 user.SharedTokens.RemoveAll(x => x.Token == token);
-                var share = ShareRepository.Find(x => x.Token.Token == token);
+                var share = await ShareRepository.GetAsync(token);
                 if (share != null)
                     await ShareRepository.RemoveAsync(share.Id);
                 await AccountRepository.UpdateAsync(user.Id, user);

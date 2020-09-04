@@ -61,7 +61,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<SharedRepositories>> GetList(string token)
         {
-            var share = ShareRepository.Find(x => x.Token.Token == token);
+            var share = await ShareRepository.GetAsync(token);
             var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
             if (share != null && user != null)
             {

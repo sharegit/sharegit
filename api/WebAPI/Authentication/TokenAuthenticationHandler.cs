@@ -29,16 +29,16 @@ namespace WebAPI.Authentication
             ShareRepository = shareRepository;
         }
 
-        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected async override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             if (!Request.Headers.ContainsKey("token"))
             {
-                return Task.FromResult(AuthenticateResult.Fail("Token header Not Found."));
+                return AuthenticateResult.Fail("Token header Not Found.");
             }
 
             var token = Request.Headers["token"].ToString();
 
-            var validatedToken = ShareRepository.Find(x => x.Token.Token == token);
+            var validatedToken = await ShareRepository.GetAsync(token);
             if (validatedToken != null)
             {
                 var claims = new[]
@@ -52,11 +52,11 @@ namespace WebAPI.Authentication
 
                 Context.Items.Add("access", validatedToken.AccessibleRepositories);
 
-                return Task.FromResult(AuthenticateResult.Success(ticket));
+                return AuthenticateResult.Success(ticket);
             }
             else
             {
-                return Task.FromResult(AuthenticateResult.Fail("Invalid token!"));
+                return AuthenticateResult.Fail("Invalid token!");
             }
         }
     }

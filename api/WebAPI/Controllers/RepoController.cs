@@ -93,7 +93,7 @@ namespace WebAPI.Controllers
                 case "gitlab":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
-                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var token = await ShareRepository.GetAsync(claim.Value);
                         var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         GitlabUserAccess userAccessToken = new GitlabUserAccess()
                         {
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
                 case "bitbucket":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
-                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var token = await ShareRepository.GetAsync(claim.Value);
                         var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
                 case "gitlab":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
-                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var token = await ShareRepository.GetAsync(claim.Value);
                         var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         GitlabUserAccess userAccessToken = new GitlabUserAccess()
                         {
@@ -180,7 +180,7 @@ namespace WebAPI.Controllers
                 case "bitbucket":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
-                        var token = ShareRepository.Find(x => x.Token.Token == claim.Value);
+                        var token = await ShareRepository.GetAsync(claim.Value);
                         var sharingUser = await AccountRepository.GetAsync(token.Token.SharingUserId);
                         BitbucketUserAccess userAccessToken = new BitbucketUserAccess()
                         {

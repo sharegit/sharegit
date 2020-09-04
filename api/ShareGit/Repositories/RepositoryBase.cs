@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace ShareGit.Repositories
 {
     public class RepositoryBase<T, S> : IRepository<T, S>
-        where T : DbItemBase
+        where T : IDbItemBase
         where S : DatabaseSettingsBase, new()
     {
         private readonly IMongoCollection<T> data;

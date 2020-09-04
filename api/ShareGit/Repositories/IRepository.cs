@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ShareGit.Repositories
 {
     public interface IRepository<T, S>
-            where T : DbItemBase
+            where T : IDbItemBase
             where S : DatabaseSettingsBase, new()
     {
         List<T> Get();
