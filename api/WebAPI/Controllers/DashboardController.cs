@@ -227,6 +227,7 @@ namespace WebAPI.Controllers
             var user = await AccountRepository.GetAsync(userId.Value);
             return new SettingsInfo()
             {
+                Name = user.Name,
                 DisplayName = user.DisplayName,
                 Email = user.Email,
                 GithubConnected = user.GithubConnection != null,

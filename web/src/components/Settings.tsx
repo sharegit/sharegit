@@ -50,6 +50,9 @@ export default class Settings extends React.Component {
                 case 'email':
                     this.state.originalSettings.email = value;
                     break;
+                case 'name':
+                    this.state.originalSettings.name = value;
+                    break;
             }
         this.setState(this.state);
     }
@@ -91,6 +94,12 @@ export default class Settings extends React.Component {
                         <Form onSubmit={async (e, d) => {
                             await this.onSubmit(e, d)
                         }}>
+                            <Form.Field id="name">
+                                <label>Name</label>
+                                <input id="name" value={this.state.originalSettings.name} onChange={(e) => {
+                                    this.onValueChange(e.target.id, e.target.value);
+                                }} placeholder='Name' />
+                            </Form.Field>
                             <Form.Field id="displayName">
                                 <label>Display Name</label>
                                 <input id="displayName" value={this.state.originalSettings.displayName} onChange={(e) => {
