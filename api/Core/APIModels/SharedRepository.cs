@@ -7,6 +7,7 @@
         public string Repo { get; set; }
         public string Provider { get; set; }
         public string Description { get; set; }
+        public bool DownloadAllowed { get; set; }
         public Branch[] Branches { get; set; }
     }
 }

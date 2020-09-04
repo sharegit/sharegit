@@ -4,11 +4,12 @@ import RepoListElement from './RepoListElement';
 import BranchSelector from './BranchSelector';
 import { Link } from 'react-router-dom';
 import FileViewer from './FileViewer/FileViewer';
-import { List } from 'semantic-ui-react';
+import { List, Button, Icon } from 'semantic-ui-react';
 import { BaseState } from '../models/BaseComponent';
 import API, { BlobResult, TreeNode, TreeResult } from '../models/API';
 import Path from './Path';
 import styles from '../styles/Repository.scss';
+import { Token } from '../models/Tokens';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -17,7 +18,6 @@ export interface IProps extends RouteComponentProps<any> {
     repo: string;
     sha: string;
     uri: string;
-    token: string;
     type: 'tree' | 'blob';
 }
 
@@ -27,6 +27,7 @@ interface IState extends BaseState {
     blob?: BlobResult;
     readme?: BlobResult;
     tree: { [K in string]: TreeResult };
+    downloadable: boolean;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -35,17 +36,30 @@ export default class Repository extends React.Component<IProps, IState> {
         objects: [],
         cancelToken: API.aquireNewCancelToken(),
         sha: '',
-        tree: {}
+        tree: {},
+        downloadable: false
     }
 
     constructor(props: IProps) {
         super(props)
         console.log(props)
         this.state.sha = props.sha;
+        
+        const tokensStr = localStorage.getItem("alltokens")
+        let tokens: Token[] = []
+        if (tokensStr != null) {
+            tokens = JSON.parse(tokensStr);
+        }
+        const token = localStorage.getItem('token');
+        if(tokens != undefined) {
+           if (tokens.some(x=>x.token == token && x.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable))){
+               this.state.downloadable = true;
+               this.setState(this.state);
+           }
+        }
     }
 
     componentDidMount() {
-        console.log(this.props.token);
         console.log(`This is repo ${this.props.repo} of user ${this.props.user}`);
         this.queryServer();
     }
@@ -94,6 +108,11 @@ export default class Repository extends React.Component<IProps, IState> {
         }
     }
 
+    async startDownloading() {
+        const downloadLink = await API.getDownloadLink(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
+        window.open(downloadLink, "_blank");
+    }
+
     componentWillUnmount() {
         this.state.cancelToken.cancel();
     }
@@ -136,6 +155,13 @@ export default class Repository extends React.Component<IProps, IState> {
                             type={this.props.type}>
                         </Path>
                     </div>
+                    {this.state.downloadable ? 
+                    <div id={styles.download}>
+                        <Button onClick={async () => {
+                            this.startDownloading();
+                        }}>Download as zip <Icon name='download'></Icon></Button>
+                    </div>
+                :   null}
                     <div className="clear"></div>
                 </div>
 

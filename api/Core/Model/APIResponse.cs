@@ -4,6 +4,7 @@ namespace Core.Model
 {
     public class APIResponse<T>
     {
+        public string RequestUri { get; set; }
         public string RAW { get; set; }
         public string Err { get; set; }
         public T Value { get; set; }

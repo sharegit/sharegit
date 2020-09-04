@@ -20,5 +20,6 @@ namespace ShareGit
         Task<APIResponse<GithubUserInstallations>> GetUserInstallations(GithubUserAccess userAccessToken);
         Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken);
         Task<GithubAppAccess> GetAccess(string user);
+        Task<APIResponse<string>> GetDownloadURL(string user, string repo, string sha, GithubAppAccess accessToken);
     }
 }

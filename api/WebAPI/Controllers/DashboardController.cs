@@ -275,6 +275,7 @@ namespace WebAPI.Controllers
                             Owner = x.Owner.Login,
                             Provider = "github",
                             Repo = x.Name,
+                            DownloadAllowed = false,
                             Branches = (await RepositoryServiceGH.GetBranches(x.Owner.Login, x.Name, userAccess))
                                 .Value.Select(b =>
                                     new Branch()
@@ -307,6 +308,7 @@ namespace WebAPI.Controllers
                             Owner = x.Namespace.Path,
                             Provider = "gitlab",
                             Repo = x.Path,
+                            DownloadAllowed = false,
                             Branches = (await RepositoryServiceGL.GetBranches(x.Id, userAccess))
                                 .Value.Select(b =>
                                     new Branch()
@@ -340,6 +342,7 @@ namespace WebAPI.Controllers
                             Owner = x.Workspace.Slug,
                             Provider = "bitbucket",
                             Repo = x.Slug,
+                            DownloadAllowed = false,
                             Branches = (await RepositoryServiceBB.GetBranches(x.Workspace.Slug, x.Slug, userAccess))
                                 .Value.Values.Select(b =>
                                     new Branch()
@@ -361,6 +364,11 @@ namespace WebAPI.Controllers
         {
             if (createToken.Repositories.Length == 0)
             {
+                return new BadRequestResult();
+            }
+            if (createToken.Repositories.Any(x => x.Provider != "github" && x.DownloadAllowed))
+            {
+                // Non-github providers dont get downloads
                 return new BadRequestResult();
             }
 
@@ -446,6 +454,7 @@ namespace WebAPI.Controllers
                 Owner = x.Owner,
                 Provider = x.Provider,
                 Repo = x.Repo,
+                DownloadAllowed = x.DownloadAllowed,
                 Branches = await TranslateBranches(x)
             });
 

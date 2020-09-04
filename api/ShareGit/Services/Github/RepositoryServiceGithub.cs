@@ -124,6 +124,17 @@ namespace ShareGit
                 ("ref", sha));
         }
 
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/repos#download-a-repository-archive
+        /// </summary>
+        public async Task<APIResponse<string>> GetDownloadURL(string owner, string repo, string sha, GithubAppAccess installationAccess)
+        {
+            return await FetchAPI<string>(
+                $"/repos/{owner}/{repo}/zipball/{sha}", 
+                HttpMethod.Get,
+                new InstallationGithubAuth(installationAccess));
+        }
+
         public async Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
             var installations = await GetUserInstallations(userAccessToken);
@@ -141,7 +152,6 @@ namespace ShareGit
             }
             return repos.ToArray();
         }
-
 
     }
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button, List, Icon, Dropdown } from 'semantic-ui-react';
+import { Modal, Button, List, Icon, Dropdown, Checkbox, CheckboxProps } from 'semantic-ui-react';
 import API, { SharedRepository, SharedToken, Branch } from '../models/API';
 import { BaseState } from '../models/BaseComponent';
 import RepositoryCard from './RepositoryCard';
@@ -84,6 +84,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                 provider: r.provider,
                 description: r.description,
                 snapshot: r.snapshot,
+                downloadAllowed: r.downloadAllowed,
                 branches: []
             }
         ));
@@ -100,6 +101,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                 provider: r.provider,
                 description: r.description,
                 snapshot: r.snapshot,
+                downloadAllowed: r.downloadAllowed,
                 branches: []
             });
             this.setState(this.state);
@@ -109,6 +111,8 @@ export default class NewTokenCreation extends React.Component<IProps> {
         if (this.state.selectedRepositories.length == 0)
             return false;
         if(this.state.selectedRepositories.findIndex(x=>x.branches.length == 0) > -1)
+            return false;
+        if(this.state.selectedRepositories.some(x => x.provider != 'github' && x.downloadAllowed))
             return false;
 
         return true;
@@ -134,6 +138,16 @@ export default class NewTokenCreation extends React.Component<IProps> {
                         sha: true
                     })
                 });
+            this.setState(this.state);
+        }
+    }
+    makeRepositoryDownloadable(r: SharedRepository, downloadable: boolean) {
+        if(r.provider != 'github')
+            throw new Error('Only github repositories can be set to Downloadable');
+
+        const index = this.state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
+        if (index > -1) {
+            this.state.selectedRepositories[index].downloadAllowed = downloadable;
             this.setState(this.state);
         }
     }
@@ -163,13 +177,20 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                                         deselected={this.isSelected(r) ? undefined : true}
                                                         name={r.repo}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                        downloadable={r.downloadAllowed}
                                                         provider={r.provider}>
                                                             {this.isSelected(r) ?
                                                                 <div>
-
                                                                 <Button onClick={() => {
                                                                     this.removeRepositorySelection(r);
                                                                 }}>Remove</Button>
+
+                                                                {r.provider == 'github' ? 
+                                                                <Checkbox checked={r.downloadAllowed} onChange={(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) => {
+                                                                    this.makeRepositoryDownloadable(r, data.checked == undefined ? false : data.checked);
+                                                                }} label='Downloadable'></Checkbox>
+                                                            :   null}
+
                                                                 <Dropdown
                                                                     placeholder='Select a branch or type the commit SHA'
                                                                     fluid

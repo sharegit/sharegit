@@ -20,6 +20,7 @@ export interface SharedRepository {
     owner: string;
     repo: string;
     provider: 'github' | 'gitlab' | 'bitbucket';
+    downloadAllowed: boolean;
     description: string;
     snapshot: boolean;
     branches: Branch[];
@@ -83,6 +84,7 @@ export interface DashboardAnalyticsInfo {
 }
 
 export default class API {
+
     static cache: RCache = new RCache('share-git');
 
     static aquireNewCancelToken(): CancelToken {
@@ -300,5 +302,9 @@ export default class API {
     static async pushHit(path: string, cid: string, cancelToken: CancelToken): Promise<any> {
         const request = `${config.apiUrl}/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
         return await this.post(request, {}, cancelToken);
+    }
+    static async getDownloadLink(provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
+        const request = `${config.apiUrl}/${provider}/download/${id}/${owner}/${repo}/${sha}`;
+        return await this.getData<string>(request, cancelToken);
     }
 }

@@ -85,6 +85,7 @@ namespace ShareGit.Services
                 // Run request
                 using var response = await httpClient.SendAsync(request);
 
+                APIResponse.RequestUri = response.RequestMessage.RequestUri.ToString();
                 APIResponse.RAW = await response.Content.ReadAsStringAsync();
                 try
                 {

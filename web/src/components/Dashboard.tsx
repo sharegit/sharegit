@@ -134,6 +134,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                                                         <RepositoryCard key={`${r.repo}_${token.token}`}
                                                                         link={``}
                                                                         name={r.repo}
+                                                                        downloadable={r.downloadAllowed}
                                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                                         provider={r.provider}></RepositoryCard>
                                                     )

@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
             AccountRepository = accountRepository;
         }
 
-        private bool IsAuthorized(string provider, int id, string user, string repo, string sha)
+        private bool IsAuthorized(string provider, int id, string user, string repo, string sha, bool download = false)
         {
             return (HttpContext.Items.ContainsKey("access")
                 && provider switch
@@ -51,23 +51,43 @@ namespace WebAPI.Controllers
                               x.Provider == "github"
                            && x.Owner == user
                            && x.Repo == repo
-                           && x.Branches.Contains(sha)) ?? false),
+                           && x.Branches.Contains(sha)
+                           && (!download || x.DownloadAllowed)) ?? false),
 
                     "gitlab" => ((HttpContext.Items["access"] as Repository[])
                         ?.Any(x =>
                               x.Provider == "gitlab"
                            && x.RepoId == id
-                           && x.Branches.Contains(sha)) ?? false),
+                           && x.Branches.Contains(sha)
+                           && (!download || x.DownloadAllowed)) ?? false),
 
                     "bitbucket" => ((HttpContext.Items["access"] as Repository[])
                         ?.Any(x =>
                               x.Provider == "bitbucket"
                            && x.Owner == user
                            && x.Repo == repo
-                           && x.Branches.Contains(sha)) ?? false),
+                           && x.Branches.Contains(sha)
+                           && (!download || x.DownloadAllowed)) ?? false),
 
                     _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
                 });
+        }
+
+        [HttpGet("{provider}/download/{id}/{user}/{repo}/{sha}")]
+        public async Task<ActionResult<string>> GetDownloadLink(string provider, int id, string user, string repo, string sha)
+        {
+            if(provider != "github")
+            {
+                // Only github!
+                return new BadRequestResult();
+            }
+
+            if (!IsAuthorized(provider, id, user, repo, sha))
+                return new ForbidResult("token");
+
+            var accessToken = await RepositoryServiceGH.GetAccess(user);
+            var downloadResponse = await RepositoryServiceGH.GetDownloadURL(user, repo, sha, accessToken);
+            return downloadResponse.RequestUri;
         }
 
         [HttpGet("{provider}/{id}/{user}/{repo}/blob/{sha}/{**uri}")]

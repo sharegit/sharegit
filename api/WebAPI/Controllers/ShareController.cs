@@ -95,6 +95,7 @@ namespace WebAPI.Controllers
                                             Owner = rep.Owner.Login,
                                             Provider = provider.Key,
                                             Repo = rep.Name,
+                                            DownloadAllowed = dbRepo.DownloadAllowed,
                                             Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                                         });
                                 }
@@ -122,6 +123,7 @@ namespace WebAPI.Controllers
                                             Owner = rep.Namespace.Path,
                                             Provider = provider.Key,
                                             Repo = rep.Path,
+                                            DownloadAllowed = dbRepo.DownloadAllowed,
                                             Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                                         });
                                 }
@@ -152,6 +154,7 @@ namespace WebAPI.Controllers
                                             Owner = rep.Workspace.Slug,
                                             Provider = provider.Key,
                                             Repo = rep.Slug,
+                                            DownloadAllowed = dbRepo.DownloadAllowed,
                                             Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
                                         });
                                 }

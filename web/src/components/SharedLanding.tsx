@@ -61,7 +61,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                     repositories: sharedRepositories.repositories.map(x=>({
                         name: x.repo,
                         owner: x.owner,
-                        provider: x.provider
+                        provider: x.provider,
+                        downloadable: x.downloadAllowed
                     }))
                 })
             }
@@ -70,7 +71,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 existingToken.repositories = sharedRepositories.repositories.map(x=>({
                     name: x.repo,
                     owner: x.owner,
-                    provider: x.provider
+                    provider: x.provider,
+                    downloadable: x.downloadAllowed
                 }));
             }
             
@@ -106,6 +108,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                                     <RepositoryCard key={r.repo}
                                                     link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}/`}
                                                     name={r.repo}
+                                                    downloadable={r.downloadAllowed}
                                                     description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                     provider={r.provider}></RepositoryCard>
                                 )
