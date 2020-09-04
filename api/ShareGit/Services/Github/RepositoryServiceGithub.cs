@@ -135,6 +135,17 @@ namespace ShareGit
                 new InstallationGithubAuth(installationAccess));
         }
 
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/apps#delete-an-installation-for-the-authenticated-app
+        /// </summary>
+        public async Task RemoveUserInstalation(int installationId)
+        {
+            await FetchAPI<object>(
+                $"/app/installations/{installationId}",
+                HttpMethod.Delete,
+                new AppGithubAuth());
+        }
+
         public async Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken)
         {
             var installations = await GetUserInstallations(userAccessToken);

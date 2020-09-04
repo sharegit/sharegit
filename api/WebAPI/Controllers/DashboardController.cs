@@ -175,8 +175,25 @@ namespace WebAPI.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = await AccountRepository.GetAsync(userId.Value);
+
             if (user.RequestedDeletionToken == token)
             {
+                if (user.GithubConnection != null)
+                {
+                    var userAccess = new GithubUserAccess()
+                    {
+                        AccessToken = JWT.Decode<string>(user.GithubConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                        UserId = user.Id
+                    };
+
+                    var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
+                    foreach (var installation in installations.Value.Installations)
+                    {
+                        var id = installation.Id;
+                        await RepositoryServiceGH.RemoveUserInstalation(id);
+                    }
+                }
+
                 await Task.WhenAll(user.SharedTokens.Select(async x =>
                 {
                     var entry = ShareRepository.Find(x => x.Token == x.Token);

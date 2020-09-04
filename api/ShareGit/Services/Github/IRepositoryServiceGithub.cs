@@ -18,8 +18,10 @@ namespace ShareGit
         Task<APIResponse<GithubContent>> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess);
         Task<APIResponse<GithubContent[]>> GetDirectoryContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess);
         Task<APIResponse<GithubUserInstallations>> GetUserInstallations(GithubUserAccess userAccessToken);
+        Task RemoveUserInstalation(int installationId);
         Task<GithubRepository[]> GetUserInstallationRepositories(GithubUserAccess userAccessToken);
         Task<GithubAppAccess> GetAccess(string user);
+        Task<GithubAppAccess> GetAccess(int installationId);
         Task<APIResponse<string>> GetDownloadURL(string user, string repo, string sha, GithubAppAccess accessToken);
     }
 }
