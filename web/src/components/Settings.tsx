@@ -126,9 +126,9 @@ export default class Settings extends React.Component {
                             <Button
                                 as='a'
                                 primary
-                                href={`https://github.com/login/oauth/authorize?client_id=${config.github_auth.client_id}&redirect_uri=${config.github_auth.redirect_uri}&state=${this.state.state}`}>
+                                href={`https://github.com/apps/sharegit/installations/new?state=${this.state.state}`}>
                                     <Icon name='github'></Icon>
-                                    Authenticate with Github
+                                    Connect with Github
                             </Button>
                         }
                         {this.state.originalSettings.gitLabConnected ? 
@@ -142,7 +142,7 @@ export default class Settings extends React.Component {
                             primary
                             href={`https://gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`}>
                                     <Icon name='gitlab'></Icon>
-                                    Authenticate with GitLab
+                                    Connect with GitLab
                             </Button>
                         }
                         {this.state.originalSettings.bitbucketConnected ? 
@@ -156,7 +156,7 @@ export default class Settings extends React.Component {
                             primary
                             href={`https://bitbucket.org/site/oauth2/authorize?client_id=${config.bitbucket_auth.client_id}&response_type=code&state=${this.state.state}`}>
                                     <Icon name='bitbucket'></Icon>
-                                    Authenticate with Bitbucket
+                                    Connect with Bitbucket
                             </Button>
                         }
                     </Segment>
