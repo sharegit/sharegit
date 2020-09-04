@@ -249,7 +249,7 @@ export default class API {
     }
     static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {
         const request = `${config.apiUrl}/share/${token}`;
-        return await this.getData<SharedRepositories>(request, cancelToken);
+        return await this.getDataCached<SharedRepositories>(request, cancelToken, 60 * 5);
     }
     static async signIn(provider: string, code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
         const request = `${config.apiUrl}/auth/signin/${provider}/${code}/${state}`;
