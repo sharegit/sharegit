@@ -14,6 +14,8 @@ export interface CancelToken {
 export interface SharedRepositories {
     repositories: SharedRepository[];
     author: string;
+    authorWebsite: string;
+    authorBio: string;
 }
 export interface SharedRepository {
     id: number;
@@ -61,6 +63,8 @@ export interface SettingsReponse {
     name?: string;
     displayName?: string;
     email?: string;
+    url?: string;
+    bio?: string;
     githubConnected?: boolean;
     gitLabConnected?: boolean;
     bitbucketConnected?: boolean;

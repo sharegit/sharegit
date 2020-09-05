@@ -6,6 +6,8 @@ namespace ShareGit.Models
     {
         public string Name { get; set; }
         public string DisplayName { get; set; }
+        public string Bio { get; set; }
+        public string Url { get; set; }
         public string Email { get; set; }
         public string RequestedDeletionToken { get; set; }
         public List<SharedToken> SharedTokens { get; set; } = new List<SharedToken>();

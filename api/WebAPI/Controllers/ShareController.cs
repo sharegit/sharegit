@@ -169,6 +169,8 @@ namespace WebAPI.Controllers
                 return new SharedRepositories()
                 {
                     Author = user.DisplayName,
+                    AuthorBio = user.Bio,
+                    AuthorWebsite = user.Url,
                     Repositories = sharedRepositories
                 };
             }

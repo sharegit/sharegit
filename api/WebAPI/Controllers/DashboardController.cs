@@ -233,6 +233,12 @@ namespace WebAPI.Controllers
             if (newSettings.Email != null)
                 user.Email = newSettings.Email;
 
+            if (newSettings.Bio != null)
+                user.Bio = newSettings.Bio;
+
+            if (newSettings.Url != null)
+                user.Url = newSettings.Url;
+
             await AccountRepository.UpdateAsync(user.Id, user);
             return new OkResult();
         }
@@ -247,6 +253,8 @@ namespace WebAPI.Controllers
                 Name = user.Name,
                 DisplayName = user.DisplayName,
                 Email = user.Email,
+                Url = user.Url,
+                Bio = user.Bio,
                 GithubConnected = user.GithubConnection != null,
                 GitLabConnected = user.GitlabConnection != null,
                 BitbucketConnected = user.BitbucketConnection != null,

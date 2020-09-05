@@ -53,6 +53,12 @@ export default class Settings extends React.Component {
                 case 'name':
                     this.state.originalSettings.name = value;
                     break;
+                case 'url':
+                    this.state.originalSettings.url = value;
+                    break;
+                case 'bio':
+                    this.state.originalSettings.bio = value;
+                    break;
             }
         this.setState(this.state);
     }
@@ -111,6 +117,18 @@ export default class Settings extends React.Component {
                                 <input id="email" value={this.state.originalSettings.email} onChange={(e) => {
                                     this.onValueChange(e.target.id, e.target.value);
                                 }} placeholder='Display Name' />
+                            </Form.Field>
+                            <Form.Field id="url">
+                                <label>URL</label>
+                                <input id="url" value={this.state.originalSettings.url} onChange={(e) => {
+                                    this.onValueChange(e.target.id, e.target.value);
+                                }} placeholder='URL' />
+                            </Form.Field>
+                            <Form.Field id="bio">
+                                <label>Bio</label>
+                                <textarea id="bio" value={this.state.originalSettings.bio} onChange={(e) => {
+                                    this.onValueChange(e.target.id, e.target.value);
+                                }} placeholder='Bio' />
                             </Form.Field>
                             <Button primary type='submit'>Save</Button>
                         </Form>

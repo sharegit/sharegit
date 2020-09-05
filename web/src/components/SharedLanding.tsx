@@ -15,6 +15,8 @@ interface IState extends BaseState {
     tokenValid?: boolean;
     repositories: SharedRepository[];
     author: string;
+    authorWebsite: string;
+    authorBio: string;
 }
 
 export default class SharedLanding extends React.Component<IProps, IState> {
@@ -22,7 +24,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         tokenValid: undefined,
         cancelToken: API.aquireNewCancelToken(),
         repositories: [],
-        author: ''
+        author: '',
+        authorBio: '',
+        authorWebsite: ''
     }
     constructor(props: IProps) {
         super(props)
@@ -45,6 +49,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             this.state.repositories = sharedRepositories.repositories;
             if(sharedRepositories.repositories.length > 0)
             this.state.author = sharedRepositories.author;
+            this.state.authorBio = sharedRepositories.authorBio;
+            this.state.authorWebsite = sharedRepositories.authorWebsite;
             this.setState(this.state);
             
             const tokensStr = localStorage.getItem("alltokens")
@@ -93,10 +99,12 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                         <h3>Repositories shared with you</h3>
                     </div>
                     <div id={styles.authorText}>
-                        <p> <b>Author:</b> <i>{this.state.author}</i></p>
+                        <p> <b>Author:</b> <i>{this.state.author}</i> <br />
+                        <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
                     </div>
                     <div className="clear"></div>
                 </div>
+                {!!this.state.authorBio ? <p>The author provided the following Biography about themselves: <br />{this.state.authorBio}</p> : null}
                 <div id={styles.tokenChecker}>
                     {this.renderTokenValidity()}
                 </div>
