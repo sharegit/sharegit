@@ -148,7 +148,16 @@ export default class NewTokenCreation extends React.Component<IProps> {
         const index = this.state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
         if (index > -1) {
             this.state.selectedRepositories[index].downloadAllowed = downloadable;
+            console.debug(downloadable);
             this.setState(this.state);
+        }
+    }
+    isRepositoryDownloadable(r: SharedRepository) {
+        const index = this.state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
+        if (index > -1) {
+            return this.state.selectedRepositories[index].downloadAllowed;
+        } else {
+            return false;
         }
     }
     render() {
@@ -177,7 +186,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                                         deselected={this.isSelected(r) ? undefined : true}
                                                         name={r.repo}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                        downloadable={r.downloadAllowed}
+                                                        downloadable={this.isRepositoryDownloadable(r)}
                                                         provider={r.provider}>
                                                             {this.isSelected(r) ?
                                                                 <div>
@@ -186,7 +195,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                                                 }}>Remove</Button>
 
                                                                 {r.provider == 'github' ? 
-                                                                <Checkbox checked={r.downloadAllowed} onChange={(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) => {
+                                                                <Checkbox checked={this.isRepositoryDownloadable(r)} onChange={(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) => {
                                                                     this.makeRepositoryDownloadable(r, data.checked == undefined ? false : data.checked);
                                                                 }} label='Downloadable'></Checkbox>
                                                             :   null}
