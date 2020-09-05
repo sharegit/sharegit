@@ -242,6 +242,33 @@ namespace WebAPI.Controllers
             await AccountRepository.UpdateAsync(user.Id, user);
             return new OkResult();
         }
+        [HttpGet("githubinstallations")]
+        [Produces("application/json")]
+        public async Task<ActionResult<GithubInstallations>> GetGithubInstallations()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+
+            if(user.GithubConnection == null)
+            {
+                return new GithubInstallations();
+            }
+
+            var userAccess = new GithubUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(user.GithubConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
+            return new GithubInstallations()
+            {
+                Installations = installations.Value.Installations.Select(x =>
+                new GithubInstallations.GithubInstallation()
+                {
+                    Login = x.Account.Login
+                }).ToArray()
+            };
+        }
         [HttpGet("settings")]
         [Produces("application/json")]
         public async Task<ActionResult<SettingsInfo>> GetSettingsInfo()

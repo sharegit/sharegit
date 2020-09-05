@@ -86,6 +86,12 @@ export interface Analytic {
 export interface DashboardAnalyticsInfo {
     analytics: Analytic[];
 }
+export interface GithubInstallations {
+    installations: GithubInstallation[];
+}
+export interface GithubInstallation {
+    login: string;
+}
 
 export default class API {
 
@@ -310,5 +316,9 @@ export default class API {
     static async getDownloadLink(provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
         const request = `${config.apiUrl}/${provider}/download/${id}/${owner}/${repo}/${sha}`;
         return await this.getData<string>(request, cancelToken);
+    }
+    static async getGithubInstallations(cancelToken: CancelToken): Promise<GithubInstallations> {
+        const request = `${config.apiUrl}/dashboard/githubinstallations`;
+        return await this.getData<GithubInstallations>(request, cancelToken);
     }
 }
