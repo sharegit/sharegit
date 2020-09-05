@@ -1,11 +1,11 @@
-import React from 'react'
+import API, { SharedRepository } from 'models/API';
+import { BaseState } from 'models/BaseState';
+import { Token } from 'models/Tokens';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import API, { SharedRepository } from '../models/API';
-import { BaseState } from '../models/BaseComponent';
 import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
-import styles from '../styles/SharedLanding.scss';
-import { Token } from '../models/Tokens';
+import styles from './style.scss';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;

@@ -1,15 +1,14 @@
-import React from 'react'
+import API, { BlobResult, TreeNode, TreeResult } from 'models/API';
+import { BaseState } from 'models/BaseState';
+import { Token } from 'models/Tokens';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import RepoListElement from './RepoListElement';
+import { Button, Icon, List } from 'semantic-ui-react';
+import FileViewer from '../FileViewer/FileViewer';
 import BranchSelector from './BranchSelector';
-import { Link } from 'react-router-dom';
-import FileViewer from './FileViewer/FileViewer';
-import { List, Button, Icon } from 'semantic-ui-react';
-import { BaseState } from '../models/BaseComponent';
-import API, { BlobResult, TreeNode, TreeResult } from '../models/API';
 import Path from './Path';
-import styles from '../styles/Repository.scss';
-import { Token } from '../models/Tokens';
+import RepoListElement from './RepoListElement';
+import styles from './style.scss';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';

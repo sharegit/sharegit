@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
-import { Breadcrumb } from 'semantic-ui-react'
 import { Link } from 'react-router-dom'
+import { Breadcrumb } from 'semantic-ui-react'
 
 interface IState { }
 
@@ -47,7 +47,7 @@ export default class Path extends React.Component<IProps, IState> {
         return (
             <Breadcrumb>
                 {this.build().map((content) =>
-                    <React.Fragment key={content.key}>
+                    <React.Fragment key={content.key != null ? content.key : ''}>
                         <Breadcrumb.Divider />
                         {content}
                     </React.Fragment>

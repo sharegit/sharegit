@@ -1,8 +1,8 @@
 import React from 'react';
 import { Modal, Button, List, Icon, Dropdown, Checkbox, CheckboxProps } from 'semantic-ui-react';
-import API, { SharedRepository, SharedToken, Branch } from '../models/API';
-import { BaseState } from '../models/BaseComponent';
-import RepositoryCard from './RepositoryCard';
+import API, { SharedRepository, SharedToken, Branch } from 'models/API';
+import { BaseState } from 'models/BaseState';
+import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 
 interface IProps {
     tokenCreatedCallback: (token: SharedToken) => void;

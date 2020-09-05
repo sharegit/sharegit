@@ -1,11 +1,11 @@
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { BaseState } from '../models/BaseComponent';
-import API, { SharedRepository, SharedToken, Analytic } from '../models/API';
+import { BaseState } from 'models/BaseState';
+import API, { SharedRepository, SharedToken, Analytic } from 'models/API';
 import { List, Accordion, Icon, AccordionTitleProps, Button, Modal, Segment } from 'semantic-ui-react';
-import RepositoryCard from './RepositoryCard';
-import NewTokenCreation from './NewTokenCreation';
-import config from '../config';
+import RepositoryCard from 'app/SharedLanding/RepositoryCard';
+import NewTokenCreation from '../CreateToken';
+import config from 'config';
 
 interface IState extends BaseState {
     name: string;

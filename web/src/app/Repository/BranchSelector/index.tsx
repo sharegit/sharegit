@@ -1,6 +1,6 @@
-import React from 'react'
-import { Dropdown, DropdownItemProps } from 'semantic-ui-react'
-import API, { CancelToken, Branch } from '../models/API';
+import API, { Branch, CancelToken } from 'models/API';
+import React from 'react';
+import { Dropdown, DropdownItemProps } from 'semantic-ui-react';
 
 interface IState {
     branches: Branch[];

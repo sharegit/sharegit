@@ -1,23 +1,23 @@
+import highlight from 'highlight.js';
+import { Action, Location, LocationState, UnregisterCallback } from 'history';
 import React from 'react';
-import Repository, {IProps as IRepositoryProps} from './Repository';
-import SharedLanding, {IProps as ISharedLandingProps} from './SharedLanding';
-import SharedWithMe, {IProps as ISharedWithMeProps} from './SharedWithMe';
-import Dashboard, {IProps as IDashboardProps} from './Dashboard';
-import Authentication, {IProps as IAuthenticationProps} from './Authentication';
-import { Route,  RouteComponentProps, Link } from 'react-router-dom';
-import styles from '../styles/App.scss';
-
-import highlight from 'highlight.js'
-import NavMenuItem from './NavMenuItem';
-import Logout from './Logout';
-import Settings from './Settings';
-import ConfirmAccountDeletion, {IProps as IConfirmAccountDeletionProps} from './ConfirmAccountDeletion';
-import { UnregisterCallback, Location, LocationState, Action } from 'history';
-import API from '../models/API';
-import { BaseState } from '../models/BaseComponent';
+import { Route, RouteComponentProps } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import { v4 as uuidv4 } from 'uuid';
+import API from '../models/API';
+import { BaseState } from '../models/BaseState';
+import Authentication, { IProps as IAuthenticationProps } from './Authentication';
+import Logout from './Authentication/Logout';
+import Dashboard, { IProps as IDashboardProps } from './Dashboard';
+import Header from './Header';
 import Landing from './Landing';
+import Repository, { IProps as IRepositoryProps } from './Repository';
+import Settings from './Settings';
+import ConfirmAccountDeletion, { IProps as IConfirmAccountDeletionProps } from './Settings/ConfirmAccountDeletion';
+import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
+import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
+import styles from './style.scss';
+
 
 highlight.configure({
   tabReplace: '    '
@@ -68,27 +68,7 @@ export default class App extends React.Component<IProps, IState> {
   render() {
     return (
         <div id={styles.app}>
-            <nav>
-              <Link id={styles.logo} to="/">
-                  <img className={styles.logo} src='/static/img/logo_big_w.png' alt='logo'/>
-              </Link>
-              <div id={styles.leftMenu}>
-                <ul>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/share"></NavMenuItem>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} uri="/share">Shared with me</NavMenuItem>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
-                </ul>
-              </div>
-              <div id={styles.rightMenu}>
-                <ul>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/dashboard/settings">Settings</NavMenuItem>
-                  <NavMenuItem isLoggedIn={this.state.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
-                </ul>
-              </div>
-              <div className="clear"></div>
-            </nav>
+            <Header isLoggedIn={this.state.isLoggedIn} />
 
             <div className={styles.appContentContainer}>
 

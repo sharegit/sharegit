@@ -1,11 +1,11 @@
+import config from 'config';
+import API, { SettingsReponse } from 'models/API';
+import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Form, Button, FormProps, Segment, Icon, Confirm, Message } from 'semantic-ui-react';
-import { BaseState } from '../models/BaseComponent';
-import API, { SettingsReponse } from '../models/API';
-import Dictionary from '../util/Dictionary';
-import config from '../config';
-import styles from '../styles/Settings.scss';
-import Random from '../util/Random';
+import { Button, Confirm, Form, FormProps, Icon, Message, Segment } from 'semantic-ui-react';
+import Dictionary from 'util/Dictionary';
+import Random from 'util/Random';
+import styles from './style.scss';
 
 
 interface IState extends BaseState {

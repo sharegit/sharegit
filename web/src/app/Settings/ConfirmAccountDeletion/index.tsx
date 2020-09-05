@@ -1,9 +1,9 @@
+import API from 'models/API';
+import { BaseState } from 'models/BaseState';
 import React from 'react';
-import {  Button, Segment, Icon, Confirm } from 'semantic-ui-react';
-import { BaseState } from '../models/BaseComponent';
-import API from '../models/API';
-import styles from '../styles/Settings.scss';
 import { RouteComponentProps } from 'react-router-dom';
+import { Button, Confirm, Icon, Segment } from 'semantic-ui-react';
+import styles from '../style.scss';
 
 
 interface IState extends BaseState {

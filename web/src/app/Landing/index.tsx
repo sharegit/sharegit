@@ -1,7 +1,7 @@
 import React from 'react';
-import styles from '../styles/Landing.scss';
-import { Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { Button } from 'semantic-ui-react';
+import styles from './style.scss';
 
 interface IProps {
 

@@ -1,10 +1,9 @@
-import React from 'react'
+import { Token, TokenRepo } from 'models/Tokens';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { List, Button } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
-import styles from '../styles/SharedWithMe.scss';
-import { Token, TokenRepo } from '../models/Tokens';
-import { Tokenizer } from 'marked';
+import { Button, List } from 'semantic-ui-react';
+import styles from './style.scss';
 
 export interface IProps extends RouteComponentProps<any> {
 }

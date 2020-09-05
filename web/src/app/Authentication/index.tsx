@@ -1,12 +1,11 @@
 import React from 'react';
-import { RouteComponentProps, Link } from 'react-router-dom';
-import config from '../config';
-import Random from '../util/Random';
-import API, { AuthResult } from '../models/API';
-import { BaseState } from '../models/BaseComponent';
-import comfig from '../config'
+import { Link, RouteComponentProps } from 'react-router-dom';
 import { Button, Icon, Segment } from 'semantic-ui-react';
-import styles from '../styles/Authentication.scss';
+import config from 'config';
+import API from 'models/API';
+import { BaseState } from 'models/BaseState';
+import Random from 'util/Random';
+import styles from './style.scss';
 
 interface IState extends BaseState {
     state: string;

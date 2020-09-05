@@ -1,7 +1,7 @@
-import React from 'react'
-import { List, Icon } from 'semantic-ui-react'
+import React from 'react';
 import { Link } from 'react-router-dom';
-import styles from '../styles/RepositoryCard.scss';
+import { Icon, List } from 'semantic-ui-react';
+import styles from './style.scss';
 
 interface IState { }
 
