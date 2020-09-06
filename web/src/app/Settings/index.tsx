@@ -1,212 +1,110 @@
 import config from 'config';
-import API, { SettingsReponse } from 'models/API';
+import API, { ConnectedServices } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Confirm, Form, FormProps, Icon, Message, Segment } from 'semantic-ui-react';
+import { Button, Confirm, Form, FormProps, Icon, Message, Segment, MessageProps } from 'semantic-ui-react';
 import Dictionary from 'util/Dictionary';
 import Random from 'util/Random';
 import styles from './style.scss';
+import { Route, RouteComponentProps, Redirect, Link, Switch } from 'react-router-dom';
+import PublicProfile from './PublicProfile';
+import Account from './Account';
+import Connection from './Connection';
+import DangerZone from './DangerZone';
+import BaseSettingsLayout from './BaseSettingsLayout';
+import DismissableMessage from 'components/DismissableMessage';
+import SettingsMenu from './SettingsMenu';
 
 
 interface IState extends BaseState {
-    state: string;
-    originalSettings?: SettingsReponse;
-    changedSettings: Dictionary<string>;
     accountDeletionOpen: boolean;
     successfullSave?: boolean;
+    connectedServices?: ConnectedServices;
+}
+interface IProps extends RouteComponentProps<any> {
+
 }
 
-export default class Settings extends React.Component {
+export default class Settings extends React.Component<IProps, IState> {
     state: IState = {
-        originalSettings: undefined,
-        changedSettings: {},
         cancelToken: API.aquireNewCancelToken(),
-        state: this.constructState(),
         accountDeletionOpen: false
     }
-    constructState(): string {
-        return btoa(JSON.stringify({
-            t: Random.str(64),
-            d: config.isDev,
-            m: 'add'
-        }));
+    constructor(props: IProps) {
+        super(props);
     }
-    async componentDidMount() {
-        localStorage.setItem('oauthState', this.state.state);
 
-        this.state.originalSettings = await API.getSettings(this.state.cancelToken);
-        this.setState(this.state);
+    async componentDidMount() {
+        console.log('REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!')
+        const connectedServices = await API.getConnectedServices(this.state.cancelToken);
+        console.log(this.state.connectedServices);
+        console.log(connectedServices);
+        this.setState({connectedServices: connectedServices});
+        console.log(this.state.connectedServices);
+        return connectedServices;
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();
     }
-    onValueChange(target: string, value: string) {
-        this.state.changedSettings[target] = value;
-        if(this.state.originalSettings != undefined)
-            switch (target) {
-                case 'displayName':
-                    this.state.originalSettings.displayName = value;
-                    break;
-                case 'email':
-                    this.state.originalSettings.email = value;
-                    break;
-                case 'name':
-                    this.state.originalSettings.name = value;
-                    break;
-                case 'url':
-                    this.state.originalSettings.url = value;
-                    break;
-                case 'bio':
-                    this.state.originalSettings.bio = value;
-                    break;
-            }
-        this.setState(this.state);
-    }
-    async onSubmit(event: React.FormEvent<HTMLFormElement>, data: FormProps) {
-        console.log(this.state.changedSettings);
-        // todo: validate settings
-        try {
-            const settings = this.state.changedSettings as SettingsReponse;
-            await API.updateSettings(settings, this.state.cancelToken);
-            this.setState({successfullSave: true});
-        } catch(e) {
-            this.setState({successfullSave: false});
-        }
-    }
     render() {
-        if(this.state.originalSettings == undefined) {
-            return(
-                <Message icon>
-                    <Icon name='circle notched' loading />
-                    <Message.Content>
-                    <Message.Header>Just one second</Message.Header>
-                    Loading Settings.
-                    </Message.Content>
-                </Message>
-            );
-        } else {
-            return (
-                <div>
-                    {this.state.successfullSave == undefined ? 
-                    null
-                :
-                    <Message className={`${this.state.successfullSave === false ? 'warning' : 'positive' }`}
-                        onDismiss={() => this.setState({successfullSave: undefined})}
-                        header={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Successfully saved!'}
-                    />
-                    }
-                    <Segment className={styles.segment}>
-                        <h2>Account settings</h2>
-                        <Form onSubmit={async (e, d) => {
-                            await this.onSubmit(e, d)
-                        }}>
-                            <Form.Field id="name">
-                                <label>Name</label>
-                                <input id="name" value={this.state.originalSettings.name} onChange={(e) => {
-                                    this.onValueChange(e.target.id, e.target.value);
-                                }} placeholder='Name' />
-                            </Form.Field>
-                            <Form.Field id="displayName">
-                                <label>Display Name</label>
-                                <input id="displayName" value={this.state.originalSettings.displayName} onChange={(e) => {
-                                    this.onValueChange(e.target.id, e.target.value);
-                                }} placeholder='Display Name' />
-                            </Form.Field>
-                            <Form.Field id="email">
-                                <label>Email address</label>
-                                <input id="email" value={this.state.originalSettings.email} onChange={(e) => {
-                                    this.onValueChange(e.target.id, e.target.value);
-                                }} placeholder='Display Name' />
-                            </Form.Field>
-                            <Form.Field id="url">
-                                <label>URL</label>
-                                <input id="url" value={this.state.originalSettings.url} onChange={(e) => {
-                                    this.onValueChange(e.target.id, e.target.value);
-                                }} placeholder='URL' />
-                            </Form.Field>
-                            <Form.Field id="bio">
-                                <label>Bio</label>
-                                <textarea id="bio" value={this.state.originalSettings.bio} onChange={(e) => {
-                                    this.onValueChange(e.target.id, e.target.value);
-                                }} placeholder='Bio' />
-                            </Form.Field>
-                            <Button primary type='submit'>Save</Button>
-                        </Form>
-                    </Segment>
-                    <Segment className={styles.segment}>
-                        <h2>Connected services</h2>
-                        {this.state.originalSettings.githubConnected ? 
-                            <Button disabled>
-                                <Icon name='github'></Icon>
-                                Connected with Github
-                            </Button>
-                        :
-                            <Button
-                                as='a'
-                                primary
-                                href={`https://github.com/apps/sharegit/installations/new?state=${this.state.state}`}>
-                                    <Icon name='github'></Icon>
-                                    Connect with Github
-                            </Button>
-                        }
-                        {this.state.originalSettings.gitLabConnected ? 
-                            <Button disabled>
-                                <Icon name='gitlab'></Icon>
-                                Connected with GitLab
-                            </Button>
-                        :
-                            <Button
-                            as='a'
-                            primary
-                            href={`https://gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`}>
-                                    <Icon name='gitlab'></Icon>
-                                    Connect with GitLab
-                            </Button>
-                        }
-                        {this.state.originalSettings.bitbucketConnected ? 
-                            <Button disabled>
-                                <Icon name='bitbucket'></Icon>
-                                Connected with Bitbucket
-                            </Button>
-                        :
-                            <Button
-                            as='a'
-                            primary
-                            href={`https://bitbucket.org/site/oauth2/authorize?client_id=${config.bitbucket_auth.client_id}&response_type=code&state=${this.state.state}`}>
-                                    <Icon name='bitbucket'></Icon>
-                                    Connect with Bitbucket
-                            </Button>
-                        }
-                    </Segment>
-                    <Segment id={styles.dangerZone} className={styles.segment}>
-                        <h2>Danger zone</h2>
-                        <Button primary onClick={() => {
-                            this.state.accountDeletionOpen = true;
-                            this.setState(this.state);
-                        }}>
-                            <Icon name='delete'></Icon>
-                            Delete my account
-                        </Button>
-                    </Segment>
+        return (
+            <div>
+                {this.state.successfullSave == undefined ? null :
+                <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
+                                    headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'} /> }
 
-                    <Confirm
-                        open={this.state.accountDeletionOpen}
-                        onCancel={() => {
-                            this.state.accountDeletionOpen = false;
-                            this.setState(this.state);
-                        }}
-                        onConfirm={async () => {
-                            await API.startDeleteAccount(this.state.cancelToken);
-                            this.state.accountDeletionOpen = false;
-                            this.setState(this.state);
-                        }}
-                        header='Confirm Account deletion'
-                        content='An email confirmation will be sent to your provided email address. Please follow the instructions described there to completely remove your account from our services.'
-                        cancelButton='Cancel'
-                        confirmButton="Send Email confirmation">
-                    </Confirm>
+                <SettingsMenu githubConnected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != null}
+                              gitlabConnected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != null}
+                              bitbucketConnected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != null}
+                              location={this.props.location}
+                              history={this.props.history}
+                              match={this.props.match} />
+                <div>
+                    <Route exact path={`${this.props.match.path}`}>
+                        <Redirect to={`${this.props.match.path}/public`} />
+                    </Route>
+
+                    <Route exact path={`${this.props.match.path}/public`}>
+                        <BaseSettingsLayout header='Public profile' >
+                            <PublicProfile successCallback={() => this.setState({successfullSave: true})}
+                                        failCallback={() => this.setState({successfullSave: false})} /> 
+                        </BaseSettingsLayout>
+                    </Route>
+                    <Route exact path={`${this.props.match.path}/account`}>
+                        <BaseSettingsLayout header='Account'>
+                            <Account successCallback={() => this.setState({successfullSave: true})}
+                                    failCallback={() => this.setState({successfullSave: false})} /> 
+                        </BaseSettingsLayout>
+                    </Route>
+                    <Route exact path={`${this.props.match.path}/github`}>
+                        <BaseSettingsLayout header='GitHub Connection'>
+                            <Connection provider='github' 
+                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined}
+                                        username={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined ? this.state.connectedServices.githubLogin : ''}/>
+                        </BaseSettingsLayout> 
+                    </Route>
+                    <Route exact path={`${this.props.match.path}/gitlab`}>
+                        <BaseSettingsLayout header='GitLab Connection'>
+                            <Connection provider='gitlab'  
+                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined}
+                                        username={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined ? this.state.connectedServices.gitlabLogin : ''}/>
+                        </BaseSettingsLayout> 
+                    </Route>
+                    <Route exact path={`${this.props.match.path}/bitbucket`}>
+                        <BaseSettingsLayout header='Bitbucket Connection'>
+                            <Connection provider='bitbucket' 
+                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined}
+                                        username={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined ? this.state.connectedServices.bitbucketLogin : ''}/>
+                        </BaseSettingsLayout> 
+                    </Route>
+                    <Route exact path={`${this.props.match.path}/dangerzone`}>
+                        <BaseSettingsLayout header='Dangerzone' isdangerous>
+                            <DangerZone /> 
+                        </BaseSettingsLayout>
+                    </Route>
                 </div>
-            );
-        }
+                
+            </div>
+        )
     }
 }

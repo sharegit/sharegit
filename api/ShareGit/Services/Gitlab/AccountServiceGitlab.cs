@@ -28,6 +28,9 @@ namespace ShareGit.Services
                 ("redirect_uri", AppSettings.RedirectUrl));
         }
 
+        /// <summary>
+        /// https://docs.gitlab.com/ee/api/users.html#list-current-user-for-normal-users
+        /// </summary>
         public async Task<APIResponse<GitlabUserInfo>> GetUserInfo(GitlabUserAccess access)
         {
             return await FetchAPI<GitlabUserInfo>(

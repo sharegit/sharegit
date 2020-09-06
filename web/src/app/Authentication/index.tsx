@@ -76,7 +76,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         succ = true;
                                         localStorage.setItem('OAuthJWT', signUpResult.token);
                                         this.props.login();
-                                        this.props.history.push('/dashboard/settings');
+                                        this.props.history.push('/settings');
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
                                     }
@@ -89,7 +89,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         localStorage.setItem('OAuthJWT', signInResult.token);
                                         this.props.login();
                                         if (parsedState.m == 'add') {
-                                            this.props.history.push('/dashboard/settings');
+                                            this.props.history.push(`/settings/${this.props.provider}`);
                                         } else if (parsedState.m == 'signin') {
                                             this.props.history.push('/dashboard');
                                         }
@@ -133,7 +133,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             case 'signup':
                 return (<p>There is already an account associated with that provider, <Link to='/auth'>Sign In?</Link></p>);
             case 'add':
-                return (<p>There is already a separate account associated with that provider, please delete it and try again. <Link to='/dashboard/settings'>Back to Settings</Link></p>);
+                return (<p>There is already a separate account associated with that provider, please delete it and try again. <Link to={`/settings/${this.props.provider}`}>Back to Settings</Link></p>);
         }
     }
     getAuthLink(provider: 'github' | 'gitlab' | 'bitbucket'): string {

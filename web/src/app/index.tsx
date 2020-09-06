@@ -39,6 +39,7 @@ export default class App extends React.Component<IProps, IState> {
     cookies: new Cookies()
   }
   componentDidMount() {
+    console.log('APP MOUNTED!')
     const clientId = this.state.cookies.get('clientId')
     if(clientId == undefined) {
       const d = new Date();
@@ -132,11 +133,7 @@ export default class App extends React.Component<IProps, IState> {
                 {...props.match.params}/>
               )}></Route>
 
-              <Route path="/dashboard/settings" exact component={(props: any) => (
-                <Settings
-                  {...props}
-                  {...props.match.params}/>
-              )}></Route>
+              <Route path="/settings" component={Settings} />
               
               <Route path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
                 <ConfirmAccountDeletion

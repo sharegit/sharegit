@@ -63,6 +63,7 @@ namespace WebAPI.Controllers
             {
                 existingUser.BitbucketConnection = new BitbucketConnectedService()
                 {
+                    Username = user.Value.Username,
                     BitbucketId = bitbucket_id,
                     EncodedAccessToken = encodedAccessToken,
                     EncodedRefreshToken = encodedRefreshToken,
@@ -94,7 +95,7 @@ namespace WebAPI.Controllers
             };
             var user = await AccountServiceGL.GetUserInfo(githubUserAccess);
             int gitlab_id = user.Value.Id;
-            string login = user.Value.Login;
+            string login = user.Value.Username;
 
             var existingUser = await GetExistingAccount("gitlab", gitlab_id);
             if (existingUser != null)
@@ -189,6 +190,7 @@ namespace WebAPI.Controllers
                     Email = email,
                     BitbucketConnection = new BitbucketConnectedService()
                     {
+                        Username = user.Value.Username,
                         BitbucketId = bitbucket_id,
                         EncodedAccessToken = encodedAccessToken,
                         EncodedRefreshToken = encodedRefreshToken,
@@ -233,7 +235,7 @@ namespace WebAPI.Controllers
                     Email = user.Value.Email,
                     GitlabConnection = new GitlabConnectedService()
                     {
-                        Login = user.Value.Login,
+                        Login = user.Value.Username,
                         GitlabId = gitlab_id,
                         EncodedAccessToken = encodedAccessToken,
                         EncodedRefreshToken = encodedRefreshToken,

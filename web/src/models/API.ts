@@ -59,16 +59,6 @@ export interface AuthResult {
 export interface DashboardResponse {
     name: string;
 }
-export interface SettingsReponse {
-    name?: string;
-    displayName?: string;
-    email?: string;
-    url?: string;
-    bio?: string;
-    githubConnected?: boolean;
-    gitLabConnected?: boolean;
-    bitbucketConnected?: boolean;
-}
 export interface SharedToken {
     token: string;
 }
@@ -91,6 +81,20 @@ export interface GithubInstallations {
 }
 export interface GithubInstallation {
     login: string;
+}
+
+export interface AccountSettings {
+    email?: string;
+}
+export interface ConnectedServices {
+    githubLogin?: string;
+    gitlabLogin?: string;
+    bitbucketLogin?: string;
+}
+export interface PublicProfileSettings {
+    displayName?: string;
+    url?: string;
+    bio?: string;
 }
 
 export default class API {
@@ -273,14 +277,6 @@ export default class API {
         const request = `${config.apiUrl}/dashboard`;
         return await this.getData<DashboardResponse>(request, cancelToken);
     }
-    static async getSettings(cancelToken: CancelToken): Promise<SettingsReponse> {
-        const request = `${config.apiUrl}/settings/settings`;
-        return await this.getData<SettingsReponse>(request, cancelToken);
-    }
-    static async updateSettings(newSettings: SettingsReponse, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/settings/settings`;
-        return await this.put<any>(request, newSettings, cancelToken);
-    }
     static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
         const request = `${config.apiUrl}/dashboard/tokens`;
         return await this.getData<SharedToken[]>(request, cancelToken);
@@ -309,9 +305,9 @@ export default class API {
         const request = `${config.apiUrl}/dashboard/analytics`;
         return await this.getDataCached(request, cancelToken, 3600);
     }
-    static async pushHit(path: string, cid: string, cancelToken: CancelToken): Promise<any> {
+    static pushHit(path: string, cid: string, cancelToken: CancelToken): void {
         const request = `${config.apiUrl}/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
-        return await this.post(request, {}, cancelToken);
+        this.post(request, {}, cancelToken);
     }
     static async getDownloadLink(provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
         const request = `${config.apiUrl}/${provider}/download/${id}/${owner}/${repo}/${sha}`;
@@ -320,5 +316,26 @@ export default class API {
     static async getGithubInstallations(cancelToken: CancelToken): Promise<GithubInstallations> {
         const request = `${config.apiUrl}/settings/githubinstallations`;
         return await this.getData<GithubInstallations>(request, cancelToken);
+    }
+
+    static async getSettingsPublicProfile(cancelToken: CancelToken): Promise<PublicProfileSettings> {
+        const request = `${config.apiUrl}/settings/public`;
+        return await this.getData<PublicProfileSettings>(request, cancelToken);
+    }
+    static async setSettingsPublicProfile(newSettings: PublicProfileSettings, cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/settings/public`;
+        return await this.put<any>(request, newSettings, cancelToken);
+    }
+    static async getSettingsAccount(cancelToken: CancelToken): Promise<AccountSettings> {
+        const request = `${config.apiUrl}/settings/account`;
+        return await this.getData<AccountSettings>(request, cancelToken);
+    }
+    static async setSettingsAccount(newSettings: AccountSettings, cancelToken: CancelToken): Promise<any> {
+        const request = `${config.apiUrl}/settings/account`;
+        return await this.put<any>(request, newSettings, cancelToken);
+    }
+    static async getConnectedServices(cancelToken: CancelToken): Promise<ConnectedServices> {
+        const request = `${config.apiUrl}/settings/connections`;
+        return await this.getData<ConnectedServices>(request, cancelToken);
     }
 }

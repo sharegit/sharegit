@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.APIModels.Settings;
 using Core.Model.Github;
 using Core.Util;
 using EmailTemplates;
@@ -50,19 +51,15 @@ namespace WebAPI.Controllers
             ShareRepository = shareRepository;
         }
 
-        [HttpPut("settings")]
+        [HttpPut("public")]
         [Produces("application/json")]
-        public async Task<ActionResult<SettingsInfo>> SetSettingsInfo([FromBody] SettingsInfo newSettings)
+        public async Task<ActionResult> SetPublicProfileSettings([FromBody] PublicProfileSettings newSettings)
         {
-            // TODO: Validate user settings
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = await AccountRepository.GetAsync(userId.Value);
 
             if (newSettings.DisplayName != null)
                 user.DisplayName = newSettings.DisplayName;
-
-            if (newSettings.Email != null)
-                user.Email = newSettings.Email;
 
             if (newSettings.Bio != null)
                 user.Bio = newSettings.Bio;
@@ -73,6 +70,61 @@ namespace WebAPI.Controllers
             await AccountRepository.UpdateAsync(user.Id, user);
             return new OkResult();
         }
+
+        [HttpGet("public")]
+        [Produces("application/json")]
+        public async Task<ActionResult<PublicProfileSettings>> GetPublicProfileSettings()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+            return new PublicProfileSettings()
+            {
+                DisplayName = user.DisplayName,
+                Url = user.Url,
+                Bio = user.Bio
+            };
+        }
+
+        [HttpPut("account")]
+        [Produces("application/json")]
+        public async Task<ActionResult> SetAccountSettings([FromBody] AccountSettings newSettings)
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+
+            if (newSettings.Email != null)
+                user.Email = newSettings.Email;
+
+            await AccountRepository.UpdateAsync(user.Id, user);
+            return new OkResult();
+        }
+
+        [HttpGet("account")]
+        [Produces("application/json")]
+        public async Task<ActionResult<AccountSettings>> GetAccountSettings()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+            return new AccountSettings()
+            {
+                Email = user.Email
+            };
+        }
+
+        [HttpGet("connections")]
+        [Produces("application/json")]
+        public async Task<ActionResult<ConnectedServices>> GetConnectionsInfo()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+            return new ConnectedServices()
+            {
+                GithubLogin = user.GithubConnection?.Login,
+                GitlabLogin = user.GitlabConnection?.Login,
+                BitbucketLogin = user.BitbucketConnection?.Username,
+            };
+        }
+
         [HttpGet("githubinstallations")]
         [Produces("application/json")]
         public async Task<ActionResult<GithubInstallations>> GetGithubInstallations()
@@ -98,24 +150,6 @@ namespace WebAPI.Controllers
                 {
                     Login = x.Account.Login
                 }).ToArray()
-            };
-        }
-        [HttpGet("settings")]
-        [Produces("application/json")]
-        public async Task<ActionResult<SettingsInfo>> GetSettingsInfo()
-        {
-            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
-            var user = await AccountRepository.GetAsync(userId.Value);
-            return new SettingsInfo()
-            {
-                Name = user.Name,
-                DisplayName = user.DisplayName,
-                Email = user.Email,
-                Url = user.Url,
-                Bio = user.Bio,
-                GithubConnected = user.GithubConnection != null,
-                GitLabConnected = user.GitlabConnection != null,
-                BitbucketConnected = user.BitbucketConnection != null,
             };
         }
 
