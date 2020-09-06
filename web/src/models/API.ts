@@ -274,11 +274,11 @@ export default class API {
         return await this.getData<DashboardResponse>(request, cancelToken);
     }
     static async getSettings(cancelToken: CancelToken): Promise<SettingsReponse> {
-        const request = `${config.apiUrl}/dashboard/settings`;
+        const request = `${config.apiUrl}/settings/settings`;
         return await this.getData<SettingsReponse>(request, cancelToken);
     }
     static async updateSettings(newSettings: SettingsReponse, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/dashboard/settings`;
+        const request = `${config.apiUrl}/settings/settings`;
         return await this.put<any>(request, newSettings, cancelToken);
     }
     static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
@@ -298,11 +298,11 @@ export default class API {
         return await this.post<any>(request, {}, cancelToken);
     }
     static async startDeleteAccount(cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/dashboard`;
+        const request = `${config.apiUrl}/settings`;
         return await this.put<any>(request, {}, cancelToken);
     }
     static async deleteAccount(token: string, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/dashboard/${token}`;
+        const request = `${config.apiUrl}/settings/${token}`;
         return await this.delete<any>(request, cancelToken);
     }
     static async getAnalytics(cancelToken: CancelToken): Promise<DashboardAnalyticsInfo> {
@@ -318,7 +318,7 @@ export default class API {
         return await this.getData<string>(request, cancelToken);
     }
     static async getGithubInstallations(cancelToken: CancelToken): Promise<GithubInstallations> {
-        const request = `${config.apiUrl}/dashboard/githubinstallations`;
+        const request = `${config.apiUrl}/settings/githubinstallations`;
         return await this.getData<GithubInstallations>(request, cancelToken);
     }
 }
