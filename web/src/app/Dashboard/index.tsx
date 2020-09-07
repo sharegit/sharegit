@@ -1,5 +1,5 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, Link } from 'react-router-dom';
 import { BaseState } from 'models/BaseState';
 import API, { SharedRepository, SharedToken, Analytic } from 'models/API';
 import { List, Accordion, Icon, AccordionTitleProps, Button, Modal, Segment } from 'semantic-ui-react';
@@ -104,7 +104,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                         ))}
                     </ul>
                 </Segment>
-               <NewTokenCreation tokenCreatedCallback={this.addToken.bind(this)}></NewTokenCreation>
+                <Button><Link to='/create'>Create new Token</Link></Button>
                 <Accordion fluid styled>
                     {
                         this.state.sharedTokens

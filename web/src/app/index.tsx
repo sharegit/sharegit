@@ -17,6 +17,7 @@ import ConfirmAccountDeletion, { IProps as IConfirmAccountDeletionProps } from '
 import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
 import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
+import NewTokenCreation from './CreateToken';
 
 
 highlight.configure({
@@ -141,6 +142,8 @@ export default class App extends React.Component<IProps, IState> {
                   logout={this.logout.bind(this)}
                   {...props.match.params}/>
               )}></Route>
+
+              <Route path="/create" component={NewTokenCreation} />
             </div>
         </div>
 
