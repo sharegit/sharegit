@@ -1,18 +1,14 @@
-import config from 'config';
+import DismissableMessage from 'components/DismissableMessage';
+import { Action, Location, LocationState, UnregisterCallback } from 'history';
 import API, { ConnectedServices } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Confirm, Form, FormProps, Icon, Message, Segment, MessageProps } from 'semantic-ui-react';
-import Dictionary from 'util/Dictionary';
-import Random from 'util/Random';
-import styles from './style.scss';
-import { Route, RouteComponentProps, Redirect, Link, Switch } from 'react-router-dom';
-import PublicProfile from './PublicProfile';
+import { Redirect, Route, RouteComponentProps } from 'react-router-dom';
 import Account from './Account';
+import BaseSettingsLayout from './BaseSettingsLayout';
 import Connection from './Connection';
 import DangerZone from './DangerZone';
-import BaseSettingsLayout from './BaseSettingsLayout';
-import DismissableMessage from 'components/DismissableMessage';
+import PublicProfile from './PublicProfile';
 import SettingsMenu from './SettingsMenu';
 
 
@@ -20,6 +16,7 @@ interface IState extends BaseState {
     accountDeletionOpen: boolean;
     successfullSave?: boolean;
     connectedServices?: ConnectedServices;
+    unreg?: UnregisterCallback;
 }
 interface IProps extends RouteComponentProps<any> {
 
@@ -35,17 +32,28 @@ export default class Settings extends React.Component<IProps, IState> {
     }
 
     async componentDidMount() {
-        console.log('REEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!')
         const connectedServices = await API.getConnectedServices(this.state.cancelToken);
         console.log(this.state.connectedServices);
         console.log(connectedServices);
         this.setState({connectedServices: connectedServices});
         console.log(this.state.connectedServices);
+
+        this.setState({unreg:this.props.history.listen(this.locationChanged.bind(this))}) 
+        this.locationChanged(this.props.location, 'PUSH');
+
         return connectedServices;
     }
+    
+    locationChanged(location: Location<LocationState>, action: Action) {
+        console.log(location);
+        this.setState({successfullSave: undefined})
+    }
     componentWillUnmount() {
+        if(this.state.unreg != undefined)
+        this.state.unreg();
         this.state.cancelToken.cancel();
     }
+    
     render() {
         return (
             <div>
