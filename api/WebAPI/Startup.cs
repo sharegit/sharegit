@@ -1,3 +1,6 @@
+using Core.APIModels;
+using Core.APIModels.Settings;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -21,7 +24,11 @@ namespace WebAPI
         {
             services.AddRazorPages();
 
-            services.AddControllers();
+            services.AddControllers()
+                    .AddFluentValidation(fv => {
+                        fv.RegisterValidatorsFromAssemblyContaining<AccountSettings>();
+                        fv.RegisterValidatorsFromAssemblyContaining<CreateToken>();
+                        });
 
             services.SetupServices(Configuration);
 
