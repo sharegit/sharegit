@@ -3,10 +3,13 @@ import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { Button, Form, FormProps, Icon, Message } from 'semantic-ui-react';
 import styles from '../style.scss';
+import FormTextField from 'components/FormTextField';
+import Dictionary from 'util/Dictionary';
 
 interface IState extends BaseState {
     original?: PublicProfileSettings;
     delta: PublicProfileSettings;
+    errors: Dictionary<string>;
 }
 
 interface IProps {
@@ -19,7 +22,8 @@ export default class PublicProfile extends React.Component<IProps, IState> {
         super(props);
         this.state = {
             cancelToken: API.aquireNewCancelToken(),
-            delta: {}
+            delta: {},
+            errors: new Dictionary()
         }
     }
     async componentDidMount() {
@@ -33,37 +37,58 @@ export default class PublicProfile extends React.Component<IProps, IState> {
     async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
         try {
             e.preventDefault();
-            await API.setSettingsPublicProfile(this.state.delta, this.state.cancelToken);
-            this.props.successCallback();
+            if(this.state.errors.length == 0) {
+                await API.setSettingsPublicProfile(this.state.delta, this.state.cancelToken);
+                this.props.successCallback();
+            } else {
+                this.props.failCallback();
+            }
         } catch(e) {
             this.props.failCallback();
         }
     }
 
-    changeDisplayName(newValue: string) {
+    changeDisplayName(id: string, newValue: string) {
         this.setState(state => {
             if(state.original == undefined)
                 return state;
+
+            if (newValue.length == 0)
+                state.errors.put(id, 'Please enter your display name');
+            else 
+                state.errors.remove(id);
 
             state.delta.displayName = newValue;
             state.original.displayName = newValue;
             return state;
         })
     }    
-    changeUrl(newValue: string) {
+    changeUrl(id: string, newValue: string) {
         this.setState(state => {
             if(state.original == undefined)
                 return state;
+
+            const re = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
+                
+            if (!re.test(newValue.toLowerCase()))
+                state.errors.put(id, 'Please enter a valid URL');
+            else
+                state.errors.remove(id);
 
             state.delta.url = newValue;
             state.original.url = newValue;
             return state;
         })
     }
-    changeBio(newValue: string) {
+    changeBio(id: string, newValue: string) {
         this.setState(state => {
             if(state.original == undefined)
                 return state;
+
+            if(newValue.length > 200)
+                state.errors.put(id, `Bio length cannot exceed 200 characters, current length: ${newValue.length}`)
+            else 
+                state.errors.remove(id);
 
             state.delta.bio = newValue;
             state.original.bio = newValue;
@@ -89,27 +114,36 @@ export default class PublicProfile extends React.Component<IProps, IState> {
                     <Form onSubmit={async (e, d) => {
                         await this.onSubmit(e, d)
                     }}>
-                        <Form.Field id="displayName">
-                            <label>Display Name</label>
-                            <input id="displayName" value={this.state.original.displayName} onChange={(e) => {
-                                this.changeDisplayName(e.target.value);
-                            }} placeholder='Display Name' />
-                            <span>The name that will be displayed on your shared repositories.</span>
-                        </Form.Field>
-                        <Form.Field id="url">
-                            <label>URL</label>
-                            <input id="url" value={this.state.original.url} onChange={(e) => {
-                                this.changeUrl(e.target.value);
-                            }} placeholder='URL' />
-                            <span>Your website URL that will be displayed next to your shared repositories.</span>
-                        </Form.Field>
-                        <Form.Field id="bio">
-                            <label>Bio</label>
-                            <textarea id="bio" value={this.state.original.bio} onChange={(e) => {
-                                this.changeBio(e.target.value);
-                            }} placeholder='Bio' />
-                            <span>Short description of yourself. This will be displayed next to your shared repositories.</span>
-                        </Form.Field>
+                        <FormTextField  
+                            id='display-name'
+                            type='field'
+                            label='Display Name'
+                            error={this.state.errors.get('display-name')}
+                            value={this.state.original.displayName}
+                            onChanged={this.changeDisplayName.bind(this)}
+                            placeholder='John Smith'
+                            description='The name that will be displayed on your shared repositories.'
+                         />
+                        <FormTextField  
+                            id='url'
+                            type='field'
+                            label='Webite Url'
+                            error={this.state.errors.get('url')}
+                            value={this.state.original.url}
+                            onChanged={this.changeUrl.bind(this)}
+                            placeholder='https://example.com'
+                            description='Your website URL that will be displayed next to your shared repositories.'
+                         />
+                        <FormTextField  
+                            id='bio'
+                            type='area'
+                            label='Bio'
+                            error={this.state.errors.get('bio')}
+                            value={this.state.original.bio}
+                            onChanged={this.changeBio.bind(this)}
+                            placeholder='John Smith'
+                            description='Short description of yourself. This will be displayed next to your shared repositories.'
+                         />
                         <Button primary type='submit'>Save</Button>
                     </Form>
                 </div>

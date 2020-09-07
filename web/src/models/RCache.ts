@@ -41,7 +41,7 @@ export default class RCache {
             console.log('Using IndexedDB cache!')
         }
         catch(e){
-            this.dictionary = {}
+            this.dictionary = new Dictionary();
             this.cache = undefined;
             console.log('IndexedDB cache initialization failed, using in-memory caching!');
         }
@@ -64,7 +64,7 @@ export default class RCache {
         if (this.cache != undefined)
             c = await this.cache.get(DB_CACHE_OBJECT_STORE, key) as CacheElement<T>;
         else if (this.dictionary != undefined)
-            c = this.dictionary[key]
+            c = this.dictionary.get(key)
                 
         if (c == undefined || c.exp < new Date().getTime() / 1000)
             return undefined;
@@ -81,6 +81,6 @@ export default class RCache {
         if (this.cache != undefined)
             await this.cache.put(DB_CACHE_OBJECT_STORE, c, key);
         else if (this.dictionary != undefined)
-            this.dictionary[key] = c;
+            this.dictionary.put(key, c);
     }
 }
