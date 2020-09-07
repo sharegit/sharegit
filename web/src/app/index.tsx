@@ -19,6 +19,7 @@ import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
 import NewTokenCreation from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
+import Footer from './Footer';
 
 
 highlight.configure({
@@ -150,6 +151,8 @@ export default class App extends React.Component<IProps, IState> {
 
               <Route path="/create" component={NewTokenCreation} />
             </div>
+            
+            <Footer />
         </div>
 
       )

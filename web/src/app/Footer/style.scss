@@ -1,0 +1,30 @@
+#footer {
+    display: flex;
+    justify-content: center;
+
+    #content{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+
+        ul, li {
+            margin: 0;
+            padding: 0;
+            display: inline-block;
+        }
+        
+
+        #nav {
+            li {
+                margin: 5px 20px 5px 20px;
+            }
+        }
+        #etc {
+            font-size: 80%;
+            li {
+                margin: 5px 10px 5px 10px;
+            }
+        }
+    }
+}
