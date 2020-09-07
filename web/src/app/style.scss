@@ -1,5 +1,4 @@
-$background-color: rgb(228, 228, 228);
-$nav-color: rgb(30, 241, 40);
+@use '/src/styles/style.scss' as globalStyles;
 
 :global * {
     margin: 0;
@@ -12,7 +11,7 @@ $nav-color: rgb(30, 241, 40);
 
 
 #app {
-    background-color: $background-color;
+    background-color: globalStyles.$light;
     padding: 0;
     margin: 0;
     width: 100%;
@@ -22,54 +21,5 @@ $nav-color: rgb(30, 241, 40);
 
 .appContentContainer {
     margin: auto;
-    width: 900px;
-}
-
-nav {
-    background-color: rgb(46, 46, 46);
     width: 100%;
-    height: 45px;
-    color: $nav-color;
-    text-align: center;
-    padding: 10px;
-    text-decoration: none;
-    ul {
-        list-style: none;
-        list-style-type: none;
-        height: 100%;
-    }
-    a {
-        height: 100%;
-    }
-     /* unvisited link */
-    a:link {
-        color:$nav-color;
-    }
-    
-    /* visited link */
-    a:visited {
-        color: $nav-color;
-    }
-    
-    /* mouse over link */
-    a:hover {
-        color: $nav-color;
-    }
-    
-    /* selected link */
-    a:active {
-        color: $nav-color;
-    }
-    div, ul, li {
-        display: inline;
-        box-sizing: content-box;
-    }
-    li {
-        margin: 0px 15px 0px 15px;
-        height: 100%;
-    }
-
-
 }
-
-

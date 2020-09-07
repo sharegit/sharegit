@@ -1,13 +1,22 @@
+@use '/src/styles/style.scss' as globalStyles;
 
-.authSegment {
-    :global(a.button) {
+.authBox {
+    .signupButton {
         display: block !important;
-        width: 300px;
-        margin: 10px auto 10px auto !important;
+        margin-top: 15px;
     }
-    width: 600px;
-    margin: 100px auto 0px auto !important;
+    * {
+        width: 100%
+    }
+    h2, h3 {
+        margin: 0px;
+        padding: 0px;
+    }
+    padding: 30px;
+    width: 300px;
     text-align: center;
+
+    background-color: globalStyles.$light;
 
     -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35) !important;
     -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35) !important;

@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import style from './style.scss'
 
 interface IProps {
     header: ReactNode;
@@ -12,10 +13,14 @@ export default class FeatureCard extends React.Component<IProps> {
     }
     render(): ReactNode {
         return (
-            <div>
-                <h3>{this.props.header}</h3>
-                {this.props.icon}
-                <span>{this.props.text}</span>
+            <div className={style.featureCard}>
+                <div className={style.icon}>
+                    {this.props.icon}
+                </div>
+                <div className={style.content}>
+                    <h3>{this.props.header}</h3>
+                    <span>{this.props.text}</span>
+                </div>
             </div>
         )
     }

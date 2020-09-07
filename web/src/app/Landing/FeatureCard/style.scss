@@ -1,0 +1,20 @@
+.featureCard {
+    margin: 40px;
+    width: 450px;
+    min-width: 450px;
+    display: flex;
+    justify-content: left;
+
+    .icon {
+        width: 100px;
+        padding-top: 20px;
+        padding-right: 10px;
+    }
+
+    .content {
+        width: 350px;
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+    }
+}

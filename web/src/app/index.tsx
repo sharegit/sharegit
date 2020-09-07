@@ -18,6 +18,7 @@ import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
 import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
 import NewTokenCreation from './CreateToken';
+import ContentPanel from 'components/ContentPanel';
 
 
 highlight.configure({
@@ -113,19 +114,23 @@ export default class App extends React.Component<IProps, IState> {
               )}></Route>
 
               <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
-                <Authentication
-                {...props}
-                mode='signin'
-                login={this.login.bind(this)}
-                {...props.match.params}/>
+                <ContentPanel background='gradient'>
+                  <Authentication
+                  {...props}
+                  mode='signin'
+                  login={this.login.bind(this)}
+                  {...props.match.params}/>
+                </ContentPanel>
               )}></Route>
               
               <Route path="/signup/:provider?" component={(props: IAuthenticationProps) => (
-                <Authentication
-                {...props}
-                mode='signup'
-                login={this.login.bind(this)}
-                {...props.match.params}/>
+                <ContentPanel background='gradient'>
+                  <Authentication
+                  {...props}
+                  mode='signup'
+                  login={this.login.bind(this)}
+                  {...props.match.params}/>
+                </ContentPanel>
               )}></Route>
 
               <Route path="/logout" exact component={(props: RouteComponentProps<any>) => (

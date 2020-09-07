@@ -1,0 +1,24 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+.target {
+    width: 200px;
+    margin: 40px 50px 40px 50px;
+    text-align: center;
+    color: globalStyles.$light;
+
+    .header {
+        font-size: 130%;
+    }
+    .header:after {
+        height: 3.87px;
+        width: 150px;
+        margin: 5px auto 0px auto;
+        content: ' ';
+        display: block;
+
+        background: linear-gradient(95.64deg, globalStyles.$green 3.82%, globalStyles.$blue 123.47%);
+    }
+    .text {
+        margin-top: 10px;
+    }
+}

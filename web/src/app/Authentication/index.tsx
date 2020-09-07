@@ -14,7 +14,7 @@ interface IState extends BaseState {
     mode: 'signin' | 'signup' | 'add';
 }
 
-export interface IProps  extends RouteComponentProps<any> {
+export interface IProps  extends RouteComponentProps<any>, React.HTMLAttributes<HTMLDivElement> {
     login?: () => void;
     provider?: string;
     mode: 'signin' | 'signup' | 'add';
@@ -155,69 +155,70 @@ export default class Authentication extends React.Component<IProps, IState>  {
     }
     render() {
         return (
-            <div>
-                <Segment className={styles.authSegment}>
-                    <h2>
-                        {this.getAuthText()}
-                    </h2>
-                    {this.props.mode == 'signup' && 
-                        <h3>And start sharing now</h3>}
-                    {
-                        this.state.processing ? 
-                        <div className='ui icon message'>
-                            <i className='notched circle loading icon'></i>
-                            <div className='content'>
-                                <div className='header'>
-                                Just one second
-                                </div>
-                                <p>Processing {this.getAuthText()} request</p>
+            <div className={`${this.props.className} ${styles.authBox}`} id={this.props.id}>
+                <h2>
+                    {this.getAuthText()}
+                </h2>
+                {this.props.mode == 'signup' && 
+                    <h3>And start sharing now</h3>}
+                {
+                    this.state.processing ? 
+                    <div className='ui icon message'>
+                        <i className='notched circle loading icon'></i>
+                        <div className='content'>
+                            <div className='header'>
+                            Just one second
                             </div>
+                            <p>Processing {this.getAuthText()} request</p>
+                        </div>
+                    </div>
+                :
+                    <div>
+                        {this.state.failed ?
+                        <div className="ui warning message">
+                            <i className="close icon"></i>
+                            <div className="header">
+                                An Error occurred during {this.getAuthText()}!
+                            </div>
+                            {this.getAuthWarn()}
                         </div>
                     :
+                        null}
+
+
+                        {this.state.mode == 'add' ? 
+                        null
+                    :
                         <div>
-                            {this.state.failed ?
-                            <div className="ui warning message">
-                                <i className="close icon"></i>
-                                <div className="header">
-                                    An Error occurred during {this.getAuthText()}!
-                                </div>
-                                {this.getAuthWarn()}
-                            </div>
-                        :
-                            null}
-
-
-                            {this.state.mode == 'add' ? 
-                            null
-                        :
-                            <div>
-                                <Button
-                                as='a'
-                                primary
-                                href={this.getAuthLink('github')}>
-                                        <Icon name='github'></Icon>
-                                        {this.getAuthText()} with Github
-                                </Button>
-                                <Button
-                                as='a'
-                                primary
-                                href={this.getAuthLink('gitlab')}>
-                                        <Icon name='gitlab'></Icon>
-                                        {this.getAuthText()} with GitLab
-                                </Button>
-                                <Button
-                                as='a'
-                                primary
-                                href={this.getAuthLink('bitbucket')}>
-                                        <Icon name='bitbucket'></Icon>
-                                        {this.getAuthText()} with Bitbucket
-                                </Button>
-                            </div>}
-                        </div>
-                    }
-                    {this.props.mode == 'signup' && 
-                        <span>By Signing up you aggree to our Privacy Policy and the Terms of Service.</span>}
-                </Segment>
+                            <Button
+                            className={styles.signupButton}
+                            as='a'
+                            primary
+                            href={this.getAuthLink('github')}>
+                                    <Icon name='github'></Icon>
+                                    {this.getAuthText()} with Github
+                            </Button>
+                            <Button
+                            className={styles.signupButton}
+                            as='a'
+                            primary
+                            href={this.getAuthLink('gitlab')}>
+                                    <Icon name='gitlab'></Icon>
+                                    {this.getAuthText()} with GitLab
+                            </Button>
+                            <Button
+                            className={styles.signupButton}
+                            as='a'
+                            primary
+                            href={this.getAuthLink('bitbucket')}>
+                                    <Icon name='bitbucket'></Icon>
+                                    {this.getAuthText()} with Bitbucket
+                            </Button>
+                        </div>}
+                    </div>
+                }
+                {this.props.mode == 'signup' && 
+                    <span>By Signing up you aggree to our Privacy Policy and the Terms of Service.</span>}
             </div>
         )
     }
