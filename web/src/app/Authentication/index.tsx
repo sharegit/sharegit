@@ -15,7 +15,7 @@ interface IState extends BaseState {
 }
 
 export interface IProps  extends RouteComponentProps<any> {
-    login: () => void;
+    login?: () => void;
     provider?: string;
     mode: 'signin' | 'signup' | 'add';
 }
@@ -75,7 +75,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         const signUpResult = await API.signUp(this.props.provider, code, state, this.state.cancelToken);
                                         succ = true;
                                         localStorage.setItem('OAuthJWT', signUpResult.token);
-                                        this.props.login();
+                                        if(this.props.login != undefined)
+                                            this.props.login();
                                         this.props.history.push('/settings');
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
@@ -87,7 +88,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         const signInResult = await API.signIn(this.props.provider, code, state, this.state.cancelToken);
                                         succ = true;
                                         localStorage.setItem('OAuthJWT', signInResult.token);
-                                        this.props.login();
+                                        if(this.props.login != undefined)
+                                            this.props.login();
                                         if (parsedState.m == 'add') {
                                             this.props.history.push(`/settings/${this.props.provider}`);
                                         } else if (parsedState.m == 'signin') {
@@ -158,6 +160,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     <h2>
                         {this.getAuthText()}
                     </h2>
+                    {this.props.mode == 'signup' && 
+                        <h3>And start sharing now</h3>}
                     {
                         this.state.processing ? 
                         <div className='ui icon message'>
@@ -211,6 +215,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                             </div>}
                         </div>
                     }
+                    {this.props.mode == 'signup' && 
+                        <span>By Signing up you aggree to our Privacy Policy and the Terms of Service.</span>}
                 </Segment>
             </div>
         )
