@@ -9,6 +9,7 @@ interface IProps {
 
 interface IState {
     active?: boolean;
+    internalUpdate?: boolean;
 }
 
 export default class DismissableMessage extends React.Component<IProps, IState> {
@@ -18,13 +19,23 @@ export default class DismissableMessage extends React.Component<IProps, IState> 
             active: props.active !== false
         }
     }
+    static getDerivedStateFromProps(nextProps: Readonly<IProps>, prevState: IState): Partial<IState> | null {
+        if (prevState.internalUpdate)
+            return {
+                internalUpdate: undefined
+            };
+        
+        return {
+            active: nextProps.active !== false
+        }
+    }
     render() {
         if (this.state.active) {
             return (
                 <Message className={this.props.style}
                 onDismiss={(event: React.MouseEvent<HTMLElement>, data: MessageProps) => {
                     event.preventDefault();
-                    this.setState({active: undefined})
+                    this.setState({active: undefined, internalUpdate: true})
                 }}
                 header={this.props.headerMessage} />
             )

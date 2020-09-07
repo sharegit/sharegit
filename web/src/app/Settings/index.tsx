@@ -51,7 +51,8 @@ export default class Settings extends React.Component<IProps, IState> {
             <div>
                 {this.state.successfullSave == undefined ? null :
                 <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
-                                    headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'} /> }
+                                    headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}
+                                    active /> }
 
                 <SettingsMenu githubConnected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != null}
                               gitlabConnected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != null}
