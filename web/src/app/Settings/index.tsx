@@ -34,15 +34,16 @@ export default class Settings extends React.Component<IProps, IState> {
     }
 
     async componentDidMount() {
-        const connectedServices = await API.getConnectedServices(this.state.cancelToken);
-        console.log(this.state.connectedServices);
-        console.log(connectedServices);
-        this.setState({connectedServices: connectedServices});
-        console.log(this.state.connectedServices);
+        const connectedServices = await this.queryConnectedServices();
 
         this.setState({unreg:this.props.history.listen(this.locationChanged.bind(this))}) 
         this.locationChanged(this.props.location, 'PUSH');
 
+        return connectedServices;
+    }
+    async queryConnectedServices() {
+        const connectedServices = await API.getConnectedServices(this.state.cancelToken);
+        this.setState({connectedServices: connectedServices});
         return connectedServices;
     }
     
@@ -94,21 +95,27 @@ export default class Settings extends React.Component<IProps, IState> {
                             <BaseSettingsLayout header='GitHub Connection'>
                                 <Connection provider='github' 
                                             connected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined}
-                                            username={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined ? this.state.connectedServices.githubLogin : ''}/>
+                                            forbidDisconnect={this.state.connectedServices != undefined && (this.state.connectedServices.gitlabLogin == undefined && this.state.connectedServices.bitbucketLogin == undefined)}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined ? this.state.connectedServices.githubLogin : ''}
+                                            onUpdate={async () => this.queryConnectedServices()}/>
                             </BaseSettingsLayout> 
                         </Route>
                         <Route exact path={`${this.props.match.path}/gitlab`}>
                             <BaseSettingsLayout header='GitLab Connection'>
                                 <Connection provider='gitlab'  
                                             connected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined}
-                                            username={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined ? this.state.connectedServices.gitlabLogin : ''}/>
+                                            forbidDisconnect={this.state.connectedServices != undefined && (this.state.connectedServices.githubLogin == undefined && this.state.connectedServices.bitbucketLogin == undefined)}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined ? this.state.connectedServices.gitlabLogin : ''}
+                                            onUpdate={async () => this.queryConnectedServices()}/>
                             </BaseSettingsLayout> 
                         </Route>
                         <Route exact path={`${this.props.match.path}/bitbucket`}>
                             <BaseSettingsLayout header='Bitbucket Connection'>
                                 <Connection provider='bitbucket' 
                                             connected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined}
-                                            username={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined ? this.state.connectedServices.bitbucketLogin : ''}/>
+                                            forbidDisconnect={this.state.connectedServices != undefined && (this.state.connectedServices.gitlabLogin == undefined && this.state.connectedServices.githubLogin == undefined)}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined ? this.state.connectedServices.bitbucketLogin : ''}
+                                            onUpdate={async () => this.queryConnectedServices()}/>
                             </BaseSettingsLayout> 
                         </Route>
                         <Route exact path={`${this.props.match.path}/dangerzone`}>

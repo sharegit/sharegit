@@ -2,19 +2,23 @@ import config from 'config';
 import API, { GithubInstallations } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Form, Icon } from 'semantic-ui-react';
+import { Button, Form, Icon, Label, Confirm } from 'semantic-ui-react';
 import Random from 'util/Random';
 import style from './style.scss';
 import { Link } from 'react-router-dom';
+import BaseSettingsLayout from '../BaseSettingsLayout';
 
 interface IState extends BaseState {
     state: string;
     githubInstallations?: GithubInstallations;
+    confirmConnectionRemoval: boolean;
 }
 export interface IProps {
     provider: 'github' | 'gitlab' | 'bitbucket';
     connected: boolean;
+    forbidDisconnect?: boolean;
     username: string;
+    onUpdate: () => void;
 }
 
 export default class Connection extends React.Component<IProps, IState> {
@@ -23,6 +27,7 @@ export default class Connection extends React.Component<IProps, IState> {
         this.state = {
             cancelToken: API.aquireNewCancelToken(),
             state: this.constructState(),
+            confirmConnectionRemoval: false
         }
     }
     constructState(): string {
@@ -62,6 +67,10 @@ export default class Connection extends React.Component<IProps, IState> {
                 return `https:gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`;
         }
     }
+    async disconnect() {
+        await API.disconnectService(this.props.provider, this.state.cancelToken);
+        this.props.onUpdate();
+    }
     render() {
         if(this.props.connected) {
             return (
@@ -74,6 +83,34 @@ export default class Connection extends React.Component<IProps, IState> {
                         </Form.Field>
                     </Form>
                     {this.renderGithubInstallation()}
+                    <BaseSettingsLayout header='Dangerzone' isdangerous>
+                        {!!this.props.forbidDisconnect && 
+                            <span>
+                                You cannot disconnect this provider, please connect other services first or if you wish to delete your account, <Link to='/settings/dangerzone'>click here</Link>
+                            </span>}
+                        <Button disabled={this.props.forbidDisconnect} primary onClick={ async () => {
+                            this.setState({confirmConnectionRemoval: true});
+                        }}>
+                            <Icon name='delete'></Icon>
+                            Disconnect {this.getPrettyProvider()}
+                        </Button>
+                        <Confirm
+                            open={this.state.confirmConnectionRemoval}
+                            onCancel={() => this.setState({confirmConnectionRemoval: false})}
+                            onConfirm={async () => {
+                                await this.disconnect();
+                                this.setState({confirmConnectionRemoval: false})
+                            }}
+                            header='Confirm Service disconnection'
+                            content={`Any and all links using this connection will stop working.
+                            If the link contains a repository from other providers, those will still work.
+                            ${this.props.provider == 'github' ? 'All of your GitHub installations will be removed from the accounts you have admin access to!'
+                         : `We will forget about all of your ${this.getPrettyProvider()} related access tokens,
+                            but please note that for ${this.getPrettyProvider()} you'll also have to manually disconnect ShareGit from your profile.`}`}
+                            cancelButton='Cancel'
+                            confirmButton={`Delete ${this.getPrettyProvider()} Connection`}>
+                        </Confirm>
+                    </BaseSettingsLayout>
                 </div>
             )
         }

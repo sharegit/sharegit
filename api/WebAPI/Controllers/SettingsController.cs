@@ -153,6 +153,60 @@ namespace WebAPI.Controllers
             };
         }
 
+        [HttpDelete("connection/github")]
+        public async Task<ActionResult> DeleteGithubConnection()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+
+            if (user.GithubConnection == null || (user.GitlabConnection == null && user.BitbucketConnection == null))
+                return new BadRequestResult();
+
+            var userAccess = new GithubUserAccess()
+            {
+                AccessToken = JWT.Decode<string>(user.GithubConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+
+            var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
+            foreach (var installation in installations.Value.Installations)
+            {
+                var id = installation.Id;
+                await RepositoryServiceGH.RemoveUserInstalation(id);
+            }
+
+            user.GithubConnection = null;
+            await AccountRepository.UpdateAsync(user.Id, user);
+            return new OkResult();
+        }
+
+        [HttpDelete("connection/gitlab")]
+        public async Task<ActionResult> DeleteGitlabConnection()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+
+            if (user.GitlabConnection == null || (user.GithubConnection == null && user.BitbucketConnection == null))
+                return new BadRequestResult();
+
+            user.GitlabConnection = null;
+            await AccountRepository.UpdateAsync(user.Id, user);
+            return new OkResult();
+        }
+
+        [HttpDelete("connection/bitbucket")]
+        public async Task<ActionResult> DeleteBitbucketConnection()
+        {
+            var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
+            var user = await AccountRepository.GetAsync(userId.Value);
+
+            if (user.BitbucketConnection == null || (user.GithubConnection == null && user.GitlabConnection== null))
+                return new BadRequestResult();
+
+            user.BitbucketConnection = null;
+            await AccountRepository.UpdateAsync(user.Id, user);
+            return new OkResult();
+        }
 
         [HttpPut()]
         public async Task<ActionResult> StartDeleteRegistrationProcess()

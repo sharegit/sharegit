@@ -99,6 +99,7 @@ export interface PublicProfileSettings {
 
 export default class API {
 
+
     static cache: RCache = new RCache('share-git');
 
     static aquireNewCancelToken(): CancelToken {
@@ -337,5 +338,9 @@ export default class API {
     static async getConnectedServices(cancelToken: CancelToken): Promise<ConnectedServices> {
         const request = `${config.apiUrl}/settings/connections`;
         return await this.getData<ConnectedServices>(request, cancelToken);
+    }
+    static async disconnectService(provider: string, cancelToken: CancelToken) {
+        const request = `${config.apiUrl}/settings/connection/${provider}`;
+        return await this.delete<any>(request, cancelToken);
     }
 }

@@ -1,6 +1,7 @@
 import React, { ComponentProps } from 'react';
 import { BaseState } from 'models/BaseState';
 import API from 'models/API';
+import style from './style.scss';
 
 interface IState extends BaseState {
 
@@ -24,8 +25,9 @@ export default class BaseSettingsLayout extends React.Component<IProps, IState> 
     }
     render() {
         return (
-            <div>
+            <div className={`${style.baseSettingsLayout} ${!!this.props.isdangerous ? style.dangerous : ''}`}>
                 <h3>{this.props.header}</h3>
+                <hr />
                 {this.props.children}
             </div>
         )
