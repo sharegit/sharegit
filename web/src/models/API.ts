@@ -98,8 +98,6 @@ export interface PublicProfileSettings {
 }
 
 export default class API {
-
-
     static cache: RCache = new RCache('share-git');
 
     static aquireNewCancelToken(): CancelToken {
@@ -114,233 +112,161 @@ export default class API {
             }
         };
     }
-    static mutex = new Mutex();
-    // Expiring tokens turned off
-    // static async checkJWT(cancelToken: CancelToken) {
-    //     const exp = localStorage.getItem('OAuthJWT-exp')
-    //     if (exp != undefined && parseInt(exp) < new Date().getTime() / 1000) {
-    //         console.log('YES')
-    //         await this.mutex.dispatch(async () => {
-    //             console.log('IN_MUTEX')
-    //             const exp2 = localStorage.getItem('OAuthJWT-exp')
-    //             if (exp2 != undefined && parseInt(exp2) < new Date().getTime() / 1000) {
-    //                 console.log('REFRESHING_TOKEN')
-    //                 const axiosConfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken);
-    //                 const result = await axios.get<AuthResult>(`${config.apiUrl}/auth/refreshtoken`, axiosConfig);
-    //                 localStorage.setItem('OAuthJWT-exp', result.data.exp)
-    //                 localStorage.setItem('OAuthJWT', result.data.token)
-    //             }
-    //         })
-    //     }
-    // }
-    static async get<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        console.log(`Requesting: ${request}`);
-        // Expiring tokens turned off
-        // await this.checkJWT(cancelToken);
-
-        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
-        if (additionalConfig != undefined)
-            Object.assign(config, additionalConfig);
-        return new Promise<APIResponse<T>>((resolve, reject) => {
-            axios.get<T>(request, config)
-            .then((res: AxiosResponse<T>) => {
-                if(res.status >= 200 && res.status < 400) {
-                    console.log(`Got a response for ${request} (${res.status})`)
-                    resolve({
-                        data: res.data,
-                        statusCode: res.status
-                    })
-                } else {
-                    console.error(`Error while requesting ${request} ${res.status}`)
-                    reject();
-                }
-            })
-            .catch((error) => {
-                console.error(`Error while requesting ${request} ${error}`)
-                reject();
-            });
-        });
-    }
-    static async post<T = any>(request: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+    private static async request<T = any>(method: 'get' | 'delete' | 'post' | 'put', path: string, cancelToken: CancelToken, data?: any, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        const request = path.startsWith('/') ? `${config.apiUrl}${path}` : path;
         console.log(`Requesting: ${request}`);
 
-        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
+        const axiosRequestCOnfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
         if (additionalConfig != undefined)
-            Object.assign(config, additionalConfig);
-        return new Promise<APIResponse<T>>((resolve, reject) => {
-            axios.post<T>(request, data, config)
-            .then((res: AxiosResponse<T>) => {
-                if(res.status >= 200 && res.status < 400) {
-                    console.log(`Got a response for ${request} (${res.status})`)
-                    resolve({
-                        data: res.data,
-                        statusCode: res.status
-                    })
-                } else {
-                    console.error(`Error while requesting ${request} ${res.status}`)
-                    reject();
-                }
-            })
-            .catch((error) => {
-                console.error(`Error while requesting ${request} ${error}`)
-                reject();
-            });
-        });
-    }
-    static async put<T = any>(request: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        console.log(`Requesting: ${request}`);
+            Object.assign(axiosRequestCOnfig, additionalConfig);
+        try {
+            const result =
+                method == 'get' ?
+                await axios.get<T>(request, axiosRequestCOnfig)
+            :   method == 'delete' ? 
+                await axios.delete<T>(request, axiosRequestCOnfig)
+            :   method == 'post' ?
+                await axios.post<T>(request, data, axiosRequestCOnfig)
+            :   method == 'put' ?
+                await axios.put<T>(request, data, axiosRequestCOnfig)
+            :   undefined;
 
-        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
-        if (additionalConfig != undefined)
-            Object.assign(config, additionalConfig);
-        return new Promise<APIResponse<T>>((resolve, reject) => {
-            axios.put<T>(request, data, config)
-            .then((res: AxiosResponse<T>) => {
-                if(res.status >= 200 && res.status < 400) {
-                    console.log(`Got a response for ${request} (${res.status})`)
-                    resolve({
-                        data: res.data,
-                        statusCode: res.status
-                    })
-                } else {
-                    console.error(`Error while requesting ${request} ${res.status}`)
-                    reject();
+            if (result != undefined && result.status >= 200 && result.status < 400) {
+                console.log(`Got a response for ${request} (${result.status})`)
+                return {
+                    data: result.data,
+                    statusCode: result.status
                 }
-            })
-            .catch((error) => {
+            } else if(result != undefined) {
+                console.error(`Error while requesting ${request} ${result.status}`)
+                throw new Error(result.status.toString());
+            } else {
+                throw new Error(`Unknown error occurred during ${request}`);
+            }
+        } catch (error) {
+            if (!axios.isCancel(error)) {
                 console.error(`Error while requesting ${request} ${error}`)
-                reject();
-            });
-        });
+                throw (error);
+            } else {
+                // Intentionally not logging here, because cancallation is expected behaviour
+                throw (error);
+            }
+        }
     }
-    static async delete<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        console.log(`Requesting: ${request}`);
-
-        const config: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
-        if (additionalConfig != undefined)
-            Object.assign(config, additionalConfig);
-        return new Promise<APIResponse<T>>((resolve, reject) => {
-            axios.delete<T>(request, config)
-            .then((res: AxiosResponse<T>) => {
-                if(res.status >= 200 && res.status < 400) {
-                    console.log(`Got a response for ${request} (${res.status})`)
-                    resolve({
-                        data: res.data,
-                        statusCode: res.status
-                    })
-                } else {
-                    console.error(`Error while requesting ${request} ${res.status}`)
-                    reject();
-                }
-            })
-            .catch((error) => {
-                console.error(`Error while requesting ${request} ${error}`)
-                reject();
-            });
-        });
+    static async get<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        return await this.request('get', path, cancelToken, undefined, additionalConfig);
+    }
+    static async delete<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        return await this.request('delete', path, cancelToken, undefined, additionalConfig);
+    }
+    static async post<T = any>(path: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        return await this.request('post', path, cancelToken, data, additionalConfig);
+    }
+    static async put<T = any>(path: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+        return await this.request('put', path, cancelToken, data, additionalConfig);
     }
 
-    static async getData<T = any>(request: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
-        const result = await this.get<T>(request, cancelToken)
+    static async getData<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
+        const result = await this.get<T>(path, cancelToken)
         return result.data;
     }
-    static async getDataCached<T = any>(request: string, cancelToken: CancelToken, ttl: number = 3600): Promise<T> {
-        return await this.cache.getOrPutAndGet<T>(request, 
-            async () =>  (await this.getData<T>(request, cancelToken)),
+    static async getDataCached<T = any>(path: string, cancelToken: CancelToken, ttl: number = 3600): Promise<T> {
+        return await this.cache.getOrPutAndGet<T>(path, 
+            async () =>  (await this.getData<T>(path, cancelToken)),
             ttl);
     }
 
     static async getSharedBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
-        const request = `${config.apiUrl}/share/branches/${owner}/${repo}`;
-        return await this.getDataCached<Branch[]>(request, cancelToken, 3600);
+        const requestPath = `/share/branches/${owner}/${repo}`;
+        return await this.getDataCached<Branch[]>(requestPath, cancelToken, 3600);
     }
     static async getRepoTree(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
-        const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/tree/${sha}/${uri}`;
-        return await this.getDataCached<TreeNode[]>(request, cancelToken, 3600);
+        const requestPath = `/${provider}/${id}/${owner}/${repo}/tree/${sha}/${uri}`;
+        return await this.getDataCached<TreeNode[]>(requestPath, cancelToken, 3600);
     }
     static async getRepoBlob(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
-        const request = `${config.apiUrl}/${provider}/${id}/${owner}/${repo}/blob/${sha}/${uri}`;
-        return await this.getDataCached<BlobResult>(request, cancelToken, 3600);
+        const requestPath = `/${provider}/${id}/${owner}/${repo}/blob/${sha}/${uri}`;
+        return await this.getDataCached<BlobResult>(requestPath, cancelToken, 3600);
     }
     static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {
-        const request = `${config.apiUrl}/share/${token}`;
-        return await this.getDataCached<SharedRepositories>(request, cancelToken, 60 * 5);
+        const requestPath = `/share/${token}`;
+        return await this.getDataCached<SharedRepositories>(requestPath, cancelToken, 60 * 5);
     }
     static async signIn(provider: string, code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
-        const request = `${config.apiUrl}/auth/signin/${provider}/${code}/${state}`;
-        return await this.getData<AuthResult>(request, cancelToken);
+        const requestPath = `/auth/signin/${provider}/${code}/${state}`;
+        return await this.getData<AuthResult>(requestPath, cancelToken);
     }
     static async signUp(provider: string, code: string, state: string, cancelToken: CancelToken): Promise<AuthResult> {
-        const request = `${config.apiUrl}/auth/signup/${provider}/${code}/${state}`;
-        return await this.getData<AuthResult>(request, cancelToken);
+        const requestPath = `/auth/signup/${provider}/${code}/${state}`;
+        return await this.getData<AuthResult>(requestPath, cancelToken);
     }
     static async fetchDashboardEssential(cancelToken: CancelToken): Promise<DashboardResponse> {
-        const request = `${config.apiUrl}/dashboard`;
-        return await this.getData<DashboardResponse>(request, cancelToken);
+        const requestPath = `/dashboard`;
+        return await this.getData<DashboardResponse>(requestPath, cancelToken);
     }
     static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
-        const request = `${config.apiUrl}/dashboard/tokens`;
-        return await this.getData<SharedToken[]>(request, cancelToken);
+        const requestPath = `/dashboard/tokens`;
+        return await this.getData<SharedToken[]>(requestPath, cancelToken);
     }
     static async getMyRepos(cancelToken: CancelToken): Promise<SharedRepository[]> {
-        const request = `${config.apiUrl}/dashboard/repos`;
-        return await this.getData<SharedRepository[]>(request, cancelToken);
+        const requestPath = `/dashboard/repos`;
+        return await this.getData<SharedRepository[]>(requestPath, cancelToken);
     }
     static async createToken(tokenCreation: any, cancelToken: CancelToken): Promise<SharedToken> {
-        const request = `${config.apiUrl}/dashboard/createtoken`;
-        return (await this.post<SharedToken>(request, tokenCreation, cancelToken)).data;
+        const requestPath = `/dashboard/createtoken`;
+        return (await this.post<SharedToken>(requestPath, tokenCreation, cancelToken)).data;
     }
     static async deleteToken(token: string, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/dashboard/deletetoken/${token}`;
-        return await this.post<any>(request, {}, cancelToken);
+        const requestPath = `/dashboard/deletetoken/${token}`;
+        return await this.post<any>(requestPath, {}, cancelToken);
     }
     static async startDeleteAccount(cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/settings`;
-        return await this.put<any>(request, {}, cancelToken);
+        const requestPath = `/settings`;
+        return await this.put<any>(requestPath, {}, cancelToken);
     }
     static async deleteAccount(token: string, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/settings/${token}`;
-        return await this.delete<any>(request, cancelToken);
+        const requestPath = `/settings/${token}`;
+        return await this.delete<any>(requestPath, cancelToken);
     }
     static async getAnalytics(cancelToken: CancelToken): Promise<DashboardAnalyticsInfo> {
-        const request = `${config.apiUrl}/dashboard/analytics`;
-        return await this.getDataCached(request, cancelToken, 3600);
+        const requestPath = `/dashboard/analytics`;
+        return await this.getDataCached(requestPath, cancelToken, 3600);
     }
     static pushHit(path: string, cid: string, cancelToken: CancelToken): void {
-        const request = `${config.apiUrl}/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
-        this.post(request, {}, cancelToken);
+        const requestPath = `/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
+        this.post(requestPath, {}, cancelToken);
     }
     static async getDownloadLink(provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
-        const request = `${config.apiUrl}/${provider}/download/${id}/${owner}/${repo}/${sha}`;
-        return await this.getData<string>(request, cancelToken);
+        const requestPath = `/${provider}/download/${id}/${owner}/${repo}/${sha}`;
+        return await this.getData<string>(requestPath, cancelToken);
     }
     static async getGithubInstallations(cancelToken: CancelToken): Promise<GithubInstallations> {
-        const request = `${config.apiUrl}/settings/githubinstallations`;
-        return await this.getData<GithubInstallations>(request, cancelToken);
+        const requestPath = `/settings/githubinstallations`;
+        return await this.getData<GithubInstallations>(requestPath, cancelToken);
     }
 
     static async getSettingsPublicProfile(cancelToken: CancelToken): Promise<PublicProfileSettings> {
-        const request = `${config.apiUrl}/settings/public`;
-        return await this.getData<PublicProfileSettings>(request, cancelToken);
+        const requestPath = `/settings/public`;
+        return await this.getData<PublicProfileSettings>(requestPath, cancelToken);
     }
     static async setSettingsPublicProfile(newSettings: PublicProfileSettings, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/settings/public`;
-        return await this.put<any>(request, newSettings, cancelToken);
+        const requestPath = `/settings/public`;
+        return await this.put<any>(requestPath, newSettings, cancelToken);
     }
     static async getSettingsAccount(cancelToken: CancelToken): Promise<AccountSettings> {
-        const request = `${config.apiUrl}/settings/account`;
-        return await this.getData<AccountSettings>(request, cancelToken);
+        const requestPath = `/settings/account`;
+        return await this.getData<AccountSettings>(requestPath, cancelToken);
     }
     static async setSettingsAccount(newSettings: AccountSettings, cancelToken: CancelToken): Promise<any> {
-        const request = `${config.apiUrl}/settings/account`;
-        return await this.put<any>(request, newSettings, cancelToken);
+        const requestPath = `/settings/account`;
+        return await this.put<any>(requestPath, newSettings, cancelToken);
     }
     static async getConnectedServices(cancelToken: CancelToken): Promise<ConnectedServices> {
-        const request = `${config.apiUrl}/settings/connections`;
-        return await this.getData<ConnectedServices>(request, cancelToken);
+        const requestPath = `/settings/connections`;
+        return await this.getData<ConnectedServices>(requestPath, cancelToken);
     }
     static async disconnectService(provider: string, cancelToken: CancelToken) {
-        const request = `${config.apiUrl}/settings/connection/${provider}`;
-        return await this.delete<any>(request, cancelToken);
+        const requestPath = `/settings/connection/${provider}`;
+        return await this.delete<any>(requestPath, cancelToken);
     }
 }
