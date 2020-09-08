@@ -14,31 +14,33 @@ export default class Header extends React.Component<IProps> {
     }
     render() {
         return (
-            <nav>
-                <Link id={styles.logo} to="/">
-                    <img className={styles.logo} src='/static/img/logo_big_w.png' alt='logo'/>
-                </Link>
+            <div id={styles.header}>
+                <nav>
+                    <Link id={styles.logo} to="/">
+                        <img className={styles.logo} src='/static/img/logo_big_w.png' alt='logo'/>
+                    </Link>
 
-                <div id={styles.leftMenu}>
-                    <ul>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share"></NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share">Shared with me</NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
-                    </ul>
-                </div>
+                    <div id={styles.leftMenu}>
+                        <ul>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share"></NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share">Shared with me</NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
+                        </ul>
+                    </div>
 
-                <div id={styles.rightMenu}>
-                    <ul>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><Icon name='plus circle'></Icon></NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/settings">Settings</NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
-                    </ul>
-                </div>
+                    <div id={styles.rightMenu}>
+                        <ul>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><Icon name='plus circle'></Icon></NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/settings">Settings</NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
+                        </ul>
+                    </div>
 
-                <div className="clear"></div>
-            </nav>
+                    <div className="clear"></div>
+                </nav>
+            </div>
         )
     }
 }

@@ -1,0 +1,6 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+#createToken {
+    width: globalStyles.$siteWidth;
+    max-width: globalStyles.$siteWidth;
+}

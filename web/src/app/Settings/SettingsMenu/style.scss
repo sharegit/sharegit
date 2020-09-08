@@ -1,0 +1,36 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+#settingsMenu {
+    background-color: globalStyles.$light;
+    width: 200px;
+    ul, li {
+        list-style-type: none;
+        text-decoration: none;
+        margin: 0;
+        padding: 0;
+    }
+    li, a {
+        padding: 10px;
+        width: 100%;
+        display: block;
+    }
+    /* unvisited link */
+    a:link {
+        color:globalStyles.$dark;
+    }
+    
+    /* visited link */
+    a:visited {
+        color: globalStyles.$dark;
+    }
+    
+    /* mouse over link */
+    a:hover {
+        color: globalStyles.$dark;
+    }
+    
+    /* selected link */
+    a:active {
+        color: globalStyles.$blue;
+    }
+}

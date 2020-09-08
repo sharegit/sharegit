@@ -3,6 +3,8 @@ import { Modal, Button, List, Icon, Dropdown, Checkbox, CheckboxProps } from 'se
 import API, { SharedRepository, SharedToken, Branch } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
+import ContentPanel from 'components/ContentPanel';
+import style from './style.scss';
 
 interface IProps {
 }
@@ -160,77 +162,79 @@ export default class NewTokenCreation extends React.Component<IProps> {
     }
     render() {
         return (
-            <div>
-                <h2>Create a new share token</h2>
-                <h3>Available repositories</h3>
-                <Button onClick={() => {
-                    this.removeAllRepositorySelection();
-                }}>Remove All</Button>
-                <Button onClick={() => {
-                    this.addAllRepositorySelection();
-                }}>Add All</Button>
-                <List divided relaxed>
-                    {
-                        this.state.repositories
-                                .map((r : SharedRepository) =>
-                                    <RepositoryCard key={r.repo}
-                                                    link={``}
-                                                    deselected={this.isSelected(r) ? undefined : true}
-                                                    name={r.repo}
-                                                    description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                    downloadable={this.isRepositoryDownloadable(r)}
-                                                    provider={r.provider}>
-                                                        {this.isSelected(r) ?
-                                                            <div>
-                                                            <Button onClick={() => {
-                                                                this.removeRepositorySelection(r);
-                                                            }}>Remove</Button>
+            <ContentPanel background='light'>
+                <div id={style.createToken}>
+                    <h2>Create a new share token</h2>
+                    <h3>Available repositories</h3>
+                    <Button onClick={() => {
+                        this.removeAllRepositorySelection();
+                    }}>Remove All</Button>
+                    <Button onClick={() => {
+                        this.addAllRepositorySelection();
+                    }}>Add All</Button>
+                    <List divided relaxed>
+                        {
+                            this.state.repositories
+                                    .map((r : SharedRepository) =>
+                                        <RepositoryCard key={r.repo}
+                                                        link={``}
+                                                        deselected={this.isSelected(r) ? undefined : true}
+                                                        name={r.repo}
+                                                        description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                        downloadable={this.isRepositoryDownloadable(r)}
+                                                        provider={r.provider}>
+                                                            {this.isSelected(r) ?
+                                                                <div>
+                                                                <Button onClick={() => {
+                                                                    this.removeRepositorySelection(r);
+                                                                }}>Remove</Button>
 
-                                                            {r.provider == 'github' ? 
-                                                            <Checkbox checked={this.isRepositoryDownloadable(r)} onChange={(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) => {
-                                                                this.makeRepositoryDownloadable(r, data.checked == undefined ? false : data.checked);
-                                                            }} label='Downloadable'></Checkbox>
-                                                        :   null}
+                                                                {r.provider == 'github' ? 
+                                                                <Checkbox checked={this.isRepositoryDownloadable(r)} onChange={(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) => {
+                                                                    this.makeRepositoryDownloadable(r, data.checked == undefined ? false : data.checked);
+                                                                }} label='Downloadable'></Checkbox>
+                                                            :   null}
 
-                                                            <Dropdown
-                                                                placeholder='Select a branch or type the commit SHA'
-                                                                fluid
-                                                                search
-                                                                selection
-                                                                multiple
-                                                                allowAdditions
-                                                                onAddItem={(event, data) => {
-                                                                    r.branches.push({name: data.value as string, snapshot: true, sha: true})
-                                                                    this.setState(this.state)
-                                                                }}
-                                                                onChange={(event, data) => {
-                                                                    this.changeSelectedBranchesFor(r, data.value as string[])
-                                                                }}
-                                                                options={r.branches.map(x=> (
-                                                                    {
-                                                                        key: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
-                                                                        value: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
-                                                                        text: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name
-                                                                    }
-                                                                ))}
-                                                            />
-                                                            </div>
-                                                        :   <Button onClick={() => {
-                                                                this.addRepositorySelection(r);
-                                                            }}>Add</Button>
-                                                        }
-                                                    </RepositoryCard>
-                                )
+                                                                <Dropdown
+                                                                    placeholder='Select a branch or type the commit SHA'
+                                                                    fluid
+                                                                    search
+                                                                    selection
+                                                                    multiple
+                                                                    allowAdditions
+                                                                    onAddItem={(event, data) => {
+                                                                        r.branches.push({name: data.value as string, snapshot: true, sha: true})
+                                                                        this.setState(this.state)
+                                                                    }}
+                                                                    onChange={(event, data) => {
+                                                                        this.changeSelectedBranchesFor(r, data.value as string[])
+                                                                    }}
+                                                                    options={r.branches.map(x=> (
+                                                                        {
+                                                                            key: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
+                                                                            value: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
+                                                                            text: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name
+                                                                        }
+                                                                    ))}
+                                                                />
+                                                                </div>
+                                                            :   <Button onClick={() => {
+                                                                    this.addRepositorySelection(r);
+                                                                }}>Add</Button>
+                                                            }
+                                                        </RepositoryCard>
+                                    )
+                        }
+                    </List>
+                    <Button color='yellow' onClick={this.close.bind(this)}>Cancel</Button>
+                    {this.canCreate() ? 
+                        <Button onClick={async (e, d) => {
+                            await this.create()
+                        }}>Create!</Button>
+                    :   <Button disabled >Create!</Button>
                     }
-                </List>
-                <Button color='yellow' onClick={this.close.bind(this)}>Cancel</Button>
-                {this.canCreate() ? 
-                    <Button onClick={async (e, d) => {
-                        await this.create()
-                    }}>Create!</Button>
-                :   <Button disabled >Create!</Button>
-                }
-            </div>
+                </div>
+            </ContentPanel>
         )
     }
 }

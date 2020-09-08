@@ -10,6 +10,8 @@ import Connection from './Connection';
 import DangerZone from './DangerZone';
 import PublicProfile from './PublicProfile';
 import SettingsMenu from './SettingsMenu';
+import ContentPanel from 'components/ContentPanel';
+import style from './style.scss'
 
 
 interface IState extends BaseState {
@@ -56,63 +58,66 @@ export default class Settings extends React.Component<IProps, IState> {
     
     render() {
         return (
-            <div>
-                {this.state.successfullSave == undefined ? null :
+            <div id={style.settings}>
+            {this.state.successfullSave == undefined ? null :
                 <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
-                                    headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}
-                                    active /> }
+                headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}
+                active /> }
 
-                <SettingsMenu githubConnected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != null}
-                              gitlabConnected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != null}
-                              bitbucketConnected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != null}
-                              location={this.props.location}
-                              history={this.props.history}
-                              match={this.props.match} />
-                <div>
-                    <Route exact path={`${this.props.match.path}`}>
-                        <Redirect to={`${this.props.match.path}/public`} />
-                    </Route>
+            <ContentPanel background='light'>
+                    <SettingsMenu
+                        className={style.menu}
+                        githubConnected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != null}
+                        gitlabConnected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != null}
+                        bitbucketConnected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != null}
+                        location={this.props.location}
+                        history={this.props.history}
+                        match={this.props.match} />
+                    <div id={style.content}>
+                        <Route exact path={`${this.props.match.path}`}>
+                            <Redirect to={`${this.props.match.path}/public`} />
+                        </Route>
 
-                    <Route exact path={`${this.props.match.path}/public`}>
-                        <BaseSettingsLayout header='Public profile' >
-                            <PublicProfile successCallback={() => this.setState({successfullSave: true})}
+                        <Route exact path={`${this.props.match.path}/public`}>
+                            <BaseSettingsLayout header='Public profile' >
+                                <PublicProfile successCallback={() => this.setState({successfullSave: true})}
+                                            failCallback={() => this.setState({successfullSave: false})} /> 
+                            </BaseSettingsLayout>
+                        </Route>
+                        <Route exact path={`${this.props.match.path}/account`}>
+                            <BaseSettingsLayout header='Account'>
+                                <Account successCallback={() => this.setState({successfullSave: true})}
                                         failCallback={() => this.setState({successfullSave: false})} /> 
-                        </BaseSettingsLayout>
-                    </Route>
-                    <Route exact path={`${this.props.match.path}/account`}>
-                        <BaseSettingsLayout header='Account'>
-                            <Account successCallback={() => this.setState({successfullSave: true})}
-                                    failCallback={() => this.setState({successfullSave: false})} /> 
-                        </BaseSettingsLayout>
-                    </Route>
-                    <Route exact path={`${this.props.match.path}/github`}>
-                        <BaseSettingsLayout header='GitHub Connection'>
-                            <Connection provider='github' 
-                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined}
-                                        username={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined ? this.state.connectedServices.githubLogin : ''}/>
-                        </BaseSettingsLayout> 
-                    </Route>
-                    <Route exact path={`${this.props.match.path}/gitlab`}>
-                        <BaseSettingsLayout header='GitLab Connection'>
-                            <Connection provider='gitlab'  
-                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined}
-                                        username={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined ? this.state.connectedServices.gitlabLogin : ''}/>
-                        </BaseSettingsLayout> 
-                    </Route>
-                    <Route exact path={`${this.props.match.path}/bitbucket`}>
-                        <BaseSettingsLayout header='Bitbucket Connection'>
-                            <Connection provider='bitbucket' 
-                                        connected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined}
-                                        username={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined ? this.state.connectedServices.bitbucketLogin : ''}/>
-                        </BaseSettingsLayout> 
-                    </Route>
-                    <Route exact path={`${this.props.match.path}/dangerzone`}>
-                        <BaseSettingsLayout header='Dangerzone' isdangerous>
-                            <DangerZone /> 
-                        </BaseSettingsLayout>
-                    </Route>
-                </div>
-                
+                            </BaseSettingsLayout>
+                        </Route>
+                        <Route exact path={`${this.props.match.path}/github`}>
+                            <BaseSettingsLayout header='GitHub Connection'>
+                                <Connection provider='github' 
+                                            connected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != undefined ? this.state.connectedServices.githubLogin : ''}/>
+                            </BaseSettingsLayout> 
+                        </Route>
+                        <Route exact path={`${this.props.match.path}/gitlab`}>
+                            <BaseSettingsLayout header='GitLab Connection'>
+                                <Connection provider='gitlab'  
+                                            connected={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.gitlabLogin != undefined ? this.state.connectedServices.gitlabLogin : ''}/>
+                            </BaseSettingsLayout> 
+                        </Route>
+                        <Route exact path={`${this.props.match.path}/bitbucket`}>
+                            <BaseSettingsLayout header='Bitbucket Connection'>
+                                <Connection provider='bitbucket' 
+                                            connected={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined}
+                                            username={this.state.connectedServices != undefined && this.state.connectedServices.bitbucketLogin != undefined ? this.state.connectedServices.bitbucketLogin : ''}/>
+                            </BaseSettingsLayout> 
+                        </Route>
+                        <Route exact path={`${this.props.match.path}/dangerzone`}>
+                            <BaseSettingsLayout header='Dangerzone' isdangerous>
+                                <DangerZone /> 
+                            </BaseSettingsLayout>
+                        </Route>
+                    </div>
+            </ContentPanel>
             </div>
         )
     }

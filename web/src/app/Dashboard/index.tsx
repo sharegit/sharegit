@@ -1,11 +1,12 @@
-import React from 'react';
-import { RouteComponentProps, Link } from 'react-router-dom';
-import { BaseState } from 'models/BaseState';
-import API, { SharedRepository, SharedToken, Analytic } from 'models/API';
-import { List, Accordion, Icon, AccordionTitleProps, Button, Modal, Segment } from 'semantic-ui-react';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
-import NewTokenCreation from '../CreateToken';
+import ContentPanel from 'components/ContentPanel';
 import config from 'config';
+import API, { Analytic, SharedRepository, SharedToken } from 'models/API';
+import { BaseState } from 'models/BaseState';
+import React from 'react';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import { Accordion, AccordionTitleProps, Button, Icon, List, Segment } from 'semantic-ui-react';
+import style from './style.scss';
 
 interface IState extends BaseState {
     name: string;
@@ -91,61 +92,63 @@ export default class Dashboard extends React.Component<IProps, IState>  {
     }
     render() {
         return (
-            <div>
-                <h2>
-                    Dashboard
-                </h2>
-                <p>Hello {this.state.name}</p>
-                <Segment>
-                    <h2>Analytics</h2>
-                    <ul>
-                        {this.state.analytics.map(x=> (
-                            <li key={x.token}>{x.token}: unique ({x.uniquePageViews}) | clicks ({x.pageViews})</li>
-                        ))}
-                    </ul>
-                </Segment>
-                <Button><Link to='/create'>Create new Token</Link></Button>
-                <Accordion fluid styled>
-                    {
-                        this.state.sharedTokens
-                            .map((token : SharedToken, index: number) => 
-                                <div key={token.token}>
-                                    <Accordion.Title
-                                        active={this.state.activeTokenIndex == index}
-                                        index={index}
-                                        onClick={async (event, data) => {
-                                            await this.handleClick(event, data)
-                                        }}>
-                                        <Icon name='dropdown' />
-                                        {token.token}
-                                    </Accordion.Title>
-                                    <Accordion.Content active={this.state.activeTokenIndex == index}>
-                                        <Button onClick={() =>{
-                                            navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
-                                        }}>Copy link</Button>
-                                        <Button onClick={()=>{
-                                            this.deleteToken(token)
-                                        }}>Delete token</Button>
-                                        <h3>Repositories shared with this token:</h3>
-                                        <List divided relaxed>
-                                            {
-                                                this.state.repositories[index]
-                                                    .map((r : SharedRepository) =>
-                                                        <RepositoryCard key={`${r.repo}_${token.token}`}
-                                                                        link={``}
-                                                                        name={r.repo}
-                                                                        downloadable={r.downloadAllowed}
-                                                                        description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                                        provider={r.provider}></RepositoryCard>
-                                                    )
-                                            }
-                                        </List>
-                                    </Accordion.Content>
-                                </div>
-                            )
-                    }
-                </Accordion>
-            </div>
+            <ContentPanel background='light'>
+                <div id={style.dashboard}>
+                    <h2>
+                        Dashboard
+                    </h2>
+                    <p>Hello {this.state.name}</p>
+                    <Segment>
+                        <h2>Analytics</h2>
+                        <ul>
+                            {this.state.analytics.map(x=> (
+                                <li key={x.token}>{x.token}: unique ({x.uniquePageViews}) | clicks ({x.pageViews})</li>
+                            ))}
+                        </ul>
+                    </Segment>
+                    <Button><Link to='/create'>Create new Token</Link></Button>
+                    <Accordion fluid styled>
+                        {
+                            this.state.sharedTokens
+                                .map((token : SharedToken, index: number) => 
+                                    <div key={token.token}>
+                                        <Accordion.Title
+                                            active={this.state.activeTokenIndex == index}
+                                            index={index}
+                                            onClick={async (event, data) => {
+                                                await this.handleClick(event, data)
+                                            }}>
+                                            <Icon name='dropdown' />
+                                            {token.token}
+                                        </Accordion.Title>
+                                        <Accordion.Content active={this.state.activeTokenIndex == index}>
+                                            <Button onClick={() =>{
+                                                navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
+                                            }}>Copy link</Button>
+                                            <Button onClick={()=>{
+                                                this.deleteToken(token)
+                                            }}>Delete token</Button>
+                                            <h3>Repositories shared with this token:</h3>
+                                            <List divided relaxed>
+                                                {
+                                                    this.state.repositories[index]
+                                                        .map((r : SharedRepository) =>
+                                                            <RepositoryCard key={`${r.repo}_${token.token}`}
+                                                                            link={``}
+                                                                            name={r.repo}
+                                                                            downloadable={r.downloadAllowed}
+                                                                            description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                                            provider={r.provider}></RepositoryCard>
+                                                        )
+                                                }
+                                            </List>
+                                        </Accordion.Content>
+                                    </div>
+                                )
+                        }
+                    </Accordion>
+                </div>
+            </ContentPanel>
         )
     }
 }

@@ -1,0 +1,6 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+#dashboard {
+    width: globalStyles.$siteWidth;
+    max-width: globalStyles.$siteWidth;
+}

@@ -1,64 +1,65 @@
 @use '/src/styles/style.scss' as globalStyles;
 
-#logo {
-    float: left;
-    margin-left: 10px;
-}
-#leftMenu {
-    float: left;
-    margin-left: 40px;
-    height: 100%;
-}
-#rightMenu {
-    float: right;
-    margin-right: 50px;
-    height: 100%;
-}
-img.logo {
-    height: 100%;
-}
-
-nav {
-    background-color: globalStyles.$dark;
-    width: 100%;
-    height: 45px;
-    color: globalStyles.$light;
-    text-align: center;
-    padding: 10px;
-    text-decoration: none;
-    ul {
-        list-style: none;
-        list-style-type: none;
+#header {
+    #logo {
+        float: left;
+        margin-left: 10px;
+    }
+    #leftMenu {
+        float: left;
+        margin-left: 40px;
         height: 100%;
     }
-    a {
+    #rightMenu {
+        float: right;
+        margin-right: 50px;
         height: 100%;
     }
-     /* unvisited link */
-    a:link {
-        color:globalStyles.$light;
+    img.logo {
+        height: 100%;
     }
-    
-    /* visited link */
-    a:visited {
+    nav {
+        background-color: globalStyles.$dark;
+        width: 100%;
+        height: 45px;
         color: globalStyles.$light;
-    }
-    
-    /* mouse over link */
-    a:hover {
-        color: globalStyles.$light;
-    }
-    
-    /* selected link */
-    a:active {
-        color: globalStyles.$blue;
-    }
-    div, ul, li {
-        display: inline;
-        box-sizing: content-box;
-    }
-    li {
-        margin: 0px 15px 0px 15px;
-        height: 100%;
+        text-align: center;
+        padding: 10px;
+        text-decoration: none;
+        ul {
+            list-style: none;
+            list-style-type: none;
+            height: 100%;
+        }
+        a {
+            height: 100%;
+        }
+        /* unvisited link */
+        a:link {
+            color:globalStyles.$light;
+        }
+        
+        /* visited link */
+        a:visited {
+            color: globalStyles.$light;
+        }
+        
+        /* mouse over link */
+        a:hover {
+            color: globalStyles.$light;
+        }
+        
+        /* selected link */
+        a:active {
+            color: globalStyles.$blue;
+        }
+        div, ul, li {
+            display: inline;
+            box-sizing: content-box;
+        }
+        li {
+            margin: 0px 15px 0px 15px;
+            height: 100%;
+        }
     }
 }
