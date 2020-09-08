@@ -331,6 +331,8 @@ namespace WebAPI.Controllers
                 return existingAccount;
             else if (existingAccount == null && loggedInUser != null)
                 return loggedInUser;
+            else if (existingAccount != null && loggedInUser != null && existingAccount.Id == loggedInUser.Id)
+                return existingAccount;
             else
                 return null;
         }

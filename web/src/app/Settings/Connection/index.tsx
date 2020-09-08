@@ -4,6 +4,8 @@ import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { Button, Form, Icon } from 'semantic-ui-react';
 import Random from 'util/Random';
+import style from './style.scss';
+import { Link } from 'react-router-dom';
 
 interface IState extends BaseState {
     state: string;
@@ -90,14 +92,20 @@ export default class Connection extends React.Component<IProps, IState> {
     renderGithubInstallation() {
         if (this.props.provider == 'github' && this.state.githubInstallations != undefined) {
             return (
-                <div>
-                    Your active github installations:
+                <div id={style.github}>
+                    <span>Your active GitHub installations:</span>
                     <ul>
                         {this.state.githubInstallations.installations.map(x=>
                             <li key={x.login}>
                                 {x.login}
+                                <hr />
                             </li>
                         )}
+                        <li><Button 
+                            as='a'
+                            href={this.getNewConnectionLink()}>
+                                Add or change installations
+                            </Button></li>
                     </ul>
                 </div>
             )
