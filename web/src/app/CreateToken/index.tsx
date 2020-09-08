@@ -5,12 +5,12 @@ import { BaseState } from 'models/BaseState';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import ContentPanel from 'components/ContentPanel';
 import style from './style.scss';
+import { RouteComponentProps } from 'react-router-dom';
 
-interface IProps {
+interface IProps extends RouteComponentProps {
 }
 
 interface IState extends BaseState {
-    isOpen: boolean;
     stamp: string;
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
@@ -18,35 +18,27 @@ interface IState extends BaseState {
 
 export default class NewTokenCreation extends React.Component<IProps> {
     state: IState = {
-        isOpen: false,
         stamp: Date.now().toString(),
         repositories: [],
         selectedRepositories: [],
         cancelToken: API.aquireNewCancelToken()
     }
-    open() {
-        this.state.isOpen = true;
-        this.setState(this.state);
-    }
-    close() {
-        this.state.isOpen = false;
-        this.setState(this.state);
+    constructor(props: IProps) {
+        super(props);
     }
     async create() {
         try {
+            console.log(this.state.stamp);
             const newToken = await API.createToken({
                 Stamp: this.state.stamp,
                 Repositories: this.state.selectedRepositories
             }, this.state.cancelToken)
+            this.props.history.push('/dashboard');
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;
             }
         }
-            
-        this.state.stamp = Date.now().toString();
-        this.setState(this.state);
-        this.close()
     }
     async componentDidMount() {
         try {
@@ -238,7 +230,7 @@ export default class NewTokenCreation extends React.Component<IProps> {
                                     )
                         }
                     </List>
-                    <Button color='yellow' onClick={this.close.bind(this)}>Cancel</Button>
+                    <Button color='yellow' onClick={() => this.props.history.goBack()}>Cancel</Button>
                     {this.canCreate() ? 
                         <Button onClick={async (e, d) => {
                             await this.create()
