@@ -25,6 +25,7 @@ export default class Header extends React.Component<IProps> {
                         <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share"></NavMenuItem>
                         <NavMenuItem isLoggedIn={this.props.isLoggedIn} uri="/share">Shared with me</NavMenuItem>
                         <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
+                        <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/shares">My Shares</NavMenuItem>
                         </ul>
                     </div>
 

@@ -20,6 +20,7 @@ import styles from './style.scss';
 import NewTokenCreation from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
+import Shares from './Shares';
 
 
 highlight.configure({
@@ -150,8 +151,10 @@ export default class App extends React.Component<IProps, IState> {
               )}></Route>
 
               <Route path="/create" component={NewTokenCreation} />
+
+              <Route path="/shares" component={Shares} />
             </div>
-            
+
             <Footer />
         </div>
 
