@@ -68,10 +68,16 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         if(this.state.activeTokenIndex >= 0) {
             if(this.state.repositories[this.state.activeTokenIndex].length == 0) {
                 const index = this.state.activeTokenIndex
-
-                const repositories = await API.getSharedRepositories(this.state.sharedTokens[index].token, this.state.cancelToken)
-                this.state.repositories[index] = repositories.repositories;
-                this.setState(this.state);
+                
+                try {
+                    const repositories = await API.getSharedRepositories(this.state.sharedTokens[index].token, this.state.cancelToken)
+                    this.state.repositories[index] = repositories.repositories;
+                    this.setState(this.state);
+                } catch (e) {
+                    if (!API.wasCancelled(e)) {
+                        throw e;
+                    }
+                }
             }
         }
     }
@@ -81,13 +87,18 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         this.setState(this.state);
     }
     async deleteToken(token: SharedToken) {
-
-        await API.deleteToken(token.token, this.state.cancelToken)
-        const index = this.state.sharedTokens.indexOf(token, 0);
-        if (index > -1) {
-            this.state.activeTokenIndex = -1;
-            this.state.sharedTokens.splice(index, 1);
-            this.setState(this.state);
+        try {
+            await API.deleteToken(token.token, this.state.cancelToken)
+            const index = this.state.sharedTokens.indexOf(token, 0);
+            if (index > -1) {
+                this.state.activeTokenIndex = -1;
+                this.state.sharedTokens.splice(index, 1);
+                this.setState(this.state);
+            }
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
         }
     }
     render() {

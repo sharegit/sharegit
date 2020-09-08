@@ -27,8 +27,14 @@ export default class Account extends React.Component<IProps, IState> {
         }
     }
     async componentDidMount() {
-        const publicProfileSettings = await API.getSettingsAccount(this.state.cancelToken);
-        this.setState({original: publicProfileSettings});
+        try {
+            const publicProfileSettings = await API.getSettingsAccount(this.state.cancelToken);
+            this.setState({original: publicProfileSettings});
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();
@@ -43,8 +49,11 @@ export default class Account extends React.Component<IProps, IState> {
             } else {
                 this.props.failCallback();
             }
-        } catch(e) {
+        } catch (e) {
             this.props.failCallback();
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
         }
     }
 

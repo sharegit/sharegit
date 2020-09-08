@@ -38,8 +38,14 @@ export default class DangerZone extends React.Component<IProps, IState> {
                     open={this.state.confirmAccountDeletion}
                     onCancel={() => this.setState({confirmAccountDeletion: false})}
                     onConfirm={async () => {
-                        await API.startDeleteAccount(this.state.cancelToken);
-                        this.setState({confirmAccountDeletion: false})
+                        try {
+                            await API.startDeleteAccount(this.state.cancelToken);
+                            this.setState({confirmAccountDeletion: false})
+                        } catch (e) {
+                            if (!API.wasCancelled(e)) {
+                                throw e;
+                            }
+                        }
                     }}
                     header='Confirm Account deletion'
                     content='An email confirmation will be sent to your provided email address. Please follow the instructions described there to completely remove your account from our services.'

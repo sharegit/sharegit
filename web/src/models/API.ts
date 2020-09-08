@@ -112,6 +112,9 @@ export default class API {
             }
         };
     }
+    static wasCancelled(e: any): boolean {
+        return axios.isCancel(e);
+    }
     private static async request<T = any>(method: 'get' | 'delete' | 'post' | 'put', path: string, cancelToken: CancelToken, data?: any, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
         const request = path.startsWith('/') ? `${config.apiUrl}${path}` : path;
         console.log(`Requesting: ${request}`);
@@ -144,7 +147,7 @@ export default class API {
                 throw new Error(`Unknown error occurred during ${request}`);
             }
         } catch (error) {
-            if (!axios.isCancel(error)) {
+            if (!this.wasCancelled(error)) {
                 console.error(`Error while requesting ${request} ${error}`)
                 throw (error);
             } else {

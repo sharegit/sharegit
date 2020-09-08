@@ -44,12 +44,18 @@ export default class ConfirmAccountDeletion extends React.Component<IProps, ISta
                         this.setState(this.state);
                     }}
                     onConfirm={async () => {
-                        await API.deleteAccount(this.props.token, this.state.cancelToken);
-                        localStorage.removeItem('OAuthJWT');
-                        this.props.logout();
-                        this.props.history.push('/');
-                        this.state.accountDeletionOpen = false;
-                        this.setState(this.state);
+                        try {
+                            await API.deleteAccount(this.props.token, this.state.cancelToken);
+                            localStorage.removeItem('OAuthJWT');
+                            this.props.logout();
+                            this.props.history.push('/');
+                            this.state.accountDeletionOpen = false;
+                            this.setState(this.state);
+                        } catch (e) {
+                            if (!API.wasCancelled(e)) {
+                                throw e;
+                            }
+                        }
                     }}
                     header='Account deletion'
                     content='I understand this this action is irreversible and will result the complete termination of my account and all my shared links will stop working.'

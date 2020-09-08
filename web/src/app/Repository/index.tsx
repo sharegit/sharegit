@@ -64,37 +64,49 @@ export default class Repository extends React.Component<IProps, IState> {
     }
 
     async queryTree(uri: string) {
-        const repoTree = await API.getRepoTree(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-        repoTree.sort((a: TreeNode, b: TreeNode) => {
-            if (a.type == b.type)
-                return a.path.localeCompare(b.path);
-            else if ((a.type == 'tree' || a.type == 'dir') && (b.type == 'blob' || b.type == 'file'))
-                return -1;
-            else if ((a.type == 'blob' || a.type == 'file') && (b.type == 'tree' || b.type == 'dir'))
-                return 1;
+        try {
+            const repoTree = await API.getRepoTree(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+            repoTree.sort((a: TreeNode, b: TreeNode) => {
+                if (a.type == b.type)
+                    return a.path.localeCompare(b.path);
+                else if ((a.type == 'tree' || a.type == 'dir') && (b.type == 'blob' || b.type == 'file'))
+                    return -1;
+                else if ((a.type == 'blob' || a.type == 'file') && (b.type == 'tree' || b.type == 'dir'))
+                    return 1;
 
-            return 0;
-        });
-      //  this.state.tree[uri] = repoTree
-        this.state.objects = repoTree;
-        console.log(repoTree);
-        this.setState(this.state);
-
-        const readmeFile = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
-        
-        if(readmeFile != undefined) {
-
-            const readme = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
-        
-            this.state.readme = readme;
+                return 0;
+            });
+            //  this.state.tree[uri] = repoTree
+            this.state.objects = repoTree;
+            console.log(repoTree);
             this.setState(this.state);
+            
+            const readmeFile = this.state.objects.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
+            
+            if(readmeFile != undefined) {
+
+                const readme = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
+                
+                this.state.readme = readme;
+                this.setState(this.state);
+            }
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
         }
     }
     async queryBlob(uri: string) {
-        const blob = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
-
-        this.state.blob = blob;
-        this.setState(this.state);
+        try {
+            const blob = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+            
+            this.state.blob = blob;
+            this.setState(this.state);
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
 
     queryServer() {
@@ -108,8 +120,14 @@ export default class Repository extends React.Component<IProps, IState> {
     }
 
     async startDownloading() {
-        const downloadLink = await API.getDownloadLink(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
-        window.open(downloadLink, "_blank");
+        try {
+            const downloadLink = await API.getDownloadLink(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
+            window.open(downloadLink, "_blank");
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
 
     componentWillUnmount() {

@@ -80,6 +80,9 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         this.props.history.push('/settings');
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
+                                        if (!API.wasCancelled(e)) {
+                                            throw e;
+                                        }
                                     }
                                     break;
                                 case 'signin':
@@ -97,6 +100,9 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         }
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
+                                        if (!API.wasCancelled(e)) {
+                                            throw e;
+                                        }
                                     }
                                     break;
                             }

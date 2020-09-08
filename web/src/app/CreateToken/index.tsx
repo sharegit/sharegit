@@ -33,28 +33,40 @@ export default class NewTokenCreation extends React.Component<IProps> {
         this.setState(this.state);
     }
     async create() {
-        const newToken = await API.createToken({
-            Stamp: this.state.stamp,
-            Repositories: this.state.selectedRepositories
-        }, this.state.cancelToken)
-        
+        try {
+            const newToken = await API.createToken({
+                Stamp: this.state.stamp,
+                Repositories: this.state.selectedRepositories
+            }, this.state.cancelToken)
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
+            
         this.state.stamp = Date.now().toString();
         this.setState(this.state);
         this.close()
     }
     async componentDidMount() {
-        const myRepos = await API.getMyRepos(this.state.cancelToken)
-        myRepos.forEach(r=> {
-            r.branches = r.branches.flatMap(b=>[
-                {name: b.name, snapshot: false, sha: b.sha},
-                {name: b.name, snapshot: true, sha: b.sha}
-            ])
-        });
-        this.state.repositories = [...myRepos];
-        this.setState(this.state);
-
-        // Assume everything selected
-        this.addAllRepositorySelection()
+        try {
+            const myRepos = await API.getMyRepos(this.state.cancelToken)
+                myRepos.forEach(r=> {
+                    r.branches = r.branches.flatMap(b=>[
+                    {name: b.name, snapshot: false, sha: b.sha},
+                    {name: b.name, snapshot: true, sha: b.sha}
+                ])
+            });
+            this.state.repositories = [...myRepos];
+            this.setState(this.state);
+            
+            // Assume everything selected
+            this.addAllRepositorySelection()
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();

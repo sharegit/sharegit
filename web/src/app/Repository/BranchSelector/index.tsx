@@ -31,9 +31,15 @@ export default class BranchSelector extends React.Component<IProps, IState> {
         // Assume the branch we're trying to display is a valid branch to avoid popping
         this.state.branches = [ {name: this.props.current, snapshot: false, sha: false} ];
         this.setState(this.state);
-        const branches = await API.getSharedBranches(this.props.user, this.props.repo, this.state.cancelToken)
-        this.state.branches = branches;
-        this.setState(this.state);
+        try {
+            const branches = await API.getSharedBranches(this.props.user, this.props.repo, this.state.cancelToken)
+            this.state.branches = branches;
+            this.setState(this.state);
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel();

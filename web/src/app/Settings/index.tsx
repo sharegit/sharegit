@@ -34,17 +34,20 @@ export default class Settings extends React.Component<IProps, IState> {
     }
 
     async componentDidMount() {
-        const connectedServices = await this.queryConnectedServices();
+        await this.queryConnectedServices();
 
         this.setState({unreg:this.props.history.listen(this.locationChanged.bind(this))}) 
         this.locationChanged(this.props.location, 'PUSH');
-
-        return connectedServices;
     }
     async queryConnectedServices() {
-        const connectedServices = await API.getConnectedServices(this.state.cancelToken);
-        this.setState({connectedServices: connectedServices});
-        return connectedServices;
+        try {
+            const connectedServices = await API.getConnectedServices(this.state.cancelToken);
+            this.setState({connectedServices: connectedServices});
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
     
     locationChanged(location: Location<LocationState>, action: Action) {

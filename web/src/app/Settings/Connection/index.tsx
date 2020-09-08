@@ -40,8 +40,14 @@ export default class Connection extends React.Component<IProps, IState> {
     async componentDidMount() {
         localStorage.setItem('oauthState', this.state.state);
         if (this.props.provider == 'github') {
-            const installations = await API.getGithubInstallations(this.state.cancelToken);
-            this.setState({githubInstallations: installations});
+            try {
+                const installations = await API.getGithubInstallations(this.state.cancelToken);
+                this.setState({githubInstallations: installations});
+            } catch (e) {
+                if (!API.wasCancelled(e)) {
+                    throw e;
+                }
+            }
         }
     }
     componentWillUnmount() {
@@ -68,8 +74,14 @@ export default class Connection extends React.Component<IProps, IState> {
         }
     }
     async disconnect() {
-        await API.disconnectService(this.props.provider, this.state.cancelToken);
-        this.props.onUpdate();
+        try {
+            await API.disconnectService(this.props.provider, this.state.cancelToken);
+            this.props.onUpdate();
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
     render() {
         if(this.props.connected) {
