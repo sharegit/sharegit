@@ -53,7 +53,6 @@ export default class Repository extends React.Component<IProps, IState> {
         if(tokens != undefined) {
            if (tokens.some(x=>x.token == token && x.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable))){
                this.state.downloadable = true;
-               this.setState(this.state);
            }
         }
     }
