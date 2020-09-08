@@ -2,10 +2,10 @@
 
 #settings {
     #content, .menu {
-        margin: 40px;
+        margin: 30px;
     }
     #content {
-        width: globalStyles.$siteWidth - 200px;
-        width: globalStyles.$siteWidth - 200px;
+        width: globalStyles.$siteWidth - 200px - 120px;
+        width: globalStyles.$siteWidth - 200px - 120px;
     }
 }

@@ -9,6 +9,7 @@ import BranchSelector from './BranchSelector';
 import Path from './Path';
 import RepoListElement from './RepoListElement';
 import styles from './style.scss';
+import ContentPanel from 'components/ContentPanel';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -135,56 +136,58 @@ export default class Repository extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <div id={styles.repository}>
-                <div id={styles.repositoryHeader}>
-                    <div id={styles.currentRepository}>
-                        <h3>{this.props.repo}</h3>
+            <ContentPanel background='light'>
+                <div id={styles.repository}>
+                    <div id={styles.repositoryHeader}>
+                        <div id={styles.currentRepository}>
+                            <h3>{this.props.repo}</h3>
+                        </div>
+                        <div id={styles.authorText}>
+                            <p> <b>Author:</b> <i>{this.props.user}</i></p>
+                        </div>
+                        <div className="clear"></div>
+                        <div id={styles.branch}>
+                            <BranchSelector
+                                key={`${this.state.sha}`}
+                                user={this.props.user}
+                                repo={this.props.repo}
+                                current={this.state.sha}
+                                onBranchSelectionChanged={(newValue: string) => {
+                                    this.state.sha = newValue;
+                                    this.setState(this.state);
+                                    
+                                    this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                                    this.queryServer();
+                                }}>
+                            </BranchSelector>
+                        </div>
+                        
+                        <div id={styles.path}>
+                            <Path
+                                provider={this.props.provider}
+                                id={this.props.id}
+                                user={this.props.user}
+                                repo={this.props.repo}
+                                sha={this.state.sha}
+                                path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
+                                type={this.props.type}>
+                            </Path>
+                        </div>
+                        {this.state.downloadable ? 
+                        <div id={styles.download}>
+                            <Button onClick={async () => {
+                                this.startDownloading();
+                            }}>Download as zip <Icon name='download'></Icon></Button>
+                        </div>
+                    :   null}
+                        <div className="clear"></div>
                     </div>
-                    <div id={styles.authorText}>
-                        <p> <b>Author:</b> <i>{this.props.user}</i></p>
-                    </div>
-                    <div className="clear"></div>
-                    <div id={styles.branch}>
-                        <BranchSelector
-                            key={`${this.state.sha}`}
-                            user={this.props.user}
-                            repo={this.props.repo}
-                            current={this.state.sha}
-                            onBranchSelectionChanged={(newValue: string) => {
-                                this.state.sha = newValue;
-                                this.setState(this.state);
-                                
-                                this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
-                                this.queryServer();
-                            }}>
-                        </BranchSelector>
-                    </div>
-                    
-                    <div id={styles.path}>
-                        <Path
-                            provider={this.props.provider}
-                            id={this.props.id}
-                            user={this.props.user}
-                            repo={this.props.repo}
-                            sha={this.state.sha}
-                            path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
-                            type={this.props.type}>
-                        </Path>
-                    </div>
-                    {this.state.downloadable ? 
-                    <div id={styles.download}>
-                        <Button onClick={async () => {
-                            this.startDownloading();
-                        }}>Download as zip <Icon name='download'></Icon></Button>
-                    </div>
-                :   null}
-                    <div className="clear"></div>
-                </div>
 
-                {this.renderTree()}
-                {this.renderFileContents()}
-                {this.renderREADMEIfPresent()}
-            </div >
+                    {this.renderTree()}
+                    {this.renderFileContents()}
+                    {this.renderREADMEIfPresent()}
+                </div >
+            </ContentPanel>
         )
     }
     renderFileContents() {

@@ -6,6 +6,7 @@ import { RouteComponentProps } from 'react-router';
 import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import styles from './style.scss';
+import ContentPanel from 'components/ContentPanel';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -95,37 +96,39 @@ export default class SharedLanding extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <div id={styles.sharelandingcontainer}>
-                <div id={styles.landingHeader}>
-                    <div id={styles.availableReposText}>
-                        <h3>Repositories shared with you</h3>
+            <ContentPanel background='light'>
+                <div id={styles.sharelandingcontainer}>
+                    <div id={styles.landingHeader}>
+                        <div id={styles.availableReposText}>
+                            <h3>Repositories shared with you</h3>
+                        </div>
+                        <div id={styles.authorText}>
+                            <p> <b>Author:</b> <i>{this.state.author}</i> <br />
+                            <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
+                        </div>
+                        <div className="clear"></div>
                     </div>
-                    <div id={styles.authorText}>
-                        <p> <b>Author:</b> <i>{this.state.author}</i> <br />
-                        <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
+                    {!!this.state.authorBio ? <p>The author provided the following Biography about themselves: <br />{this.state.authorBio}</p> : null}
+                    <div id={styles.tokenChecker}>
+                        {this.renderTokenValidity()}
                     </div>
-                    <div className="clear"></div>
+                    <div className={styles.myclass}>
+                        <List divided relaxed>
+                            {
+                                this.state.repositories
+                                    .map((r : SharedRepository) =>
+                                        <RepositoryCard key={r.repo}
+                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}/`}
+                                                        name={r.repo}
+                                                        downloadable={r.downloadAllowed}
+                                                        description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                        provider={r.provider}></RepositoryCard>
+                                    )
+                            }
+                        </List>
+                    </div>
                 </div>
-                {!!this.state.authorBio ? <p>The author provided the following Biography about themselves: <br />{this.state.authorBio}</p> : null}
-                <div id={styles.tokenChecker}>
-                    {this.renderTokenValidity()}
-                </div>
-                <div className={styles.myclass}>
-                    <List divided relaxed>
-                        {
-                            this.state.repositories
-                                .map((r : SharedRepository) =>
-                                    <RepositoryCard key={r.repo}
-                                                    link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}/`}
-                                                    name={r.repo}
-                                                    downloadable={r.downloadAllowed}
-                                                    description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                    provider={r.provider}></RepositoryCard>
-                                )
-                        }
-                    </List>
-                </div>
-            </div>
+            </ContentPanel>
         )
     }
     getPreferredSha(r: SharedRepository): string {

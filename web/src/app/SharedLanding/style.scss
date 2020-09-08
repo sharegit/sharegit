@@ -1,7 +1,8 @@
-$class-color: rgba(190, 218, 188, 0.822);
-
+@use '/src/styles/style.scss' as globalStyles;
 
 #sharelandingcontainer {
+    width:  globalStyles.$siteWidth;
+    max-width: globalStyles.$siteWidth;
     #landingHeader {
         margin-top: 20px;
         #availableReposText {
