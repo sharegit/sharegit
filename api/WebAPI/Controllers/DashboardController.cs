@@ -83,38 +83,64 @@ namespace WebAPI.Controllers
 
             // Run the request.
             var reportsResource = new ReportsResource(service);
-            var tokens = user.SharedTokens;
+            List<ShareGit.Models.SharedToken> tokens = user.SharedTokens;
             var now = DateTime.UtcNow;
             var nowStr = $"{now.Year}-{now.Month:D2}-{now.Day:D2}";
-            ReportsResource.BatchGetRequest a = reportsResource.BatchGet(new GetReportsRequest()
+
+            var reports = new List<Report>();
+
+            const byte GOOGLE_MAX_BATCH = 5;
+            var buffer = new ReportRequest[GOOGLE_MAX_BATCH];
+            int i = 0;
+            foreach(var token in tokens)
             {
-                ReportRequests = tokens.Select(x =>
-                    new ReportRequest()
-                    {
-                        ViewId = "227818537",
-                        DateRanges = new List<DateRange>() {
+                buffer[i % GOOGLE_MAX_BATCH] = new ReportRequest()
+                {
+                    ViewId = "227818537",
+                    DateRanges = new List<DateRange>() {
                             new DateRange()
                             {
                                 StartDate = "2005-01-01",
                                 EndDate = nowStr
                             }
                         },
-                        Metrics = new List<Metric>()
+                    Metrics = new List<Metric>()
                         {
                             // https://ga-dev-tools.appspot.com/dimensions-metrics-explorer/
                             new Metric() { Expression = "ga:uniquePageViews" },
                             new Metric() { Expression = "ga:pageViews" }
                         },
-                        // https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filterSyntax
-                        // https://ga-dev-tools.appspot.com/dimensions-metrics-explorer/
-                        FiltersExpression = @$"ga:pagePath=@share/{x.Token}"
-                    }).ToList()
-            });
-            GetReportsResponse result = await a.ExecuteAsync();
+                    // https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filterSyntax
+                    // https://ga-dev-tools.appspot.com/dimensions-metrics-explorer/
+                    FiltersExpression = @$"ga:pagePath=@share/{token.Token}"
+                };
+                i += 1;
+
+                if (i % GOOGLE_MAX_BATCH == 0)
+                {
+                    ReportsResource.BatchGetRequest request = reportsResource.BatchGet(new GetReportsRequest()
+                    {
+                        ReportRequests = buffer
+                    });
+                    GetReportsResponse result = await request.ExecuteAsync();
+                    reports.AddRange(result.Reports);
+                }
+            }
+            // If the last buffer was not full, send the remaining
+            // note, the buffer is half garbage!
+            if(i % GOOGLE_MAX_BATCH != 0)
+            {
+                ReportsResource.BatchGetRequest request = reportsResource.BatchGet(new GetReportsRequest()
+                {
+                    ReportRequests = buffer.Take(i % GOOGLE_MAX_BATCH).ToList()
+                });
+                GetReportsResponse result = await request.ExecuteAsync();
+                reports.AddRange(result.Reports);
+            }
 
             return new DashboardAnalyticsInfo()
             {
-                Analytics = tokens.Zip(result.Reports).Select(x => new DashboardAnalyticsInfo.Analytic()
+                Analytics = tokens.Zip(reports).Select(x => new DashboardAnalyticsInfo.Analytic()
                 {
                     Token = x.First.Token,
                     UniquePageViews = int.Parse(x.Second.Data.Totals[0].Values[0]),
