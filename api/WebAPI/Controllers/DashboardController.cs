@@ -182,109 +182,96 @@ namespace WebAPI.Controllers
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = await AccountRepository.GetAsync(userId.Value);
 
-            List<SharedRepository> sharedRepositories = new List<SharedRepository>();
+            var githubAccess = user.GithubConnection == null ? null : new GithubUserAccess()
             {
-                var github = user.GithubConnection;
-                if (github != null)
-                {
-                    var userAccess = new GithubUserAccess()
-                    {
-                        AccessToken = JWT.Decode<string>(github.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
-                        UserId = user.Id
-                    };
-                    var repos = await RepositoryServiceGH.GetUserInstallationRepositories(userAccess);
-
-                    IEnumerable<Task<SharedRepository>> result = repos.Select(async x =>
-                        new SharedRepository()
-                        {
-                            Id = x.Id,
-                            Description = x.Description,
-                            Owner = x.Owner.Login,
-                            Provider = "github",
-                            Repo = x.Name,
-                            DownloadAllowed = false,
-                            Branches = (await RepositoryServiceGH.GetBranches(x.Owner.Login, x.Name, userAccess))
-                                .Value.Select(b =>
-                                    new Branch()
-                                    {
-                                        Name = b.Name,
-                                        Snapshot = false,
-                                        Sha = false
-                                    }).ToArray()
-                        }
-                    );
-                    sharedRepositories.AddRange(await Task.WhenAll(result));
-                }
-            }
+                AccessToken = JWT.Decode<string>(user.GithubConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var gitlabAccess = user.GitlabConnection == null ? null : new GitlabUserAccess()
             {
-
-                var gitlab = user.GitlabConnection;
-                if (gitlab != null)
-                {
-                    var userAccess = new GitlabUserAccess()
-                    {
-                        AccessToken = JWT.Decode<string>(gitlab.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
-                        UserId = user.Id
-                    };
-                    var projects = await RepositoryServiceGL.GetProjects(gitlab.GitlabId, userAccess);
-                    IEnumerable<Task<SharedRepository>> result = projects.Value.Select(async x =>
-                        new SharedRepository()
-                        {
-                            Id = x.Id,
-                            Description = x.Description,
-                            Owner = x.Namespace.Path,
-                            Provider = "gitlab",
-                            Repo = x.Path,
-                            DownloadAllowed = false,
-                            Branches = (await RepositoryServiceGL.GetBranches(x.Id, userAccess))
-                                .Value.Select(b =>
-                                    new Branch()
-                                    {
-                                        Name = b.Name,
-                                        Snapshot = false,
-                                        Sha = false
-                                    }).ToArray()
-                        }
-                    );
-                    sharedRepositories.AddRange(await Task.WhenAll(result));
-                }
-            }
+                AccessToken = JWT.Decode<string>(user.GitlabConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                UserId = user.Id
+            };
+            var bitbucketAccess = user.BitbucketConnection == null ? null : new BitbucketUserAccess()
             {
-                var bitbucket = user.BitbucketConnection;
-                if (bitbucket != null)
-                {
-                    var userAccess = new BitbucketUserAccess()
-                    {
-                        AccessToken = JWT.Decode<string>(bitbucket.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
-                        RefreshToken = JWT.Decode<string>(bitbucket.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
-                        AccessTokenExp = bitbucket.AccessTokenExp,
-                        UserId = user.Id
-                    };
-                    var repositories = await RepositoryServiceBB.GetRepositories(userAccess);
-                    IEnumerable<Task<SharedRepository>> result = repositories.Value.Values.Select(async x =>
-                        new SharedRepository()
-                        {
-                            // Id = x.Id,
-                            Description = x.Description,
-                            Owner = x.Workspace.Slug,
-                            Provider = "bitbucket",
-                            Repo = x.Slug,
-                            DownloadAllowed = false,
-                            Branches = (await RepositoryServiceBB.GetBranches(x.Workspace.Slug, x.Slug, userAccess))
-                                .Value.Values.Select(b =>
-                                    new Branch()
-                                    {
-                                        Name = b.Name,
-                                        Snapshot = false,
-                                        Sha = false
-                                    }).ToArray()
-                        }
-                    );
-                    sharedRepositories.AddRange(await Task.WhenAll(result));
-                }
-            }
+                AccessToken = JWT.Decode<string>(user.BitbucketConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                RefreshToken = JWT.Decode<string>(user.BitbucketConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
+                AccessTokenExp = user.BitbucketConnection.AccessTokenExp,
+                UserId = user.Id
+            };
 
-            return sharedRepositories;
+            var ghReposTask = user.GithubConnection == null ? null : RepositoryServiceGH.GetUserInstallationRepositories(githubAccess);
+            var glProjectsTask = user.GitlabConnection == null ? null : RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabAccess);
+            var bbRepositoriesTask = user.BitbucketConnection == null ? null : RepositoryServiceBB.GetRepositories(bitbucketAccess);
+
+            var ghRepos = ghReposTask == null ? null : await ghReposTask;
+            var glProjects = glProjectsTask == null ? null : await glProjectsTask;
+            var bbRepositories = bbRepositoriesTask == null ? null : await bbRepositoriesTask;
+
+
+            var sharedRepositoriesTask = new List<Task<SharedRepository>>();
+            if(ghRepos != null)
+                sharedRepositoriesTask.AddRange(ghRepos.Select(async x =>
+                    new SharedRepository()
+                    {
+                        Id = x.Id,
+                        Description = x.Description,
+                        Owner = x.Owner.Login,
+                        Provider = "github",
+                        Repo = x.Name,
+                        DownloadAllowed = false,
+                        Branches = (await RepositoryServiceGH.GetBranches(x.Owner.Login, x.Name, githubAccess))
+                            .Value.Select(b =>
+                                new Branch()
+                                {
+                                    Name = b.Name,
+                                    Snapshot = false,
+                                    Sha = false
+                                }).ToArray()
+                    }
+                ));
+            if(glProjects != null)
+                sharedRepositoriesTask.AddRange(glProjects.Value.Select(async x =>
+                    new SharedRepository()
+                    {
+                        Id = x.Id,
+                        Description = x.Description,
+                        Owner = x.Namespace.Path,
+                        Provider = "gitlab",
+                        Repo = x.Path,
+                        DownloadAllowed = false,
+                        Branches = (await RepositoryServiceGL.GetBranches(x.Id, gitlabAccess))
+                            .Value.Select(b =>
+                                new Branch()
+                                {
+                                    Name = b.Name,
+                                    Snapshot = false,
+                                    Sha = false
+                                }).ToArray()
+                    }
+                ));
+            if (bbRepositories != null)
+                sharedRepositoriesTask.AddRange(bbRepositories.Value.Values.Select(async x =>
+                    new SharedRepository()
+                    {
+                        // Id = x.Id,
+                        Description = x.Description,
+                        Owner = x.Workspace.Slug,
+                        Provider = "bitbucket",
+                        Repo = x.Slug,
+                        DownloadAllowed = false,
+                        Branches = (await RepositoryServiceBB.GetBranches(x.Workspace.Slug, x.Slug, bitbucketAccess))
+                            .Value.Values.Select(b =>
+                                new Branch()
+                                {
+                                    Name = b.Name,
+                                    Snapshot = false,
+                                    Sha = false
+                                }).ToArray()
+                    }
+                ));
+
+            return await Task.WhenAll(sharedRepositoriesTask);
         }
         [HttpPost("createtoken")]
         public async Task<ActionResult<Core.APIModels.SharedToken>> CreateToken([FromBody] CreateToken createToken)
