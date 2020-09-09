@@ -391,7 +391,8 @@ namespace WebAPI.Controllers
                 Token = tokenStr,
                 SharingUserId = user.Id,
                 Stamp = createToken.Stamp,
-                CustomName = createToken.CustomName
+                CustomName = createToken.CustomName,
+                ExpireDate = createToken.ExpireDate,
             };
             var share = new Share()
             {

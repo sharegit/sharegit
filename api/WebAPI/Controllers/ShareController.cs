@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
         {
             var share = await ShareRepository.GetAsync(token);
             var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
-            if (share != null && user != null)
+            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60))
             {
                 var accessibleRepositories = share.AccessibleRepositories;
 

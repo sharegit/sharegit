@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ShareGit.Models;
 using ShareGit.Repositories;
 using ShareGit.Settings;
+using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ namespace WebAPI.Authentication
             var token = Request.Headers["token"].ToString();
 
             var validatedToken = await ShareRepository.GetAsync(token);
-            if (validatedToken != null)
+            var nowMinues = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
+            if (validatedToken != null && (validatedToken.Token.ExpireDate == 0 || validatedToken.Token.ExpireDate > nowMinues))
             {
                 var claims = new[]
                 {

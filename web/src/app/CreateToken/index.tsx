@@ -5,9 +5,10 @@ import API, { SharedRepository } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Checkbox, CheckboxProps, Dropdown, Form, FormProps, List } from 'semantic-ui-react';
+import { Button, Checkbox, CheckboxProps, Dropdown, Form, FormProps, List, FormCheckbox } from 'semantic-ui-react';
 import Dictionary from 'util/Dictionary';
 import style from './style.scss';
+import printDate from 'util/Date';
 
 interface IProps extends RouteComponentProps {
 }
@@ -17,8 +18,12 @@ interface IState extends BaseState {
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
     customName?: string;
+    isExpiring?: boolean;
+    expireDate?: Date;
     errors: Dictionary<string>
 }
+
+const DEFAULT_EXPIRATION_VALUE: number = 60 * 24;
 
 export default class NewTokenCreation extends React.Component<IProps, IState> {
     state: IState = {
@@ -26,7 +31,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         repositories: [],
         selectedRepositories: [],
         cancelToken: API.aquireNewCancelToken(),
-        errors: new Dictionary()
+        errors: new Dictionary(),
+        expireDate: new Date(new Date().getTime() + DEFAULT_EXPIRATION_VALUE * 60 * 1000)
     }
     constructor(props: IProps) {
         super(props);
@@ -37,7 +43,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             const newToken = await API.createToken({
                 Stamp: this.state.stamp,
                 Repositories: this.state.selectedRepositories,
-                CustomName: this.state.customName
+                CustomName: this.state.customName,
+                ExpireDate: this.state.expireDate == undefined || this.state.isExpiring !== true ? 0 : Math.ceil(this.state.expireDate.getTime() / 1000 / 60)
             }, this.state.cancelToken)
             this.props.history.push('/dashboard');
         } catch (e) {
@@ -196,6 +203,18 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             return state;
         })
     }
+    setExpiring(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) {
+        if(data.checked != undefined) {
+            this.setState({isExpiring: data.checked});
+        }
+    }
+
+    // expires_in in minutes
+    changeExpiration(expiresIn: number) {
+        const current = new Date();
+        const expirationDate = new Date(current.getTime() + expiresIn * 60 * 1000);
+        this.setState({expireDate: expirationDate})
+    }
     render() {
         return (
             <ContentPanel background='light'>
@@ -214,11 +233,31 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             placeholder='My token for company X'
                             description='This name will be displayed to you as well as to the reciever as an easy name to remember when referring to this shared link in place of the random token.'
                          />
+                    <Checkbox label='Expiring token' onChange={this.setExpiring.bind(this)} />
+                    {!!this.state.isExpiring && 
+                        <div>
+                            <Dropdown
+                                onChange={(event, data) => {
+                                    this.changeExpiration(data.value as number)
+                                }}
+                                defaultValue={DEFAULT_EXPIRATION_VALUE}
+                                options={[
+                                    { key: '10-min', value: 10, text: '10 minutes' },
+                                    { key: '1-day', value: 60 * 24, text: '1 day' },
+                                    { key: '1-week', value: 60 * 24 * 7, text: '1 week' },
+                                    { key: '1-month', value: 60 * 24 * 30, text: '1 month' },
+                                    // TODO: open date picker here: { key: '4', value: 'X', text: 'custom' }
+                            ]} />
+                            <p>Token will expire on: {this.state.expireDate != undefined ? printDate(this.state.expireDate) : ''}</p>
+                            <p>Please note that due to caching, if someone visits your link just at the right time, they will be able to access it for up to one hour.</p>
+                        </div>}
                     <h3>Available repositories</h3>
-                    <Button onClick={() => {
+                    <Button onClick={(e) => {
+                        e.preventDefault();
                         this.removeAllRepositorySelection();
                     }}>Remove All</Button>
-                    <Button onClick={() => {
+                    <Button onClick={(e) => {
+                        e.preventDefault();
                         this.addAllRepositorySelection();
                     }}>Add All</Button>
                     <List divided relaxed>
@@ -234,7 +273,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                                         provider={r.provider}>
                                                             {this.isSelected(r) ?
                                                                 <div>
-                                                                <Button onClick={() => {
+                                                                <Button onClick={(e) => {
+                                                                    e.preventDefault();
                                                                     this.removeRepositorySelection(r);
                                                                 }}>Remove</Button>
 
@@ -267,7 +307,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                                                     ))}
                                                                 />
                                                                 </div>
-                                                            :   <Button onClick={() => {
+                                                            :   <Button onClick={(e) => {
+                                                                    e.preventDefault();
                                                                     this.addRepositorySelection(r);
                                                                 }}>Add</Button>
                                                             }

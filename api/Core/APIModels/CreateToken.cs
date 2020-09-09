@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using System;
 
 namespace Core.APIModels
 {
@@ -16,6 +17,8 @@ namespace Core.APIModels
         public string Stamp { get; set; }
         public Repository[] Repositories { get; set; }
         public string CustomName { get; set; }
+        // Expiration date in UTC minutes!
+        public long ExpireDate { get; set; }
     }
     public class CreateTokenValidator : AbstractValidator<CreateToken>
     {
@@ -25,6 +28,7 @@ namespace Core.APIModels
             RuleFor(x => x.CustomName).NotEmpty().MaximumLength(50);
             RuleFor(x => x.Repositories).NotEmpty();
             RuleForEach(x => x.Repositories).NotNull().SetValidator(new CreateTokenRepositoryValidator());
+            RuleFor(x => x.ExpireDate).Must(x => x == 0 || x > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60);
         }
     }
 
