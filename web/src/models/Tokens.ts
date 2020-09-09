@@ -8,4 +8,6 @@ export interface Token {
     token: string;
     author: string;
     repositories: TokenRepo[];
+    customName: string;
+    tokenExp?: Date;
 }

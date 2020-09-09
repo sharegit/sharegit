@@ -40,7 +40,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
     }
     renderTokenHeader(token: Token): string {
         if(!!token.author) {
-            return `${token.author}'s [${token.token}]`
+            return `${token.author}'s [${!!token.customName ? token.customName : token.token}]`
         } else {
             return `[${token.token}]`
         }

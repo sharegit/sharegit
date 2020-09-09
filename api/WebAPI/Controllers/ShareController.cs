@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                 return new Core.APIModels.SharedToken()
                 {
                     Token = share.Token.Token,
-                    CustomName = user.DisplayName,
+                    CustomName = share.Token.CustomName,
                     ExpireDate = share.Token.ExpireDate,
                     Author = user.DisplayName,
                     AuthorBio = user.Bio,

@@ -18,6 +18,8 @@ interface IState extends BaseState {
     author: string;
     authorWebsite: string;
     authorBio: string;
+    customName: string;
+    tokenExp?: Date;
 }
 
 export default class SharedLanding extends React.Component<IProps, IState> {
@@ -27,7 +29,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         repositories: [],
         author: '',
         authorBio: '',
-        authorWebsite: ''
+        authorWebsite: '',
+        customName: '',
     }
     constructor(props: IProps) {
         super(props)
@@ -53,6 +56,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             this.state.author = tokenMeta.author;
             this.state.authorBio = tokenMeta.authorBio;
             this.state.authorWebsite = tokenMeta.authorWebsite;
+            this.state.customName = tokenMeta.customName;
+            if(tokenMeta.expireDate != 0)
+                this.state.tokenExp = new Date(tokenMeta.expireDate * 60 * 1000);
             this.setState(this.state);
             
             const tokensStr = localStorage.getItem("alltokens")
@@ -66,6 +72,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 tokens.push({
                     author: this.state.author,
                     token: this.props.token,
+                    customName: this.state.customName,
+                    tokenExp: this.state.tokenExp,
                     repositories: sharedRepositories.repositories.map(x=>({
                         name: x.repo,
                         owner: x.owner,
@@ -76,6 +84,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             }
             else {
                 existingToken.author = this.state.author;
+                existingToken.tokenExp = this.state.tokenExp;
+                existingToken.customName = this.state.customName;
                 existingToken.repositories = sharedRepositories.repositories.map(x=>({
                     name: x.repo,
                     owner: x.owner,
