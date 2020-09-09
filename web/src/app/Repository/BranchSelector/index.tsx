@@ -1,6 +1,7 @@
 import API, { Branch, CancelToken } from 'models/API';
 import React from 'react';
 import { Dropdown, DropdownItemProps } from 'semantic-ui-react';
+import { RouteComponentProps } from 'react-router-dom';
 
 interface IState {
     branches: Branch[];
@@ -8,7 +9,7 @@ interface IState {
     current: string;
 }
 
-interface IProps {
+interface IProps extends RouteComponentProps<any> {
     user: string;
     repo: string;
     current: string;
@@ -31,8 +32,10 @@ export default class BranchSelector extends React.Component<IProps, IState> {
         // Assume the branch we're trying to display is a valid branch to avoid popping
         this.state.branches = [ {name: this.props.current, snapshot: false, sha: false} ];
         this.setState(this.state);
+        const query = new URLSearchParams(this.props.location.search);
+        const token = query.get('token') as string;
         try {
-            const branches = await API.getSharedBranches(this.props.user, this.props.repo, this.state.cancelToken)
+            const branches = await API.getSharedBranches(token, this.props.user, this.props.repo, this.state.cancelToken)
             this.state.branches = branches;
             this.setState(this.state);
         } catch (e) {

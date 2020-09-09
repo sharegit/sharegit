@@ -12,6 +12,7 @@ interface IProps {
     sha: string;
     path: string;
     type: 'tree' | 'blob';
+    token: string;
 }
 
 export default class Path extends React.Component<IProps, IState> {
@@ -23,9 +24,9 @@ export default class Path extends React.Component<IProps, IState> {
             return [<Breadcrumb.Section key={path[0]} active>{path[0]}</Breadcrumb.Section>]
         }
 
-        let link = `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}/`
+        let link = `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}`
         let crums: ReactElement<typeof Breadcrumb.Section>[] =
-            [<Breadcrumb.Section key={path[0]}><Link to={link}>{path[0]}</Link></Breadcrumb.Section>]
+            [<Breadcrumb.Section key={path[0]}><Link to={`${link}?token=${this.props.token}`}>{path[0]}</Link></Breadcrumb.Section>]
 
         path = path.slice(1)
 
@@ -34,8 +35,8 @@ export default class Path extends React.Component<IProps, IState> {
                 crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`} active>{path[0]}</Breadcrumb.Section>)
                 path = path.slice(1)
             } else {
-                link = `${link}${path[0]}/`
-                crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`}><Link to={link}>{path[0]}</Link></Breadcrumb.Section>)
+                link = `${link}/${path[0]}`
+                crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`}><Link to={`${link}?token=${this.props.token}`}>{path[0]}</Link></Breadcrumb.Section>)
                 path = path.slice(1)
             }
         }

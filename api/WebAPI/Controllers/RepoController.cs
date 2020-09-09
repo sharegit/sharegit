@@ -72,6 +72,21 @@ namespace WebAPI.Controllers
                     _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
                 });
         }
+        [HttpGet("share/branches/{owner}/{repo}")]
+        public async Task<ActionResult<IEnumerable<Branch>>> GetSharedBranches(string owner, string repo)
+        {
+            if (HttpContext.Items.ContainsKey("access"))
+            {
+                var repos = HttpContext.Items["access"] as Repository[];
+                var sharedRepo = repos.FirstOrDefault(x => x.Owner == owner && x.Repo == repo);
+                if (sharedRepo != null)
+                    return sharedRepo.Branches.Select(x => new Branch()
+                    {
+                        Name = x
+                    }).ToArray();
+            }
+            return new ForbidResult("token");
+        }
 
         [HttpGet("{provider}/download/{id}/{user}/{repo}/{sha}")]
         public async Task<ActionResult<string>> GetDownloadLink(string provider, int id, string user, string repo, string sha)

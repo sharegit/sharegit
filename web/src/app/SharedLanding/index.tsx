@@ -84,7 +84,6 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             }
             
             localStorage.setItem('alltokens', JSON.stringify(tokens))
-            localStorage.setItem('token', this.props.token)
         } catch(error) {
             this.state.tokenValid = false;
             this.setState(this.state);
@@ -118,7 +117,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                                 this.state.repositories
                                     .map((r : SharedRepository) =>
                                         <RepositoryCard key={r.repo}
-                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}/`}
+                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}?token=${this.props.token}`}
                                                         name={r.repo}
                                                         downloadable={r.downloadAllowed}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}

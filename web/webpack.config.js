@@ -70,7 +70,10 @@ module.exports = {
     contentBase: path.resolve(__dirname, 'public'),
     liveReload: true,
     port: 44800,
-    historyApiFallback: true,
+    historyApiFallback: {
+      historyApiFallback: true,
+      disableDotRule: true
+    },
     writeToDisk: true,
   },
 };

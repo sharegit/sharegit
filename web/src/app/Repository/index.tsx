@@ -28,6 +28,7 @@ interface IState extends BaseState {
     readme?: BlobResult;
     tree: { [K in string]: TreeResult };
     downloadable: boolean;
+    token: string;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -37,7 +38,8 @@ export default class Repository extends React.Component<IProps, IState> {
         cancelToken: API.aquireNewCancelToken(),
         sha: '',
         tree: {},
-        downloadable: false
+        downloadable: false,
+        token: ''
     }
 
     constructor(props: IProps) {
@@ -50,9 +52,10 @@ export default class Repository extends React.Component<IProps, IState> {
         if (tokensStr != null) {
             tokens = JSON.parse(tokensStr);
         }
-        const token = localStorage.getItem('token');
+        const query = new URLSearchParams(this.props.location.search);
+        this.state.token = query.get('token') as string;
         if(tokens != undefined) {
-           if (tokens.some(x=>x.token == token && x.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable))){
+           if (tokens.some(x=>x.token == this.state.token && x.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable))){
                this.state.downloadable = true;
            }
         }
@@ -65,7 +68,7 @@ export default class Repository extends React.Component<IProps, IState> {
 
     async queryTree(uri: string) {
         try {
-            const repoTree = await API.getRepoTree(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+            const repoTree = await API.getRepoTree(this.state.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
             repoTree.sort((a: TreeNode, b: TreeNode) => {
                 if (a.type == b.type)
                     return a.path.localeCompare(b.path);
@@ -85,7 +88,7 @@ export default class Repository extends React.Component<IProps, IState> {
             
             if(readmeFile != undefined) {
 
-                const readme = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
+                const readme = await API.getRepoBlob(this.state.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, readmeFile.path, this.state.cancelToken);
                 
                 this.state.readme = readme;
                 this.setState(this.state);
@@ -98,7 +101,7 @@ export default class Repository extends React.Component<IProps, IState> {
     }
     async queryBlob(uri: string) {
         try {
-            const blob = await API.getRepoBlob(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
+            const blob = await API.getRepoBlob(this.state.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
             
             this.state.blob = blob;
             this.setState(this.state);
@@ -121,7 +124,7 @@ export default class Repository extends React.Component<IProps, IState> {
 
     async startDownloading() {
         try {
-            const downloadLink = await API.getDownloadLink(this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
+            const downloadLink = await API.getDownloadLink(this.state.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
             window.open(downloadLink, "_blank");
         } catch (e) {
             if (!API.wasCancelled(e)) {
@@ -148,6 +151,9 @@ export default class Repository extends React.Component<IProps, IState> {
                         <div className="clear"></div>
                         <div id={styles.branch}>
                             <BranchSelector
+                                history={this.props.history}
+                                location={this.props.location}
+                                match={this.props.match}
                                 key={`${this.state.sha}`}
                                 user={this.props.user}
                                 repo={this.props.repo}
@@ -156,7 +162,7 @@ export default class Repository extends React.Component<IProps, IState> {
                                     this.state.sha = newValue;
                                     this.setState(this.state);
                                     
-                                    this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}/${this.props.uri == undefined ? '' : this.props.uri}`);
+                                    this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}${this.props.uri == undefined ? '' : '/' + this.props.uri}?token=${this.state.token}`);
                                     this.queryServer();
                                 }}>
                             </BranchSelector>
@@ -164,6 +170,7 @@ export default class Repository extends React.Component<IProps, IState> {
                         
                         <div id={styles.path}>
                             <Path
+                                token={this.state.token}
                                 provider={this.props.provider}
                                 id={this.props.id}
                                 user={this.props.user}
@@ -205,6 +212,7 @@ export default class Repository extends React.Component<IProps, IState> {
                     <List divided relaxed>
                         {this.state.objects.map((r: TreeNode) =>
                             <RepoListElement
+                                token={this.state.token}
                                 provider={this.props.provider}
                                 id={this.props.id}
                                 key={r.path + this.state.sha}

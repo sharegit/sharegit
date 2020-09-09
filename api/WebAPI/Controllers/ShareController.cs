@@ -37,22 +37,7 @@ namespace WebAPI.Controllers
             RepositoryServiceGL = repositoryServiceGL;
             RepositoryServiceBB = repositoryServiceBB;
         }
-        [HttpGet("branches/{owner}/{repo}")]
-        [Authorize(AuthenticationSchemes = "token")]
-        public async Task<ActionResult<IEnumerable<Branch>>> GetSharedBranches(string owner, string repo)
-        {
-            if (HttpContext.Items.ContainsKey("access"))
-            {
-                var repos = HttpContext.Items["access"] as Repository[];
-                var sharedRepo = repos.FirstOrDefault(x => x.Owner == owner && x.Repo == repo);
-                if (sharedRepo != null)
-                    return sharedRepo.Branches.Select(x => new Branch()
-                    {
-                        Name = x
-                    }).ToArray();
-            }
-            return new ForbidResult("token");
-        }
+
         /// <summary>
         /// 
         /// </summary>

@@ -108,7 +108,6 @@ export default class API {
         return {
             cancelToken: cancelToken.token,
             headers: {
-                token: localStorage.getItem('token'),
                 jwt: localStorage.getItem('OAuthJWT')
             }
         };
@@ -116,23 +115,23 @@ export default class API {
     static wasCancelled(e: any): boolean {
         return axios.isCancel(e);
     }
-    private static async request<T = any>(method: 'get' | 'delete' | 'post' | 'put', path: string, cancelToken: CancelToken, data?: any, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
+    private static async request<T = any>(method: 'get' | 'delete' | 'post' | 'put', path: string, cancelToken: CancelToken, data?: any, customHeaders?: any): Promise<APIResponse<T>> {
         const request = path.startsWith('/') ? `${config.apiUrl}${path}` : path;
         console.log(`Requesting: ${request}`);
 
-        const axiosRequestCOnfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
-        if (additionalConfig != undefined)
-            Object.assign(axiosRequestCOnfig, additionalConfig);
+        const axiosRequestConfig: AxiosRequestConfig = this.populateDefaultRequest(cancelToken)
+        if (customHeaders != undefined)
+            Object.assign(axiosRequestConfig.headers, customHeaders);
         try {
             const result =
                 method == 'get' ?
-                await axios.get<T>(request, axiosRequestCOnfig)
+                await axios.get<T>(request, axiosRequestConfig)
             :   method == 'delete' ? 
-                await axios.delete<T>(request, axiosRequestCOnfig)
+                await axios.delete<T>(request, axiosRequestConfig)
             :   method == 'post' ?
-                await axios.post<T>(request, data, axiosRequestCOnfig)
+                await axios.post<T>(request, data, axiosRequestConfig)
             :   method == 'put' ?
-                await axios.put<T>(request, data, axiosRequestCOnfig)
+                await axios.put<T>(request, data, axiosRequestConfig)
             :   undefined;
 
             if (result != undefined && result.status >= 200 && result.status < 400) {
@@ -157,40 +156,44 @@ export default class API {
             }
         }
     }
-    static async get<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        return await this.request('get', path, cancelToken, undefined, additionalConfig);
+    static async get<T = any>(path: string, cancelToken: CancelToken, customHeaders?: any): Promise<APIResponse<T>> {
+        return await this.request('get', path, cancelToken, undefined, customHeaders);
     }
-    static async delete<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        return await this.request('delete', path, cancelToken, undefined, additionalConfig);
+    static async delete<T = any>(path: string, cancelToken: CancelToken, customHeaders?: any): Promise<APIResponse<T>> {
+        return await this.request('delete', path, cancelToken, undefined, customHeaders);
     }
-    static async post<T = any>(path: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        return await this.request('post', path, cancelToken, data, additionalConfig);
+    static async post<T = any>(path: string, data: any, cancelToken: CancelToken, customHeaders?: any): Promise<APIResponse<T>> {
+        return await this.request('post', path, cancelToken, data, customHeaders);
     }
-    static async put<T = any>(path: string, data: any, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<APIResponse<T>> {
-        return await this.request('put', path, cancelToken, data, additionalConfig);
+    static async put<T = any>(path: string, data: any, cancelToken: CancelToken, customHeaders?: any): Promise<APIResponse<T>> {
+        return await this.request('put', path, cancelToken, data, customHeaders);
     }
 
-    static async getData<T = any>(path: string, cancelToken: CancelToken, additionalConfig?: AxiosRequestConfig): Promise<T> {
-        const result = await this.get<T>(path, cancelToken)
+    static async getData<T = any>(path: string, cancelToken: CancelToken, customHeaders?: any): Promise<T> {
+        const result = await this.get<T>(path, cancelToken, customHeaders)
         return result.data;
     }
-    static async getDataCached<T = any>(path: string, cancelToken: CancelToken, ttl: number = 3600): Promise<T> {
+    static async getDataCached<T = any>(path: string, cancelToken: CancelToken, ttl: number = 3600, customHeaders?: any): Promise<T> {
         return await this.cache.getOrPutAndGet<T>(path, 
-            async () =>  (await this.getData<T>(path, cancelToken)),
+            async () =>  (await this.getData<T>(path, cancelToken, customHeaders)),
             ttl);
     }
 
-    static async getSharedBranches(owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
+    static async getSharedBranches(token: string, owner: string, repo: string, cancelToken: CancelToken): Promise<Branch[]> {
         const requestPath = `/share/branches/${owner}/${repo}`;
-        return await this.getDataCached<Branch[]>(requestPath, cancelToken, 3600);
+        return await this.getDataCached<Branch[]>(requestPath, cancelToken, 3600, { token: token });
     }
-    static async getRepoTree(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
+    static async getRepoTree(token: string, provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<TreeNode[]> {
         const requestPath = `/${provider}/${id}/${owner}/${repo}/tree/${sha}/${uri}`;
-        return await this.getDataCached<TreeNode[]>(requestPath, cancelToken, 3600);
+        return await this.getDataCached<TreeNode[]>(requestPath, cancelToken, 3600, { token: token });
     }
-    static async getRepoBlob(provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
+    static async getRepoBlob(token: string, provider: string, id: number, owner: string, repo: string, sha: string, uri: string, cancelToken: CancelToken): Promise<BlobResult> {
         const requestPath = `/${provider}/${id}/${owner}/${repo}/blob/${sha}/${uri}`;
-        return await this.getDataCached<BlobResult>(requestPath, cancelToken, 3600);
+        return await this.getDataCached<BlobResult>(requestPath, cancelToken, 3600, { token: token });
+    }
+    static async getDownloadLink(token: string, provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
+        const requestPath = `/${provider}/download/${id}/${owner}/${repo}/${sha}`;
+        return await this.getData<string>(requestPath, cancelToken, { token: token });
     }
     static async getSharedRepositories(token: string, cancelToken: CancelToken): Promise<SharedRepositories> {
         const requestPath = `/share/${token}`;
@@ -239,10 +242,6 @@ export default class API {
     static pushHit(path: string, cid: string, cancelToken: CancelToken): void {
         const requestPath = `/an/hit?path=${encodeURIComponent(path)}&cid=${encodeURIComponent(cid)}`;
         this.post(requestPath, {}, cancelToken);
-    }
-    static async getDownloadLink(provider: string, id: number, owner: string, repo: string, sha: string, cancelToken: CancelToken): Promise<string> {
-        const requestPath = `/${provider}/download/${id}/${owner}/${repo}/${sha}`;
-        return await this.getData<string>(requestPath, cancelToken);
     }
     static async getGithubInstallations(cancelToken: CancelToken): Promise<GithubInstallations> {
         const requestPath = `/settings/githubinstallations`;
