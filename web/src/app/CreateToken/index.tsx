@@ -1,11 +1,13 @@
-import React from 'react';
-import { Modal, Button, List, Icon, Dropdown, Checkbox, CheckboxProps } from 'semantic-ui-react';
-import API, { SharedRepository, SharedToken, Branch } from 'models/API';
-import { BaseState } from 'models/BaseState';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import ContentPanel from 'components/ContentPanel';
-import style from './style.scss';
+import FormTextField from 'components/FormTextField';
+import API, { SharedRepository } from 'models/API';
+import { BaseState } from 'models/BaseState';
+import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
+import { Button, Checkbox, CheckboxProps, Dropdown, Form, FormProps, List } from 'semantic-ui-react';
+import Dictionary from 'util/Dictionary';
+import style from './style.scss';
 
 interface IProps extends RouteComponentProps {
 }
@@ -14,14 +16,17 @@ interface IState extends BaseState {
     stamp: string;
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
+    customName?: string;
+    errors: Dictionary<string>
 }
 
-export default class NewTokenCreation extends React.Component<IProps> {
+export default class NewTokenCreation extends React.Component<IProps, IState> {
     state: IState = {
         stamp: Date.now().toString(),
         repositories: [],
         selectedRepositories: [],
-        cancelToken: API.aquireNewCancelToken()
+        cancelToken: API.aquireNewCancelToken(),
+        errors: new Dictionary()
     }
     constructor(props: IProps) {
         super(props);
@@ -31,7 +36,8 @@ export default class NewTokenCreation extends React.Component<IProps> {
             console.log(this.state.stamp);
             const newToken = await API.createToken({
                 Stamp: this.state.stamp,
-                Repositories: this.state.selectedRepositories
+                Repositories: this.state.selectedRepositories,
+                CustomName: this.state.customName
             }, this.state.cancelToken)
             this.props.history.push('/dashboard');
         } catch (e) {
@@ -164,11 +170,50 @@ export default class NewTokenCreation extends React.Component<IProps> {
             return false;
         }
     }
+    async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
+        try {
+            e.preventDefault();
+            if(this.state.errors.length == 0) {
+                await this.create();
+            } else {
+                // TODO: display error message to fix all errors
+            }
+        } catch (e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
+    }
+    changeCustomName(id: string, newValue: string) {
+        this.setState(state => {
+            if (newValue.length > 0 && newValue.length < 50)
+                state.errors.remove(id);
+            else 
+                state.errors.put(id, `Custom Name cannot be empty or cannot exceed 50 characters. Current length: ${newValue.length}`);
+
+            this.state.customName = newValue;
+
+            return state;
+        })
+    }
     render() {
         return (
             <ContentPanel background='light'>
                 <div id={style.createToken}>
+                    <Form onSubmit={async (e, d) => {
+                            await this.onSubmit(e, d)
+                        }}>
                     <h2>Create a new share token</h2>
+                    <FormTextField  
+                            id='customName'
+                            type='field'
+                            label='Custom Name'
+                            error={this.state.errors.get('customName')}
+                            value={this.state.customName}
+                            onChanged={this.changeCustomName.bind(this)}
+                            placeholder='My token for company X'
+                            description='This name will be displayed to you as well as to the reciever as an easy name to remember when referring to this shared link in place of the random token.'
+                         />
                     <h3>Available repositories</h3>
                     <Button onClick={() => {
                         this.removeAllRepositorySelection();
@@ -232,11 +277,10 @@ export default class NewTokenCreation extends React.Component<IProps> {
                     </List>
                     <Button color='yellow' onClick={() => this.props.history.goBack()}>Cancel</Button>
                     {this.canCreate() ? 
-                        <Button onClick={async (e, d) => {
-                            await this.create()
-                        }}>Create!</Button>
+                        <Button type='submit'>Create!</Button>
                     :   <Button disabled >Create!</Button>
                     }
+                    </Form>
                 </div>
             </ContentPanel>
         )

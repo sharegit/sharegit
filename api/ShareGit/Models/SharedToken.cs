@@ -10,5 +10,6 @@ namespace ShareGit.Models
 
         [BsonRepresentation(BsonType.ObjectId)]
         public string SharingUserId { get; set; }
+        public string CustomName { get; set; }
     }
 }

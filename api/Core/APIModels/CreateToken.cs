@@ -15,12 +15,14 @@ namespace Core.APIModels
         }
         public string Stamp { get; set; }
         public Repository[] Repositories { get; set; }
+        public string CustomName { get; set; }
     }
     public class CreateTokenValidator : AbstractValidator<CreateToken>
     {
         public CreateTokenValidator()
         {
             RuleFor(x => x.Stamp).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.CustomName).NotEmpty().MaximumLength(50);
             RuleFor(x => x.Repositories).NotEmpty();
             RuleForEach(x => x.Repositories).NotNull().SetValidator(new CreateTokenRepositoryValidator());
         }

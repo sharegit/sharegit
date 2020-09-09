@@ -171,7 +171,8 @@ namespace WebAPI.Controllers
             var user = await AccountRepository.GetAsync(userId.Value);
             return user.SharedTokens.Select(x => new Core.APIModels.SharedToken()
             {
-                Token = x.Token
+                Token = x.Token,
+                CustomName = x.CustomName
             }).ToList();
         }
 
@@ -385,30 +386,28 @@ namespace WebAPI.Controllers
             Buffer.BlockCopy(result, 0, tokenData, 32, 32);
 
             var tokenStr = Base64UrlTextEncoder.Encode(tokenData);
+            var token = new ShareGit.Models.SharedToken()
+            {
+                Token = tokenStr,
+                SharingUserId = user.Id,
+                Stamp = createToken.Stamp,
+                CustomName = createToken.CustomName
+            };
             var share = new Share()
             {
                 Id = tokenStr,
-                Token = new ShareGit.Models.SharedToken()
-                {
-                    Token = tokenStr,
-                    SharingUserId = user.Id,
-                    Stamp = null
-                },
+                Token = token,
                 AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
             };
 
-            user.SharedTokens.Add(new ShareGit.Models.SharedToken()
-            {
-                Token = share.Token.Token,
-                Stamp = createToken.Stamp
-            });
+            user.SharedTokens.Add(token);
             await ShareRepository.CreateAsync(share);
             await AccountRepository.UpdateAsync(user.Id, user);
 
             return new Core.APIModels.SharedToken()
             {
                 Token = share.Token.Token,
-                DisplayName = user.DisplayName
+                CustomName = user.DisplayName
             };
         }
         [HttpPost("deletetoken/{token}")]

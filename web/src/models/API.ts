@@ -61,6 +61,7 @@ export interface DashboardResponse {
 }
 export interface SharedToken {
     token: string;
+    customName: string;
 }
 export interface Branch {
     name: string;

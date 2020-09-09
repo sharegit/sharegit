@@ -105,7 +105,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                 await this.handleClick(event, data)
                                             }}>
                                             <Icon name='dropdown' />
-                                            {token.token}
+                                            {!!token.customName ? token.customName : token.token}
                                         </Accordion.Title>
                                         <Accordion.Content active={this.state.activeTokenIndex == index}>
                                             <Button onClick={() =>{
