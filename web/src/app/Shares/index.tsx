@@ -29,17 +29,13 @@ export default class Shares extends React.Component<IProps, IState>  {
         }
     }
     async componentDidMount() {
-        if (localStorage.getItem('OAuthJWT')) {
-            const tokensRequest = API.getSharedTokens(this.state.cancelToken)
+        const tokensRequest = API.getSharedTokens(this.state.cancelToken)
 
-            const tokens = await tokensRequest;
-            this.setState({
-                sharedTokens: tokens,
-                repositories: tokens.map(x => [])
-            })
-        } else {
-            this.props.history.push(`/auth`);
-        }
+        const tokens = await tokensRequest;
+        this.setState({
+            sharedTokens: tokens,
+            repositories: tokens.map(x => [])
+        })
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel()

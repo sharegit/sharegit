@@ -21,6 +21,7 @@ import NewTokenCreation from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
 import Shares from './Shares';
+import ProtectedRoute from 'components/ProtectedRoute';
 
 
 highlight.configure({
@@ -81,13 +82,13 @@ export default class App extends React.Component<IProps, IState> {
                 <Landing
                  {...props}
                  {...props.match.params} />
-              )}></Route>
+              )} />
 
               <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
                 <Repository
                 {...props}
                 {...props.match.params} />
-                )}></Route>
+                )} />
 
               
               <Route path="/:provider/:id/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
@@ -95,25 +96,25 @@ export default class App extends React.Component<IProps, IState> {
                 key={props.match.params.uri}
                 {...props} 
                 {...props.match.params}/>
-                )}></Route>
+                )} />
 
               <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
                 <SharedLanding 
                 {...props}
                 {...props.match.params}/>
-                )}></Route>
+                )} />
 
               <Route path="/share" exact component={(props: ISharedWithMeProps) => (
                 <SharedWithMe 
                 {...props}
                 {...props.match.params}/>
-                )}></Route>
+                )} />
 
-              <Route path="/dashboard" exact component={(props: IDashboardProps) => (
+              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard" exact component={(props: IDashboardProps) => (
                 <Dashboard
                 {...props}
                 {...props.match.params}/>
-              )}></Route>
+              )} />
 
               <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
                 <ContentPanel background='gradient'>
@@ -123,7 +124,7 @@ export default class App extends React.Component<IProps, IState> {
                   login={this.login.bind(this)}
                   {...props.match.params}/>
                 </ContentPanel>
-              )}></Route>
+              )} />
               
               <Route path="/signup/:provider?" component={(props: IAuthenticationProps) => (
                 <ContentPanel background='gradient'>
@@ -133,26 +134,26 @@ export default class App extends React.Component<IProps, IState> {
                   login={this.login.bind(this)}
                   {...props.match.params}/>
                 </ContentPanel>
-              )}></Route>
+              )} />
 
-              <Route path="/logout" exact component={(props: RouteComponentProps<any>) => (
+              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/logout" exact component={(props: RouteComponentProps<any>) => (
                 <Logout logout={this.logout.bind(this)}
                 {...props}
                 {...props.match.params}/>
-              )}></Route>
+              )} />
 
-              <Route path="/settings" component={Settings} />
+              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/settings" component={Settings} />
               
-              <Route path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
+              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
                 <ConfirmAccountDeletion
                   {...props}
                   logout={this.logout.bind(this)}
                   {...props.match.params}/>
-              )}></Route>
+              )} />
 
               <Route path="/create" component={NewTokenCreation} />
 
-              <Route path="/shares" component={Shares} />
+              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
             </div>
 
             <Footer />

@@ -22,10 +22,12 @@ export interface IProps  extends RouteComponentProps<any>, React.HTMLAttributes<
 
 export default class Authentication extends React.Component<IProps, IState>  {
     constructState(): string {
+        const query = new URLSearchParams(this.props.location.search)
         return btoa(JSON.stringify({
             t: Random.str(64),
             d: config.isDev,
             m: this.props.mode,
+            r: query.get('redirect'),
             addToAccount: false
         }));
     }
@@ -36,7 +38,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             mode: this.props.mode,
             cancelToken: API.aquireNewCancelToken(),
             processing: false,
-            failed: false
+            failed: false,
         }
     }
     async componentDidMount() {
@@ -51,6 +53,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
             
             if(code != undefined && state != undefined) {
                 const parsedState = JSON.parse(atob(state));
+                const redirect = parsedState.r;
                 this.setState({mode: parsedState.m});
                 if(parsedState.d && !window.location.href.startsWith('http://localhost:44800')) {
                     const uri = `http://localhost:44800/auth/${this.props.provider}?code=${code}&state=${state}`;
@@ -77,7 +80,10 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         localStorage.setItem('OAuthJWT', signUpResult.token);
                                         if(this.props.login != undefined)
                                             this.props.login();
-                                        this.props.history.push('/settings');
+                                        if(redirect != undefined)
+                                            this.props.history.push(redirect);
+                                        else
+                                            this.props.history.push('/settings');
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
                                         if (!API.wasCancelled(e)) {
@@ -93,9 +99,11 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         localStorage.setItem('OAuthJWT', signInResult.token);
                                         if(this.props.login != undefined)
                                             this.props.login();
-                                        if (parsedState.m == 'add') {
+                                        if (redirect != undefined)
+                                            this.props.history.push(redirect)
+                                        else if (parsedState.m == 'add') {
                                             this.props.history.push(`/settings/${this.props.provider}`);
-                                        } else if (parsedState.m == 'signin') {
+                                        } else {
                                             this.props.history.push('/dashboard');
                                         }
                                     } catch (e) {

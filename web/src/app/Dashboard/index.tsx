@@ -26,20 +26,16 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         super(props);
     }
     async componentDidMount() {
-        if (localStorage.getItem('OAuthJWT')) {
-            const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
-            const analyticsRequest = API.getAnalytics(this.state.cancelToken)
+        const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
+        const analyticsRequest = API.getAnalytics(this.state.cancelToken)
 
-            const essentials = await essentialsRequest;
-            this.state.name = essentials.name;
-            this.setState(this.state);
+        const essentials = await essentialsRequest;
+        this.state.name = essentials.name;
+        this.setState(this.state);
 
-            const analytics = await analyticsRequest;
-            this.state.analytics = analytics.analytics;
-            this.setState(this.state);
-        } else {
-            this.props.history.push(`/auth`);
-        }
+        const analytics = await analyticsRequest;
+        this.state.analytics = analytics.analytics;
+        this.setState(this.state);
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel()
