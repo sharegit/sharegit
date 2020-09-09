@@ -50,10 +50,16 @@ export default class RCache {
     async getOrPutAndGet<T>(key: string, value: () => Promise<T>, ttl: number): Promise<T> {
         const g = await this.get<T>(key)
         if (g == undefined) {
-            const v : T = await value();
-            if (v)
-                await this.put<T>(key, v, ttl);
-            return v;
+            try {
+                const v : T = await value();
+                if (v)
+                    await this.put<T>(key, v, ttl);
+                return v;
+            } catch (e) {
+                // In case any failiure delete the existing cache if any
+                await this.remove(key);
+                throw (e);
+            }
         } else {
             return g;
         }
@@ -82,5 +88,12 @@ export default class RCache {
             await this.cache.put(DB_CACHE_OBJECT_STORE, c, key);
         else if (this.dictionary != undefined)
             this.dictionary.put(key, c);
+    }
+
+    async remove(key: string): Promise<any> {
+        if(this.cache != undefined)
+            await this.cache.delete(DB_CACHE_OBJECT_STORE, key);
+        else if(this.dictionary != undefined)
+            this.dictionary.remove(key);
     }
 }
