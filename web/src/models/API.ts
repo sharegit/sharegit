@@ -22,6 +22,7 @@ export interface SharedRepository {
     downloadAllowed: boolean;
     description: string;
     snapshot: boolean;
+    path: string;
     branches: Branch[];
 }
 export interface Repository {
@@ -176,7 +177,7 @@ export default class API {
         return result.data;
     }
     static async getDataCached<T = any>(path: string, cancelToken: CancelToken, ttl: number = 3600, customHeaders?: any): Promise<T> {
-        return await this.cache.getOrPutAndGet<T>(path, 
+        return await this.cache.getOrPutAndGet<T>(path + (customHeaders == undefined ? '' : JSON.stringify(customHeaders)), 
             async () =>  (await this.getData<T>(path, cancelToken, customHeaders)),
             ttl);
     }
