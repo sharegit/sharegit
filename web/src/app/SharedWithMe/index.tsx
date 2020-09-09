@@ -23,7 +23,15 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
     componentDidMount() {
         const allTokensStr = localStorage.getItem("alltokens");
         if(allTokensStr != null) {
-            this.state.tokens = JSON.parse(allTokensStr);
+            const tokens = JSON.parse(allTokensStr);
+            console.log(tokens);
+            
+            this.state.tokens = tokens.filter((x:any)=>{
+                const d = x.tokenExp == undefined ? undefined : new Date(x.tokenExp)
+                return d == undefined || d.getTime() > new Date().getTime()
+            });
+
+            localStorage.setItem('alltokens', JSON.stringify(this.state.tokens));
             this.setState(this.state);
         }
     }
@@ -63,6 +71,8 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                             <Link to={`/share/${token.token}`}>{this.renderTokenHeader(token)}</Link>
                                         </List.Header>
                                         <List.Description id={styles.list}>
+                                            {token.tokenExp != undefined ? 
+                                                'Expires on: ' + token.tokenExp : ''}
                                             {token.repositories.length == 0 ?
                                             <p>Not yet visited</p>
                                         :

@@ -119,6 +119,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                         <div className="clear"></div>
                     </div>
                     {!!this.state.authorBio ? <p>The author provided the following Biography about themselves: <br />{this.state.authorBio}</p> : null}
+                    {this.state.tokenExp != undefined && 
+                        'This token will expire on: ' + this.state.tokenExp}
                     <div id={styles.tokenChecker}>
                         {this.renderTokenValidity()}
                     </div>
