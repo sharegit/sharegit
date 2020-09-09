@@ -13,9 +13,6 @@ export interface CancelToken {
 }
 export interface SharedRepositories {
     repositories: SharedRepository[];
-    author: string;
-    authorWebsite: string;
-    authorBio: string;
 }
 export interface SharedRepository {
     id: number;
@@ -63,6 +60,9 @@ export interface SharedToken {
     token: string;
     customName: string;
     expireDate: number;
+    author: string;
+    authorWebsite: string;
+    authorBio: string;
 }
 export interface Branch {
     name: string;
@@ -100,6 +100,7 @@ export interface PublicProfileSettings {
 }
 
 export default class API {
+
     static cache: RCache = new RCache('share-git');
 
     static aquireNewCancelToken(): CancelToken {
@@ -215,6 +216,10 @@ export default class API {
     static async getSharedTokens(cancelToken: CancelToken): Promise<SharedToken[]> {
         const requestPath = `/dashboard/tokens`;
         return await this.getData<SharedToken[]>(requestPath, cancelToken);
+    }
+    static async getSharedTokenMeta(token: string, cancelToken: CancelToken): Promise<SharedToken> {
+        const requestPath = `/share/${token}/meta`;
+        return await this.getData<SharedToken>(requestPath, cancelToken);
     }
     static async getMyRepos(cancelToken: CancelToken): Promise<SharedRepository[]> {
         const requestPath = `/dashboard/repos`;

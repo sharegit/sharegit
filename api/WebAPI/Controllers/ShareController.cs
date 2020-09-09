@@ -38,6 +38,29 @@ namespace WebAPI.Controllers
             RepositoryServiceBB = repositoryServiceBB;
         }
 
+        [HttpGet("{token}/meta")]
+        [Produces("application/json")]
+        public async Task<ActionResult<Core.APIModels.SharedToken>> GetInfo(string token)
+        {
+            var share = await ShareRepository.GetAsync(token);
+            var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
+            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60))
+            {
+                return new Core.APIModels.SharedToken()
+                {
+                    Token = share.Token.Token,
+                    CustomName = user.DisplayName,
+                    ExpireDate = share.Token.ExpireDate,
+                    Author = user.DisplayName,
+                    AuthorBio = user.Bio,
+                    AuthorWebsite = user.Url
+                };
+            } else
+            {
+                return new ForbidResult("token");
+            }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -153,9 +176,6 @@ namespace WebAPI.Controllers
 
                 return new SharedRepositories()
                 {
-                    Author = user.DisplayName,
-                    AuthorBio = user.Bio,
-                    AuthorWebsite = user.Url,
                     Repositories = sharedRepositories
                 };
             }

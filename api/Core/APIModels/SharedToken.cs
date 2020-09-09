@@ -8,5 +8,8 @@
         /// Expiration date in UTC minutes
         /// </summary>
         public long ExpireDate { get; set; }
+        public string Author { get; set; }
+        public string AuthorWebsite { get; set; }
+        public string AuthorBio { get; set; }
     }
 }

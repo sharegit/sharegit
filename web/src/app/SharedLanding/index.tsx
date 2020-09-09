@@ -44,14 +44,15 @@ export default class SharedLanding extends React.Component<IProps, IState> {
 
     async validateToken() {
         try {
+            const tokenMeta = await API.getSharedTokenMeta(this.props.token, this.state.cancelToken);
             const sharedRepositories = await API.getSharedRepositories(this.props.token, this.state.cancelToken)
             
             this.state.tokenValid = true;
             this.state.repositories = sharedRepositories.repositories;
             if(sharedRepositories.repositories.length > 0)
-            this.state.author = sharedRepositories.author;
-            this.state.authorBio = sharedRepositories.authorBio;
-            this.state.authorWebsite = sharedRepositories.authorWebsite;
+            this.state.author = tokenMeta.author;
+            this.state.authorBio = tokenMeta.authorBio;
+            this.state.authorWebsite = tokenMeta.authorWebsite;
             this.setState(this.state);
             
             const tokensStr = localStorage.getItem("alltokens")
