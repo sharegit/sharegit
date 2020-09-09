@@ -172,7 +172,8 @@ namespace WebAPI.Controllers
             return user.SharedTokens.Select(x => new Core.APIModels.SharedToken()
             {
                 Token = x.Token,
-                CustomName = x.CustomName
+                CustomName = x.CustomName,
+                ExpireDate = x.ExpireDate
             }).ToList();
         }
 
@@ -408,7 +409,8 @@ namespace WebAPI.Controllers
             return new Core.APIModels.SharedToken()
             {
                 Token = share.Token.Token,
-                CustomName = user.DisplayName
+                CustomName = user.DisplayName,
+                ExpireDate = share.Token.ExpireDate
             };
         }
         [HttpPost("deletetoken/{token}")]

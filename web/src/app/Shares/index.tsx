@@ -6,6 +6,7 @@ import { Accordion, AccordionTitleProps, Icon, Button, List } from 'semantic-ui-
 import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
+import printDate from 'util/Date';
 
 interface IState extends BaseState {
     name: string;
@@ -106,6 +107,8 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             }}>
                                             <Icon name='dropdown' />
                                             {!!token.customName ? token.customName : token.token}
+                                            { token. expireDate != 0 &&
+                                                `${token.expireDate < new Date().getTime() / 1000 / 60 ? '(Expired at ' : '(Expires at '}${printDate(new Date(token.expireDate * 60 * 1000))}`}
                                         </Accordion.Title>
                                         <Accordion.Content active={this.state.activeTokenIndex == index}>
                                             <Button onClick={() =>{

@@ -62,6 +62,7 @@ export interface DashboardResponse {
 export interface SharedToken {
     token: string;
     customName: string;
+    expireDate: number;
 }
 export interface Branch {
     name: string;
