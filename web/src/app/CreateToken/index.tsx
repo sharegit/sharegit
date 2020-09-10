@@ -232,6 +232,17 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         const expirationDate = new Date(current.getTime() + expiresIn * 60 * 1000);
         this.setState({expireDate: expirationDate})
     }
+
+    getRepoLink(r: SharedRepository): string {
+        switch(r.provider) {
+            case 'github':
+                return `https://github.com/${r.owner}/${r.repo}`;
+            case 'gitlab':
+                return `https://gitlab.com/projects/${r.id}`;
+            case 'bitbucket':
+                return `https://bitbucket.org/${r.owner}/${r.repo}`;
+        }
+    }
     render() {
         return (
             <ContentPanel background='light'>
@@ -283,7 +294,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             this.state.repositories
                                     .map((r : SharedRepository) =>
                                         <RepositoryCard key={r.repo}
-                                                        link={``}
+                                                        link={this.getRepoLink(r)}
                                                         deselected={this.isSelected(r) ? undefined : true}
                                                         name={r.repo}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
