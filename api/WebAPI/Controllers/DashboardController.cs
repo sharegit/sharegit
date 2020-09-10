@@ -370,6 +370,7 @@ namespace WebAPI.Controllers
                 Owner = x.Owner,
                 Provider = x.Provider,
                 Repo = x.Repo,
+                Path = x.Path.TrimStart(new char[] { '.' , '/'}),
                 DownloadAllowed = x.DownloadAllowed,
                 Branches = await TranslateBranches(x)
             });

@@ -102,6 +102,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 description: r.description,
                 snapshot: r.snapshot,
                 downloadAllowed: r.downloadAllowed,
+                path: r.path,
                 branches: []
             }
         ));
@@ -119,6 +120,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 description: r.description,
                 snapshot: r.snapshot,
                 downloadAllowed: r.downloadAllowed,
+                path: r.path,
                 branches: []
             });
             this.setState(this.state);
@@ -203,6 +205,21 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             return state;
         })
     }
+    changePath(r: SharedRepository, id: string, newValue: string) {
+        this.setState(state => {
+
+            if(newValue.length > 1024)
+                state.errors.put(id, `Path cannot exceed 50 characters. Current length: ${newValue.length}`);
+            else
+                state.errors.remove(id);
+
+            const index = state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
+            if(index > -1)
+                state.selectedRepositories[index].path = newValue;
+
+            return state;
+        })
+    }
     setExpiring(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) {
         if(data.checked != undefined) {
             this.setState({isExpiring: data.checked});
@@ -233,6 +250,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             placeholder='My token for company X'
                             description='This name will be displayed to you as well as to the reciever as an easy name to remember when referring to this shared link in place of the random token.'
                          />
+
                     <Checkbox label='Expiring token' onChange={this.setExpiring.bind(this)} />
                     {!!this.state.isExpiring && 
                         <div>
@@ -283,7 +301,20 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                                                     this.makeRepositoryDownloadable(r, data.checked == undefined ? false : data.checked);
                                                                 }} label='Downloadable'></Checkbox>
                                                             :   null}
-
+                                                                <FormTextField  
+                                                                    id={`path_${r.id}_${r.owner}_${r.repo}_${r.provider}`}
+                                                                    type='field'
+                                                                    label='Path'
+                                                                    error={this.state.errors.get(`path_${r.id}_${r.owner}_${r.repo}_${r.provider}`)}
+                                                                    value={r.path}
+                                                                    onChanged={(id, newValue) => this.changePath(r, id, newValue)}
+                                                                    placeholder='backend/api/'
+                                                                    description={`The CASE SENSITIVE, absolute path inside your repository which will be accessible by this link.
+                                                                    If you wish to share a directory use a forward slash terminated path, otherwise use the absolute path of the file.
+                                                                    Leave empty if you wish to share the whole repository.
+                                                                    Example: 'backend/' will give access to the backend folder with it's content.
+                                                                    You can also share only one file, example: 'backend/README.md'.`}
+                                                                />
                                                                 <Dropdown
                                                                     placeholder='Select a branch or type the commit SHA'
                                                                     fluid

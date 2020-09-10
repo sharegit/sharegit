@@ -12,6 +12,7 @@ namespace Core.APIModels
             public string Repo { get; set; }
             public string Provider { get; set; }
             public bool DownloadAllowed { get; set; }
+            public string Path { get; set; }
             public Branch[] Branches { get; set; }
         }
         public string Stamp { get; set; }
@@ -39,6 +40,8 @@ namespace Core.APIModels
             RuleFor(x => x.DownloadAllowed).Must(x => !x).When(x => x.Provider != "github");
             RuleFor(x => x.Branches).NotEmpty();
             RuleForEach(x => x.Branches).NotEmpty();
+            RuleFor(x => x.Path).MaximumLength(1024);
+            RuleFor(x => x.Path).Must(x => string.IsNullOrEmpty(x) || x == "." || x == "/").When(x => x.DownloadAllowed);
         }
     }
 }

@@ -103,6 +103,21 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             }
         }
     }
+    getSharedPathType(path: string | undefined): 'tree' | 'blob' {
+        if(path == undefined || path.endsWith("/"))
+            return 'tree';
+        else
+            return 'blob';
+    }
+    getAdditionalPath(path: string | undefined): '' | string {
+        if(path == undefined)
+            return '';
+        else if (path[path.length-1] == '/') {
+            return `/${path.substring(0, path.length-2)}`;
+        } else {
+            return `/${path}`;
+        }
+    }
 
     render() {
         return (
@@ -130,8 +145,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                                 this.state.repositories
                                     .map((r : SharedRepository) =>
                                         <RepositoryCard key={r.repo}
-                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/tree/${this.getPreferredSha(r)}?token=${this.props.token}`}
-                                                        name={r.repo}
+                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${this.getSharedPathType(r.path)}/${this.getPreferredSha(r)}${this.getAdditionalPath(r.path)}?token=${this.props.token}`}
+                                                        name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
                                                         downloadable={r.downloadAllowed}
                                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                         provider={r.provider}></RepositoryCard>

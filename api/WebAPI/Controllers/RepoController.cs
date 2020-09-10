@@ -41,8 +41,9 @@ namespace WebAPI.Controllers
             AccountRepository = accountRepository;
         }
 
-        private bool IsAuthorized(string provider, int id, string user, string repo, string sha, bool download = false)
+        private bool IsAuthorized(string provider, int id, string user, string repo, string sha, string path, bool download = false)
         {
+            path ??= "";
             return (HttpContext.Items.ContainsKey("access")
                 && provider switch
                 {
@@ -52,6 +53,7 @@ namespace WebAPI.Controllers
                            && x.Owner == user
                            && x.Repo == repo
                            && x.Branches.Contains(sha)
+                           && (path.StartsWith(x.Path ?? "") || path.Equals(x.Path.TrimEnd('/')))
                            && (!download || x.DownloadAllowed)) ?? false),
 
                     "gitlab" => ((HttpContext.Items["access"] as Repository[])
@@ -59,6 +61,7 @@ namespace WebAPI.Controllers
                               x.Provider == "gitlab"
                            && x.RepoId == id
                            && x.Branches.Contains(sha)
+                           && (path.StartsWith(x.Path ?? "") || path.Equals(x.Path.TrimEnd('/')))
                            && (!download || x.DownloadAllowed)) ?? false),
 
                     "bitbucket" => ((HttpContext.Items["access"] as Repository[])
@@ -67,6 +70,7 @@ namespace WebAPI.Controllers
                            && x.Owner == user
                            && x.Repo == repo
                            && x.Branches.Contains(sha)
+                           && (path.StartsWith(x.Path ?? "") || path.Equals(x.Path.TrimEnd('/')))
                            && (!download || x.DownloadAllowed)) ?? false),
 
                     _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
@@ -97,7 +101,7 @@ namespace WebAPI.Controllers
                 return new BadRequestResult();
             }
 
-            if (!IsAuthorized(provider, id, user, repo, sha))
+            if (!IsAuthorized(provider, id, user, repo, sha, ""))
                 return new ForbidResult("token");
 
             var accessToken = await RepositoryServiceGH.GetAccess(user);
@@ -109,7 +113,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<BlobResult>> GetRepoBlob(string provider, int id, string user, string repo, string sha, string uri)
         {
-            if (!IsAuthorized(provider, id, user, repo, sha))
+            if (!IsAuthorized(provider, id, user, repo, sha, uri))
                 return new ForbidResult("token");
             switch (provider)
             {
@@ -175,7 +179,7 @@ namespace WebAPI.Controllers
         [Produces("application/json")]
         public async Task<ActionResult<TreeResult.TreeNode[]>> GetRepoTree(string provider, int id, string user, string repo, string sha, string uri)
         {
-            if (!IsAuthorized(provider, id, user, repo, sha))
+            if (!IsAuthorized(provider, id, user, repo, sha, uri))
                 return new ForbidResult("token");
             switch (provider)
             {
