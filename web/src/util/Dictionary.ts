@@ -19,4 +19,7 @@ export default class Dictionary<V> {
     get(key: string) : V | undefined {
         return this.dictionary[key]
     }
+    getAll(): V[] {
+        return Object.values(this.dictionary);
+    }
 }

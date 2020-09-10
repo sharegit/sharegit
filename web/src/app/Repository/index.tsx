@@ -10,6 +10,7 @@ import Path from './Path';
 import RepoListElement from './RepoListElement';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
+import LocalStorageDictionary from 'util/LocalStorageDictionary';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -46,24 +47,58 @@ export default class Repository extends React.Component<IProps, IState> {
         super(props)
         console.log(props)
         this.state.sha = props.sha;
-        
-        const tokensStr = localStorage.getItem("alltokens")
-        let tokens: Token[] = []
-        if (tokensStr != null) {
-            tokens = JSON.parse(tokensStr);
-        }
+
         const query = new URLSearchParams(this.props.location.search);
         this.state.token = query.get('token') as string;
-        if(tokens != undefined) {
-           if (tokens.some(x=>x.token == this.state.token && x.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable))){
-               this.state.downloadable = true;
-           }
-        }
+        
+
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         console.log(`This is repo ${this.props.repo} of user ${this.props.user}`);
-        this.queryServer();
+
+        const tokens = new LocalStorageDictionary<Token>('alltokens');
+        let existingToken = tokens.get(this.state.token)
+
+        // If the user is seeing this repository with this token for the first time
+        // Query the server for the token metadata and the shared repositories
+        // just as if it were on the shared landing page
+        try {
+            if(existingToken == undefined) {
+                const tokenMeta = await API.getSharedTokenMeta(this.state.token, this.state.cancelToken);
+                const sharedRepositories = await API.getSharedRepositories(this.state.token, this.state.cancelToken);
+                const tokenExp = tokenMeta.expireDate != 0 ? new Date(tokenMeta.expireDate * 60 * 1000) : undefined;
+                
+                existingToken = {
+                    author: tokenMeta.author,
+                    token: tokenMeta.token,
+                    customName: tokenMeta.customName,
+                    tokenExp: tokenExp,
+                    repositories: sharedRepositories.repositories.map(x=>({
+                        name: x.repo,
+                        owner: x.owner,
+                        provider: x.provider,
+                        downloadable: x.downloadAllowed
+                    }))
+                };
+
+                tokens.put(tokenMeta.token, existingToken);
+
+            }
+            
+            // At this point the token is 100% known
+            // Check if repository is downloadable
+            if (existingToken.repositories.some(x => x.name == this.props.repo && x.owner == this.props.user && x.provider == this.props.provider && x.downloadable)) {
+                this.setState({downloadable: true});
+            }
+
+            // Finally query the server for content
+            this.queryServer();
+        } catch(e) {
+            if (!API.wasCancelled(e)) {
+                throw e;
+            }
+        }
     }
 
     async queryTree(uri: string) {

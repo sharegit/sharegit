@@ -7,6 +7,7 @@ import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
+import LocalStorageDictionary from 'util/LocalStorageDictionary';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -61,40 +62,20 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 this.state.tokenExp = new Date(tokenMeta.expireDate * 60 * 1000);
             this.setState(this.state);
             
-            const tokensStr = localStorage.getItem("alltokens")
-            let tokens: Token[] = []
-            if (tokensStr != null) {
-                tokens = JSON.parse(tokensStr);
-            }
+            const tokens = new LocalStorageDictionary<Token>('alltokens');
             
-            const existingToken = tokens.find(x=>x.token == this.props.token)
-            if(existingToken == undefined) {
-                tokens.push({
-                    author: this.state.author,
-                    token: this.props.token,
-                    customName: this.state.customName,
-                    tokenExp: this.state.tokenExp,
-                    repositories: sharedRepositories.repositories.map(x=>({
-                        name: x.repo,
-                        owner: x.owner,
-                        provider: x.provider,
-                        downloadable: x.downloadAllowed
-                    }))
-                })
-            }
-            else {
-                existingToken.author = this.state.author;
-                existingToken.tokenExp = this.state.tokenExp;
-                existingToken.customName = this.state.customName;
-                existingToken.repositories = sharedRepositories.repositories.map(x=>({
+            tokens.put(this.props.token, {
+                author: this.state.author,
+                token: this.props.token,
+                customName: this.state.customName,
+                tokenExp: this.state.tokenExp,
+                repositories: sharedRepositories.repositories.map(x=>({
                     name: x.repo,
                     owner: x.owner,
                     provider: x.provider,
                     downloadable: x.downloadAllowed
-                }));
-            }
-            
-            localStorage.setItem('alltokens', JSON.stringify(tokens))
+                }))
+            })
         } catch(error) {
             this.state.tokenValid = false;
             this.setState(this.state);

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button, List } from 'semantic-ui-react';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
+import LocalStorageDictionary from 'util/LocalStorageDictionary';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -21,19 +22,19 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         super(props)
     }
     componentDidMount() {
-        const allTokensStr = localStorage.getItem("alltokens");
-        if(allTokensStr != null) {
-            const tokens = JSON.parse(allTokensStr);
-            console.log(tokens);
-            
-            this.state.tokens = tokens.filter((x:any)=>{
-                const d = x.tokenExp == undefined ? undefined : new Date(x.tokenExp)
-                return d == undefined || d.getTime() > new Date().getTime()
-            });
+        const allTokens = new LocalStorageDictionary<Token>('alltokens');
+        
+        this.state.tokens = allTokens.getAll().filter(x => {
+            const d = x.tokenExp == undefined ? undefined : new Date(x.tokenExp);
+            const canStay = d == undefined || d.getTime() > new Date().getTime();
 
-            localStorage.setItem('alltokens', JSON.stringify(this.state.tokens));
-            this.setState(this.state);
-        }
+            if(!canStay)
+                allTokens.remove(x.token);
+
+            return canStay;
+        });
+
+        this.setState(this.state);
     }
     forget(token: string) {
         const toForget = this.state.tokens.findIndex(x=>x.token == token);
