@@ -7,6 +7,10 @@ import FeatureCard from './FeatureCard';
 import TargetCard from './TargetCard';
 import DonationCard from './DonationCard';
 import ContentPanel from 'components/ContentPanel';
+import GithubMark from 'assets/icons/github-mark-light.png'
+import GitlabMark from 'assets/icons/gitlab-mark.png'
+import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
+import CustomIcon from 'components/CustomIcon';
 
 interface IProps extends RouteComponentProps<any> {
 
@@ -33,9 +37,9 @@ export default class Landing extends React.Component<IProps, IState> {
                     <div id={styles.title}>
                         <h1><b>Share Your Repositories</b></h1>
                         <ul>
-                            <li><b>GitHub</b></li>
-                            <li><b>GitLab</b></li>
-                            <li><b>Bitbucket</b></li>
+                            <li className={styles.shareprovider}><CustomIcon size='large' src={GithubMark}></CustomIcon>GitHub</li>
+                            <li className={styles.shareprovider}><CustomIcon size='large' src={GitlabMark}></CustomIcon>GitLab</li>
+                            <li className={styles.shareprovider}><CustomIcon size='large' src={BitbucketMark}></CustomIcon>Bitbucket</li>
                         </ul>
                         <span><b>ShareGit</b> enables you to connect to multiple Git providers and <b>share</b> your <b>private repositories</b> with a link.</span>
                     </div>

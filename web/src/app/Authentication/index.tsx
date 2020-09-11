@@ -6,6 +6,10 @@ import API from 'models/API';
 import { BaseState } from 'models/BaseState';
 import Random from 'util/Random';
 import styles from './style.scss';
+import GithubMark from 'assets/icons/github-mark-dark.png'
+import GitlabMark from 'assets/icons/gitlab-mark.png'
+import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
+import CustomIcon from 'components/CustomIcon';
 
 interface IState extends BaseState {
     state: string;
@@ -135,9 +139,9 @@ export default class Authentication extends React.Component<IProps, IState>  {
     getAuthText(): string {
         switch (this.state.mode) {
             case 'signin':
-                return 'Sign In';
+                return 'Sign in';
             case 'signup':
-                return 'Sign Up';
+                return 'Sign up';
             case 'add':
                 return 'Connect other service';
         }
@@ -207,26 +211,20 @@ export default class Authentication extends React.Component<IProps, IState>  {
                             <Button
                             className={styles.signupButton}
                             as='a'
-                            primary
                             href={this.getAuthLink('github')}>
-                                    <Icon name='github'></Icon>
-                                    {this.getAuthText()} with Github
+                                    {this.getAuthText()} with <CustomIcon src={GithubMark}></CustomIcon> Github
                             </Button>
                             <Button
                             className={styles.signupButton}
                             as='a'
-                            primary
                             href={this.getAuthLink('gitlab')}>
-                                    <Icon name='gitlab'></Icon>
-                                    {this.getAuthText()} with GitLab
+                                    {this.getAuthText()} with <CustomIcon src={GitlabMark}></CustomIcon> GitLab
                             </Button>
                             <Button
                             className={styles.signupButton}
                             as='a'
-                            primary
                             href={this.getAuthLink('bitbucket')}>
-                                    <Icon name='bitbucket'></Icon>
-                                    {this.getAuthText()} with Bitbucket
+                                    {this.getAuthText()} with <CustomIcon src={BitbucketMark}></CustomIcon> Bitbucket
                             </Button>
                         </div>}
                     </div>

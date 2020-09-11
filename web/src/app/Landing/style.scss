@@ -67,4 +67,10 @@
         justify-content: center;
         background-color: globalStyles.$dark;
     }
+    .shareprovider {
+        display: flex;
+        align-items : center;
+        justify-content: left;
+        font-weight: bold;
+    }
 }
