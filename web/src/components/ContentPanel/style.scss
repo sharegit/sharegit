@@ -1,10 +1,6 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 .contentPanel {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
     padding: 50px;
     &.light {
         background-color: globalStyles.$light;

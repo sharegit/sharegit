@@ -1,5 +1,6 @@
 import React, { ComponentProps } from 'react';
 import style from './style.scss';
+import { Row } from 'react-bootstrap'
 
 interface IProps extends ComponentProps<any>, React.HTMLAttributes<HTMLDivElement> {
     background: 'light' | 'dark' | 'gradient';
@@ -24,9 +25,14 @@ export default class ContentPanel extends React.Component<IProps, IState> {
     }
     render() {
         return (
-            <div id={this.props.id} className={`${style.contentPanel} ${this.getBackgroundStyle()} ${this.props.className}`}>
+            <Row
+                id={this.props.id}
+                className={`${style.contentPanel}
+                            ${this.getBackgroundStyle()}
+                            ${this.props.className == undefined ? '' : this.props.className}
+                            justify-content-md-center`}>
                 {this.props.children}
-            </div>
+            </Row>
         )
     }
 }

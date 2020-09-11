@@ -5,35 +5,15 @@
         float: left;
         margin-left: 10px;
     }
-    #leftMenu {
-        float: left;
-        margin-left: 40px;
-        height: 100%;
-    }
-    #rightMenu {
-        float: right;
-        margin-right: 50px;
-        height: 100%;
-    }
     img.logo {
-        height: 100%;
+        height: 2em;
+        margin-right: 10px;
     }
     nav {
         background-color: globalStyles.$dark;
-        width: 100%;
-        height: 45px;
         color: globalStyles.$light;
-        text-align: center;
-        padding: 10px;
         text-decoration: none;
-        ul {
-            list-style: none;
-            list-style-type: none;
-            height: 100%;
-        }
-        a {
-            height: 100%;
-        }
+        
         /* unvisited link */
         a:link {
             color:globalStyles.$light;
@@ -53,13 +33,13 @@
         a:active {
             color: globalStyles.$blue;
         }
-        div, ul, li {
-            display: inline;
-            box-sizing: content-box;
-        }
-        li {
-            margin: 0px 15px 0px 15px;
-            height: 100%;
+        :global(.dropdown-menu) {
+            right: 0;
+            left: auto;
+            background-color: globalStyles.$dark !important;
+            * {
+                background-color: globalStyles.$dark !important;
+            }
         }
     }
 }

@@ -17,12 +17,14 @@ import ConfirmAccountDeletion, { IProps as IConfirmAccountDeletionProps } from '
 import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
 import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import NewTokenCreation from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
 import Shares from './Shares';
 import ProtectedRoute from 'components/ProtectedRoute';
 import CookieConsent from 'components/CookieConsent';
+import { Container } from 'react-bootstrap';
 
 
 highlight.configure({
@@ -113,8 +115,7 @@ export default class App extends React.Component<IProps, IState> {
 
             <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
-            <div className={styles.appContentContainer}>
-
+            <Container fluid>
               <Route path='/' exact component={(props: any) => (
                 <Landing
                  {...props}
@@ -191,7 +192,7 @@ export default class App extends React.Component<IProps, IState> {
               <Route path="/create" component={NewTokenCreation} />
 
               <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
-            </div>
+            </Container>
 
             <Footer />
         </div>
