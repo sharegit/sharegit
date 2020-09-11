@@ -22,6 +22,7 @@ import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
 import Shares from './Shares';
 import ProtectedRoute from 'components/ProtectedRoute';
+import CookieConsent from 'components/CookieConsent';
 
 
 highlight.configure({
@@ -45,14 +46,16 @@ export default class App extends React.Component<IProps, IState> {
   }
   componentDidMount() {
     console.log('APP MOUNTED!')
-    const clientId = this.state.cookies.get('clientId')
+    const clientId = localStorage.getItem('clientId')
     if(clientId == undefined) {
       const d = new Date();
-      this.state.cookies.set('clientId', uuidv4(), { path: '/' , expires: new Date(d.getFullYear() + 2, d.getMonth(), d.getDate())});
+      localStorage.setItem('clientId', uuidv4());
     }
 
     this.state.unreg = this.props.history.listen(this.locationChanged.bind(this))
     this.locationChanged(this.props.location, 'PUSH');
+
+    this.initGoogleAnalyticsIfConsented();
   }
   componentWillUnmount() {
     if(this.state.unreg != undefined)
@@ -60,7 +63,7 @@ export default class App extends React.Component<IProps, IState> {
   }
   locationChanged(location: Location<LocationState>, action: Action) {
     console.log(location);
-    const clientId = this.state.cookies.get('clientId')
+    const clientId = localStorage.getItem('clientId')
     if(clientId != undefined){
       if (location.pathname.startsWith('/share/'))
         API.pushHit(location.pathname, clientId, this.state.cancelToken);
@@ -71,6 +74,28 @@ export default class App extends React.Component<IProps, IState> {
               const token = query.get('token');
               API.pushHit(`${location.pathname}?token=${token}`, clientId, this.state.cancelToken);
             }
+    }
+  }
+  initGoogleAnalyticsIfConsented() {
+    const consent = this.state.cookies.get('consented');
+    switch(consent) {
+      case 'full':
+
+          function gtag(key: string, value: any){window.dataLayer.push(arguments);}
+
+          gtag('js', new Date());
+          gtag('config', 'UA-176858852-1');
+        
+          const ga = document.createElement('script');
+          ga.async = true;
+          ga.src = 'https://www.googletagmanager.com/gtag/js?id=UA-176858852-1';
+
+          const s = document.getElementsByTagName('script')[0];
+          if(s.parentNode != null)
+            s.parentNode.insertBefore(ga, s);
+        break;
+      case 'essential':
+        break;
     }
   }
   login() {
@@ -85,6 +110,8 @@ export default class App extends React.Component<IProps, IState> {
     return (
         <div id={styles.app}>
             <Header isLoggedIn={this.state.isLoggedIn} />
+
+            <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
             <div className={styles.appContentContainer}>
 

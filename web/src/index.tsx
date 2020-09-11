@@ -5,6 +5,10 @@ import 'semantic-ui-css/semantic.min.css';
 import App from './app';
 import API from './models/API';
 
+declare global {
+  interface Window { dataLayer: any; }
+}
+window.dataLayer = window.dataLayer || [];
 
 (async () => {
   try {
