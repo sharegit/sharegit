@@ -7,6 +7,7 @@ import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import printDate from 'util/Date';
+import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 
 interface IState extends BaseState {
     name: string;
@@ -114,6 +115,11 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             <Button onClick={() =>{
                                                 navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
                                             }}>Copy link</Button>
+                                             <Button>
+                                                <Link target='_blank' to={`/share/${token.token}`}>
+                                                    Open link
+                                                </Link>
+                                            </Button>
                                             <Button onClick={()=>{
                                                 this.deleteToken(token)
                                             }}>Delete token</Button>
@@ -123,8 +129,9 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                     this.state.repositories[index]
                                                         .map((r : SharedRepository) =>
                                                             <RepositoryCard key={`${r.repo}_${token.token}`}
-                                                                            link={``}
-                                                                            name={r.repo}
+                                                                            target='_blank'
+                                                                            link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
+                                                                            name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
                                                                             downloadable={r.downloadAllowed}
                                                                             description={!!r.description ? r.description : "No description, website, or topics provided."}
                                                                             provider={r.provider}></RepositoryCard>

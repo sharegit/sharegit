@@ -7,6 +7,7 @@ interface IState { }
 
 interface IProps {
     link: string;
+    target?: undefined | '_blank';
     name: string;
     description: string;
     downloadable: boolean;
@@ -26,7 +27,7 @@ export default class RepositoryCard extends React.Component<IProps, IState> {
                             {this.props.name}
                         </a>
                     :
-                        <Link to={this.props.link}>
+                        <Link target={this.props.target} to={this.props.link}>
                             {this.props.name}
                         </Link>}
                         {this.props.downloadable ? <Icon name='download'></Icon> : null}
