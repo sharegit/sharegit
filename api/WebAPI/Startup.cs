@@ -52,9 +52,9 @@ namespace WebAPI
                 c.RoutePrefix = string.Empty;
             });
 
-            app.SetupSwagger();
+            app.SetupSwagger(env);
 
-            app.SetupCors();
+            app.SetupCors(env);
 
             app.UseHttpsRedirection();
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
@@ -53,9 +55,12 @@ namespace WebAPI.StartupExtensions
                 c.AddSecurity("jwt");
             });
         }
-        public static void SetupSwagger(this IApplicationBuilder app)
+        public static void SetupSwagger(this IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseSwagger();
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger();
+            }
         }
     }
 }
