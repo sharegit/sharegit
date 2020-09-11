@@ -61,7 +61,17 @@ export default class App extends React.Component<IProps, IState> {
   locationChanged(location: Location<LocationState>, action: Action) {
     console.log(location);
     const clientId = this.state.cookies.get('clientId')
-    API.pushHit(location.pathname, clientId, this.state.cancelToken);
+    if(clientId != undefined){
+      if (location.pathname.startsWith('/share/'))
+        API.pushHit(location.pathname, clientId, this.state.cancelToken);
+      else if (location.pathname.startsWith('/github')
+            || location.pathname.startsWith('/gitlab')
+            || location.pathname.startsWith('/bitbucket')) {
+              const query = new URLSearchParams(location.search);
+              const token = query.get('token');
+              API.pushHit(`${location.pathname}?token=${token}`, clientId, this.state.cancelToken);
+            }
+    }
   }
   login() {
     this.state.isLoggedIn = true;

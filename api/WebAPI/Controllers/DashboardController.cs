@@ -96,7 +96,7 @@ namespace WebAPI.Controllers
             {
                 buffer[i % GOOGLE_MAX_BATCH] = new ReportRequest()
                 {
-                    ViewId = "227818537",
+                    ViewId = "228650423",
                     DateRanges = new List<DateRange>() {
                             new DateRange()
                             {
