@@ -94,12 +94,12 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                             <h3>Repositories shared with you</h3>
                         </div>
                         <div id={styles.authorText}>
-                            <p> <b>Author:</b> <i>{this.state.author}</i> <br />
+                            <p> <b>Shared by:</b> <i>{this.state.author}</i> <br />
                             <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
                         </div>
                         <div className="clear"></div>
                     </div>
-                    {!!this.state.authorBio ? <p>The author provided the following Biography about themselves: <br />{this.state.authorBio}</p> : null}
+                    {!!this.state.authorBio ? <p>The following Biography was provided by {this.state.author}: <br />{this.state.authorBio}</p> : null}
                     {this.state.tokenExp != undefined && 
                         'This token will expire on: ' + this.state.tokenExp}
                     <div id={styles.tokenChecker}>
