@@ -2,6 +2,7 @@ import React from 'react';
 import style from './style.scss';
 import { Button } from 'semantic-ui-react';
 import Cookies from 'universal-cookie';
+import { Row, Col } from 'react-bootstrap';
 
 
 interface IProps {
@@ -56,17 +57,24 @@ export default class CookieConsent extends React.Component<IProps, IState> {
             return null;
         } else {
             return (
-                    <div id={style.cookieConsent} className={this.state.remind === true ? style.remind : ''}>
-                    <div className={style.notice}>
-                        <p>WebSite is in view-only mode. Please accept our Cookie Policy in order to continue browsing our website.</p>
-                        <p>We use cookies also to gather statistics about the website in order to improve our services.</p>
-                    </div>
-                    <div className={style.actions}>
-                        <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}>Consent to all cookies</Button>
-                        <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}>Continue with essential cookies only</Button>
-                    </div>
-                    <div className='clear'></div>
-                </div>
+                    <Row id={style.cookieConsent} className={`justify-content-between fixed-bottom align-items-center ${this.state.remind === true ? style.remind : ''}`}>
+                        <Col md='auto' className={`justify-content-md-left ${style.notice}`}>
+                            <p>WebSite is in view-only mode. Please accept our Cookie Policy in order to continue browsing our website.</p>
+                            <p>We use cookies also to gather statistics about the website in order to improve our services.</p>
+                        </Col>
+                        <Col md='auto' className={`${style.actions}`}>
+                            <Row className='justify-content-md-center'>
+                                <Col md='auto'>
+                                    <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}>Consent to all cookies</Button>
+                                </Col>
+                            </Row>
+                            <Row className='justify-content-md-center'>
+                                <Col md='auto'>
+                                    <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}>Continue with essential cookies only</Button>
+                                </Col>
+                            </Row>
+                        </Col>
+                </Row>
             );
         }
     }

@@ -16,7 +16,7 @@ export default class Header extends React.Component<IProps> {
     render() {
         return (
             <div id={styles.header}>
-                <Navbar collapseOnSelect expand="sm">
+                <Navbar collapseOnSelect expand="md">
                     <Navbar.Brand>
                         <Link id={styles.logo} to="/">
                             <img className={styles.logo} src='/static/img/logo_big_w.png' alt='logo'/>
