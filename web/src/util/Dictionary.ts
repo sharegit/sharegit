@@ -2,6 +2,19 @@ interface __Dictionary<V> {
     [Key: string]: V;
 }
 
+declare global {
+    interface Array<T> {
+        toDictionary<V>(keySelector: (t: T) => string, valueSelector: (v: T) => V): Dictionary<V>;
+    }
+}
+Array.prototype.toDictionary = function<V>(keySelector: (t: any) => string, valueSelector: (v: any) => V): Dictionary<V> {
+    const result = new Dictionary<V>();
+    this.forEach((value) => {
+        result.put(keySelector(value), valueSelector(value));
+    });
+    return result;
+}
+
 export default class Dictionary<V> {
     private dictionary: __Dictionary<V> = {};
     length: number = 0;

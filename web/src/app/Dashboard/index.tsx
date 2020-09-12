@@ -1,15 +1,17 @@
 import ContentPanel from 'components/ContentPanel';
-import API, { Analytic } from 'models/API';
+import API, { Analytic, SharedToken } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { Segment } from 'semantic-ui-react';
 import style from './style.scss';
+import Dictionary from 'util/Dictionary';
 
 interface IState extends BaseState {
     name: string;
     analytics: Analytic[];
     activeTokenIndex: number;
+    tokens: Dictionary<SharedToken>;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -20,7 +22,8 @@ export default class Dashboard extends React.Component<IProps, IState>  {
         cancelToken: API.aquireNewCancelToken(),
         name: '',
         activeTokenIndex: -1,
-        analytics: []
+        analytics: [],
+        tokens: new Dictionary<SharedToken>()
     }
     constructor(props: IProps) {
         super(props);
@@ -28,17 +31,44 @@ export default class Dashboard extends React.Component<IProps, IState>  {
     async componentDidMount() {
         const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
         const analyticsRequest = API.getAnalytics(this.state.cancelToken)
+        const tokensRequest = API.getSharedTokens(this.state.cancelToken)
 
         const essentials = await essentialsRequest;
-        this.state.name = essentials.name;
-        this.setState(this.state);
-
+        
+        const tokens = (await tokensRequest).toDictionary(x=>x.token, x=>x);
+        
         const analytics = await analyticsRequest;
-        this.state.analytics = analytics.analytics;
-        this.setState(this.state);
+        this.setState({
+            name: essentials.name,
+            tokens: tokens,
+            analytics: analytics.analytics
+                                .filter(x => tokens.get(x.token) != undefined)
+                                .sort((a, b) => {
+                                    if (a.uniquePageViews > b.uniquePageViews)
+                                        return -1;
+                                        else if (a.uniquePageViews < b.uniquePageViews)
+                                        return 1;
+                                        else if (a.pageViews > b.pageViews)
+                                        return -1;
+                                        else if (a.pageViews < b.pageViews)
+                                        return 1;
+                                        else
+                                        return 0;
+                                })
+        });
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel()
+    }
+    renderAnalyticLine(analytic: Analytic) {
+        const token = this.state.tokens.get(analytic.token);
+        if (token != undefined) {
+            return (
+                <li key={analytic.token}>{token.customName == undefined ? token.token : token.customName}: unique ({analytic.uniquePageViews}) | clicks ({analytic.pageViews})</li>
+            )
+        } else {
+            return null;
+        }
     }
     render() {
         return (
@@ -50,10 +80,9 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                     <p>Hello {this.state.name}</p>
                     <Segment>
                         <h2>Analytics</h2>
+                        <p>The values here are not exact, they could take up to 24 hours to update.</p>
                         <ul>
-                            {this.state.analytics.map(x=> (
-                                <li key={x.token}>{x.token}: unique ({x.uniquePageViews}) | clicks ({x.pageViews})</li>
-                            ))}
+                            {this.state.analytics.map(x=> this.renderAnalyticLine(x))}
                         </ul>
                     </Segment>
                 </div>
