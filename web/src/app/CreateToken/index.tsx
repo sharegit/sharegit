@@ -179,6 +179,18 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             return false;
         }
     }
+    repositoryAccessPath(r: SharedRepository) {
+        const index = this.state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
+        if (index > -1) {
+            const path = this.state.selectedRepositories[index].path;
+            if(path == undefined || path == null)
+                return '';
+            else
+                return path;
+        } else {
+            return '';
+        }
+    }
     async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
         try {
             e.preventDefault();
@@ -216,7 +228,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             const index = state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
             if(index > -1)
                 state.selectedRepositories[index].path = newValue;
-
+            
             return state;
         })
     }
@@ -317,7 +329,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                                                     type='field'
                                                                     label='Path'
                                                                     error={this.state.errors.get(`path_${r.id}_${r.owner}_${r.repo}_${r.provider}`)}
-                                                                    value={r.path}
+                                                                    value={this.repositoryAccessPath(r)}
                                                                     onChanged={(id, newValue) => this.changePath(r, id, newValue)}
                                                                     placeholder='backend/api/'
                                                                     description={`The CASE SENSITIVE, absolute path inside your repository which will be accessible by this link.
