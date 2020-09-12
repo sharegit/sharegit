@@ -2,7 +2,7 @@ import React from 'react';
 import ContentPanel from 'components/ContentPanel';
 import { BaseState } from 'models/BaseState';
 import API, { SharedToken, SharedRepository } from 'models/API';
-import { Accordion, AccordionTitleProps, Icon, Button, List } from 'semantic-ui-react';
+import { Accordion, AccordionTitleProps, Icon, Button, List, Confirm } from 'semantic-ui-react';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
@@ -14,6 +14,7 @@ interface IState extends BaseState {
     sharedTokens: SharedToken[];
     activeTokenIndex: number;
     repositories: { [K in number]: SharedRepository[] };
+    confirmDeletion?: SharedToken;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -73,10 +74,10 @@ export default class Shares extends React.Component<IProps, IState>  {
             repositories: this.state.repositories
         });
     }
-    async deleteToken(token: SharedToken) {
+    async deleteToken(token: string) {
         try {
-            await API.deleteToken(token.token, this.state.cancelToken)
-            const index = this.state.sharedTokens.indexOf(token, 0);
+            await API.deleteToken(token, this.state.cancelToken)
+            const index = this.state.sharedTokens.findIndex(x => x.token == token, 0);
             if (index > -1) {
                 this.state.sharedTokens.splice(index, 1);
                 this.setState({
@@ -120,9 +121,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                     Open link
                                                 </Link>
                                             </Button>
-                                            <Button onClick={()=>{
-                                                this.deleteToken(token)
-                                            }}>Delete token</Button>
+                                            <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
                                             <h3>Repositories shared with this token:</h3>
                                             <List divided relaxed>
                                                 {
@@ -143,6 +142,26 @@ export default class Shares extends React.Component<IProps, IState>  {
                                 )
                         }
                     </Accordion>
+                    <Confirm
+                        open={this.state.confirmDeletion != undefined}
+                        onCancel={() => this.setState({confirmDeletion: undefined})}
+                        onConfirm={async () => {
+                            if(this.state.confirmDeletion == undefined)
+                                throw new Error('Confirming token cannot be undefined here.');
+
+                            await this.deleteToken(this.state.confirmDeletion.token);
+                            this.setState({confirmDeletion: undefined});
+                        }}
+                        header='Link deletion'
+                        content={
+                            <div>
+                                <p>Deleting link: {this.state.confirmDeletion != undefined
+                                               && (this.state.confirmDeletion!.customName != undefined ? this.state.confirmDeletion!.customName : this.state.confirmDeletion!.token)}</p>
+                                I understand this this action is irreversible and will result in the deletion of this link. Noone with this link will be able to access any of the repositories contained within this link. This process could take up to 1 hour, due to caching.
+                            </div>}
+                        cancelButton='Cancel'
+                        confirmButton="Delete link!">
+                    </Confirm>
                 </div>
             </ContentPanel>
         );
