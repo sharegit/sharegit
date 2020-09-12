@@ -1,3 +1,5 @@
+@use '/src/styles/style.scss' as globalStyles;
+
 #footer {
     display: flex;
     justify-content: center;

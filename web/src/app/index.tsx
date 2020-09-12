@@ -111,11 +111,11 @@ export default class App extends React.Component<IProps, IState> {
   render() {
     return (
         <div id={styles.app}>
-            <Header isLoggedIn={this.state.isLoggedIn} />
 
             <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
-            <Container fluid>
+            <Container fluid className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
+              <Header isLoggedIn={this.state.isLoggedIn} />
               <Route path='/' exact component={(props: any) => (
                 <Landing
                  {...props}
@@ -192,9 +192,10 @@ export default class App extends React.Component<IProps, IState> {
               <Route path="/create" component={NewTokenCreation} />
 
               <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
+              
+              <Footer />
             </Container>
 
-            <Footer />
         </div>
 
       )
