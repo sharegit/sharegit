@@ -1,5 +1,6 @@
 ﻿using Core.Util;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
@@ -26,20 +27,12 @@ namespace WebAPI.Authentication
         
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if (!Request.Headers.ContainsKey("jwt"))
-            {
-                return AuthenticateResult.Fail("JWT header Not Found.");
-            }
-
-            var jwt = Request.Headers["jwt"].ToString();
-
             try
             {
-                var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+                var validatedJWT = GetAuthenticatedUserClaims(Request.Headers);
                 if (validatedJWT != null)
                 {
                     var id = validatedJWT["id"];
-
                     var claims = new[]
                     {
                         new Claim(ClaimTypes.NameIdentifier, id)
@@ -48,18 +41,25 @@ namespace WebAPI.Authentication
                     var claimsIdentity = new ClaimsIdentity(claims, nameof(JWTAuthenticationHandler));
 
                     var ticket = new AuthenticationTicket(new ClaimsPrincipal(claimsIdentity), this.Scheme.Name);
-
                     return AuthenticateResult.Success(ticket);
-                }
-                else
-                {
-                    return AuthenticateResult.Fail("Invalid JWT!");
                 }
             }
             catch
             {
-                return AuthenticateResult.Fail("Invalid JWT!");
             }
+            return AuthenticateResult.Fail("Invalid JWT!");
+        }
+        public static Dictionary<string, string> GetAuthenticatedUserClaims(IHeaderDictionary headers)
+        {
+            if (!headers.ContainsKey("jwt"))
+            {
+                return null;
+            }
+
+            var jwt = headers["jwt"].ToString();
+
+            var validatedJWT = JWT.Decode<Dictionary<string, string>>(jwt, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC"));
+            return validatedJWT;
         }
     }
 

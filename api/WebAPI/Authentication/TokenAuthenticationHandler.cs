@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using Core.Util;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using ShareGit.Models;
 using ShareGit.Repositories;
 using ShareGit.Settings;
 using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -41,7 +43,7 @@ namespace WebAPI.Authentication
 
             var validatedToken = await ShareRepository.GetAsync(token);
             var nowMinues = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60;
-            if (validatedToken != null && (validatedToken.Token.ExpireDate == 0 || validatedToken.Token.ExpireDate > nowMinues))
+            if (validatedToken != null && (validatedToken.Token.ExpireDate == 0 || validatedToken.Token.ExpireDate > nowMinues) || IsTokenOwner(validatedToken))
             {
                 var claims = new[]
                 {
@@ -60,6 +62,15 @@ namespace WebAPI.Authentication
             {
                 return AuthenticateResult.Fail("Invalid token!");
             }
+        }
+        private bool IsTokenOwner(Share share)
+        {
+            var validatedJWT = JWTAuthenticationHandler.GetAuthenticatedUserClaims(Request.Headers);
+
+            if(validatedJWT != null)
+                return validatedJWT.GetValueOrDefault("id") == share.Token.SharingUserId;
+
+            return false;
         }
     }
 

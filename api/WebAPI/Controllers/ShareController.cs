@@ -11,7 +11,9 @@ using ShareGit.Settings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using WebAPI.Authentication;
 
 namespace WebAPI.Controllers
 {
@@ -44,7 +46,8 @@ namespace WebAPI.Controllers
         {
             var share = await ShareRepository.GetAsync(token);
             var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
-            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60))
+            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60)
+             || JWTAuthenticationHandler.GetAuthenticatedUserClaims(HttpContext.Request.Headers)?.GetValueOrDefault("id") == user.Id)
             {
                 return new Core.APIModels.SharedToken()
                 {
@@ -71,7 +74,8 @@ namespace WebAPI.Controllers
         {
             var share = await ShareRepository.GetAsync(token);
             var user = await AccountRepository.GetAsync(share.Token.SharingUserId);
-            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60))
+            if (share != null && user != null && (share.Token.ExpireDate == 0 || share.Token.ExpireDate > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60)
+             || JWTAuthenticationHandler.GetAuthenticatedUserClaims(HttpContext.Request.Headers)?.GetValueOrDefault("id") == user.Id)
             {
                 var accessibleRepositories = share.AccessibleRepositories;
 
