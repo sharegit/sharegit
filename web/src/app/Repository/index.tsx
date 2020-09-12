@@ -11,6 +11,7 @@ import RepoListElement from './RepoListElement';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
+import { Link } from 'react-router-dom';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -176,6 +177,9 @@ export default class Repository extends React.Component<IProps, IState> {
         return (
             <ContentPanel background='light'>
                 <div id={styles.repository}>
+                    <Link to={`/share/${this.state.token}`}>
+                        <Button><Icon name='undo'></Icon>Browse other repositories shared under this link</Button>
+                    </Link>
                     <div id={styles.repositoryHeader}>
                         <div id={styles.currentRepository}>
                             <h3>{this.props.repo}</h3>
