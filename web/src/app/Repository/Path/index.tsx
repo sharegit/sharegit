@@ -13,6 +13,7 @@ interface IProps {
     path: string;
     type: 'tree' | 'blob';
     token: string;
+    restricted?: string;
 }
 
 export default class Path extends React.Component<IProps, IState> {

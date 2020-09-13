@@ -73,7 +73,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                     name: x.repo,
                     owner: x.owner,
                     provider: x.provider,
-                    downloadable: x.downloadAllowed
+                    downloadable: x.downloadAllowed,
+                    path: x.path
                 }))
             })
         } catch(error) {

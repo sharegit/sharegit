@@ -5,6 +5,7 @@ export interface TokenRepo {
     owner: string;
     provider: string;
     downloadable: boolean;
+    path: string;
 }
 export interface Token {
     token: string;
