@@ -24,7 +24,7 @@ export function getAdditionalPath(path: string | undefined): '' | string {
     if(path == undefined)
         return '';
     else if (path[path.length-1] == '/') {
-        return `/${path.substring(0, path.length-2)}`;
+        return `/${path.substring(0, path.length-1)}`;
     } else {
         return `/${path}`;
     }
