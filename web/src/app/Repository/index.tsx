@@ -31,6 +31,7 @@ interface IState extends BaseState {
     tree: { [K in string]: TreeResult };
     tokenMeta?: Token;
     repoMeta?: TokenRepo;
+    startingDownload?: boolean;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -165,6 +166,8 @@ export default class Repository extends React.Component<IProps, IState> {
         if (this.state.tokenMeta == undefined || this.state.repoMeta == undefined)
             return null;
         
+        this.setState({startingDownload: true});
+
         try {
             const downloadLink = await API.getDownloadLink(this.state.tokenMeta.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, this.state.cancelToken);
             window.open(downloadLink, "_blank");
@@ -173,6 +176,7 @@ export default class Repository extends React.Component<IProps, IState> {
                 throw e;
             }
         }
+        this.setState({startingDownload: undefined});
     }
 
     componentWillUnmount() {
@@ -234,9 +238,13 @@ export default class Repository extends React.Component<IProps, IState> {
                         </div>
                         {this.state.repoMeta.downloadable ? 
                         <div id={styles.download}>
+                            {this.state.startingDownload !== true ?
                             <Button onClick={async () => {
                                 this.startDownloading();
                             }}>Download as zip <Icon name='download'></Icon></Button>
+                        :
+                            <Button disabled>Downloading as zip <Icon name='circle notched' loading /></Button>
+                            }
                         </div>
                     :   null}
                         <div className="clear"></div>
