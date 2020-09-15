@@ -9,6 +9,8 @@ import { Button, Checkbox, CheckboxProps, Dropdown, Form, FormProps, List, FormC
 import Dictionary from 'util/Dictionary';
 import style from './style.scss';
 import printDate from 'util/Date';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 interface IProps extends RouteComponentProps {
 }
@@ -20,6 +22,8 @@ interface IState extends BaseState {
     customName?: string;
     isExpiring?: boolean;
     expireDate?: Date;
+    datePickerVisible?: boolean;
+    datePickerOpen?: boolean;
     errors: Dictionary<string>
 }
 
@@ -234,7 +238,12 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     setExpiring(event: React.FormEvent<HTMLInputElement>, data: CheckboxProps) {
         if(data.checked != undefined) {
-            this.setState({isExpiring: data.checked});
+            this.setState({
+                isExpiring: data.checked,
+                datePickerOpen: false,
+                datePickerVisible: false
+            });
+            this.changeExpiration(DEFAULT_EXPIRATION_VALUE)
         }
     }
 
@@ -243,6 +252,13 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         const current = new Date();
         const expirationDate = new Date(current.getTime() + expiresIn * 60 * 1000);
         this.setState({expireDate: expirationDate})
+    }
+
+    changeExpirationDate(date: Date) {
+        date.setHours(23)
+        date.setMinutes(59)
+        date.setSeconds(59)
+        this.setState({expireDate: date})
     }
 
     getRepoLink(r: SharedRepository): string {
@@ -279,7 +295,17 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                         <div>
                             <Dropdown
                                 onChange={(event, data) => {
-                                    this.changeExpiration(data.value as number)
+                                    if (data.value == 'X') {
+                                        const current = new Date();
+                                        this.setState({
+                                            expireDate: new Date(current.getTime() + 60 * 24 * 60 * 1000),
+                                            datePickerVisible: true,
+                                            datePickerOpen: true
+                                        });
+                                    } else {
+                                        this.changeExpiration(data.value as number)
+                                        this.setState({datePickerVisible: false})
+                                    }
                                 }}
                                 defaultValue={DEFAULT_EXPIRATION_VALUE}
                                 options={[
@@ -287,8 +313,21 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                     { key: '1-day', value: 60 * 24, text: '1 day' },
                                     { key: '1-week', value: 60 * 24 * 7, text: '1 week' },
                                     { key: '1-month', value: 60 * 24 * 30, text: '1 month' },
-                                    // TODO: open date picker here: { key: '4', value: 'X', text: 'custom' }
+                                    { key: 'X', value: 'X', text: 'Custom' }
                             ]} />
+                            {this.state.datePickerVisible === true &&
+                                <DatePicker
+                                    open={this.state.datePickerOpen}
+                                    onInputClick={() => this.setState({datePickerOpen: true})}
+                                    selected={this.state.expireDate}
+                                    disabledKeyboardNavigation
+                                    startDate={this.state.expireDate}
+                                    endDate={this.state.expireDate}
+                                    highlightDates={this.state.expireDate == undefined ? [] : [this.state.expireDate]}
+                                    onChange={this.changeExpirationDate.bind(this)}
+                                    onClickOutside={() => this.setState({datePickerOpen: false})}
+                                    minDate={new Date(new Date().getTime() + 60 * 24 * 60 *1000)}
+                                />}
                             <p>Token will expire on: {this.state.expireDate != undefined ? printDate(this.state.expireDate) : ''}</p>
                             <p>Please note that due to caching, if someone visits your link just at the right time, they will be able to access it for up to one hour.</p>
                         </div>}
