@@ -8,6 +8,7 @@ namespace ShareGit
     {
         Task<APIResponse<GithubUserInstallation>> GetInstallation(string user);
         Task<APIResponse<GithubInstallationAccessRequest>> GetAccessToken(int installationId);
+        Task<APIResponse<GithubRepositories>> GetRepositoriesAccessibleToUserInstallation(int installationId, GithubUserAccess userAccess);
         Task<APIResponse<GithubRepositories>> GetInstallationRepositories(GithubAppAccess installationAccess);
         Task<APIResponse<GithubRepository>> GetInstallationRepository(string owner, string repo, GithubAppAccess installationAccess);
         Task<APIResponse<GithubTree>> GetRepositoryTree(string owner, string repo, string sha, GithubAppAccess installationAccess, bool recursive);

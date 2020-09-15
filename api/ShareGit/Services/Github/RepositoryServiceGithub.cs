@@ -17,6 +17,17 @@ namespace ShareGit
         }
 
         /// <summary>
+        /// https://docs.github.com/en/rest/reference/apps#list-repositories-accessible-to-the-user-access-token
+        /// </summary>
+        public async Task<APIResponse<GithubRepositories>> GetRepositoriesAccessibleToUserInstallation(int installationId, GithubUserAccess userAccess)
+        {
+            return await FetchAPI<GithubRepositories>(
+                $"/user/installations/{installationId}/repositories",
+                HttpMethod.Get,
+                new UserGithubAuth(userAccess));
+        }
+
+        /// <summary>
         /// https://docs.github.com/en/rest/reference/apps#list-repositories-accessible-to-the-app-installation
         /// </summary>
         public async Task<APIResponse<GithubRepositories>> GetInstallationRepositories(GithubAppAccess installationAccess)
@@ -153,12 +164,13 @@ namespace ShareGit
             var repos = new List<GithubRepository>();
             foreach (var installation in installations.Value.Installations)
             {
-                var installationAccess = await GetAccess(installation.Id);
-                var installationRepositories = await GetInstallationRepositories(installationAccess);
+                var installationRepositories = await GetRepositoriesAccessibleToUserInstallation(installation.Id, userAccessToken);
 
                 foreach (var repo in installationRepositories.Value.Repositories)
                 {
-                    repos.Add(repo);
+                    // Only list repos where this user has push permission!
+                    if(repo.Permissions.Push)
+                        repos.Add(repo);
                 }
             }
             return repos.ToArray();
