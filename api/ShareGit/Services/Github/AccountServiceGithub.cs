@@ -64,5 +64,16 @@ namespace ShareGit.Services
                 HttpMethod.Get,
                 new UserGithubAuth(access));
         }
+
+        /// <summary>
+        /// https://docs.github.com/en/rest/reference/orgs#list-organization-memberships-for-the-authenticated-user
+        /// </summary>
+        public async Task<APIResponse<GithubOrgMember[]>> GetUserOrganizations(GithubUserAccess userAccess)
+        {
+            return await FetchAPI<GithubOrgMember[]>(
+                "/user/memberships/orgs?state=active",
+                HttpMethod.Get,
+                new UserGithubAuth(userAccess));
+        }
     }
 }

@@ -144,7 +144,7 @@ export default class Connection extends React.Component<IProps, IState> {
                 <div id={style.github}>
                     <span>Your active GitHub installations:</span>
                     <ul>
-                        {this.state.githubInstallations.installations.map(x=>
+                        {this.state.githubInstallations.installations.filter(x=>!x.implicit).map(x=>
                             <li key={x.login}>
                                 {x.login}
                                 <hr />
@@ -155,6 +155,15 @@ export default class Connection extends React.Component<IProps, IState> {
                             href={this.getNewConnectionLink()}>
                                 Add or change installations
                             </Button></li>
+                    </ul>
+                    <span>GitHub installations where you have partial, implicit access. You are probably a collaborator in one of their repositories.</span>
+                    <ul>
+                        {this.state.githubInstallations.installations.filter(x=>x.implicit).map(x=>
+                            <li key={x.login}>
+                                {x.login}
+                                <hr />
+                            </li>
+                        )}
                     </ul>
                 </div>
             )

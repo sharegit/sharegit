@@ -84,6 +84,7 @@ export interface GithubInstallations {
 }
 export interface GithubInstallation {
     login: string;
+    implicit: boolean;
 }
 
 export interface AccountSettings {

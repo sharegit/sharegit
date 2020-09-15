@@ -28,12 +28,14 @@ namespace WebAPI.Controllers
 
         private IRepository<Account, AccountDatabaseSettings> AccountRepository { get; }
         private IRepository<Share, ShareDatabaseSettings> ShareRepository { get; }
+        private IAccountServiceGithub AccountServiceGH { get; }
         private IRepositoryServiceGithub RepositoryServiceGH { get; }
         private IEmailService EmailService { get; }
         private IRazorStringRenderer RazorViewToStringRenderer { get; }
         private ShareGitCommonSettings ShareGitCommonSettings { get; }
 
         public SettingsController(IRepositoryServiceGithub repositoryServiceGH,
+            IAccountServiceGithub accountServiceGH,
             IRazorStringRenderer razorViewToStringRenderer,
             IEmailService emailService,
             IOptions<ShareGitCommonSettings> shareGitCommonSettings,
@@ -41,6 +43,7 @@ namespace WebAPI.Controllers
             IRepository<Share, ShareDatabaseSettings> shareRepository)
         {
             RepositoryServiceGH = repositoryServiceGH;
+            AccountServiceGH = accountServiceGH;
 
             EmailService = emailService;
 
@@ -143,12 +146,17 @@ namespace WebAPI.Controllers
                 UserId = user.Id
             };
             var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
+            var orgsResponse = await AccountServiceGH.GetUserOrganizations(userAccess);
+            var orgs = orgsResponse.Value.ToDictionary(x => x.Organization.Login, x => x);
             return new GithubInstallations()
             {
                 Installations = installations.Value.Installations.Select(x =>
                 new GithubInstallations.GithubInstallation()
                 {
-                    Login = x.Account.Login
+                    Login = x.Account.Login,
+                    Implicit = x.Account.Type == "User" && x.Account.Login != user.GithubConnection.Login
+                        || x.Account.Type == "Organization"
+                            && (!orgs.ContainsKey(x.Account.Login) || orgs[x.Account.Login].Role != "admin")
                 }).ToArray()
             };
         }

@@ -10,5 +10,6 @@ namespace ShareGit.Services
         Task<APIResponse<GithubWebFlowAccessToken>> RefreshAuthWithGithub(string refreshToken);
         Task<APIResponse<GithubUserInfo>> GetUserInfo(GithubUserAccess accessToken);
         Task<APIResponse<GithubEmail[]>> GetUserEmails(GithubUserAccess access);
+        Task<APIResponse<GithubOrgMember[]>> GetUserOrganizations(GithubUserAccess userAccess);
     }
 }
