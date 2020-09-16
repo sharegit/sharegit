@@ -231,7 +231,7 @@ export default class Repository extends React.Component<IProps, IState> {
                                 user={this.props.user}
                                 repo={this.props.repo}
                                 sha={this.state.sha}
-                                path={this.props.uri == undefined ? '..' : `../${this.props.uri}`}
+                                path={this.props.uri == undefined ? this.props.repo : `${this.props.repo}/${this.props.uri}`}
                                 restricted={this.state.repoMeta.path}
                                 type={this.props.type}>
                             </Path>
