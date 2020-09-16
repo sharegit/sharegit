@@ -1,7 +1,7 @@
 import highlight from 'highlight.js';
 import { Action, Location, LocationState, UnregisterCallback } from 'history';
 import React from 'react';
-import { Route, RouteComponentProps, Redirect } from 'react-router-dom';
+import { Route, RouteComponentProps, Redirect, Switch } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import { v4 as uuidv4 } from 'uuid';
 import API from '../models/API';
@@ -26,7 +26,6 @@ import ProtectedRoute from 'components/ProtectedRoute';
 import CookieConsent from 'components/CookieConsent';
 import { Container } from 'react-bootstrap';
 import ErrorPage from './ErrorPage';
-import Switch from 'react-bootstrap/esm/Switch';
 
 
 highlight.configure({
@@ -119,7 +118,8 @@ export default class App extends React.Component<IProps, IState> {
             <Container fluid className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
               <Header isLoggedIn={this.state.isLoggedIn} />
 
-                
+
+              <Switch>
                 <Route path='/' exact component={(props: any) => (
                   <Landing
                   {...props}
@@ -195,13 +195,13 @@ export default class App extends React.Component<IProps, IState> {
                 <Route path="/create" component={NewTokenCreation} />
 
                 <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
-                
+
                 <Route path='/error' component={ErrorPage} />
                 
                 <Redirect from='*' to='/error' />
-              <Footer />
-            </Container>
-
+              </Switch>
+            <Footer />
+          </Container>
         </div>
 
       )
