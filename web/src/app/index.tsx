@@ -1,7 +1,7 @@
 import highlight from 'highlight.js';
 import { Action, Location, LocationState, UnregisterCallback } from 'history';
 import React from 'react';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import { Route, RouteComponentProps, Redirect } from 'react-router-dom';
 import Cookies from 'universal-cookie';
 import { v4 as uuidv4 } from 'uuid';
 import API from '../models/API';
@@ -25,6 +25,8 @@ import Shares from './Shares';
 import ProtectedRoute from 'components/ProtectedRoute';
 import CookieConsent from 'components/CookieConsent';
 import { Container } from 'react-bootstrap';
+import ErrorPage from './ErrorPage';
+import Switch from 'react-bootstrap/esm/Switch';
 
 
 highlight.configure({
@@ -116,83 +118,87 @@ export default class App extends React.Component<IProps, IState> {
 
             <Container fluid className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
               <Header isLoggedIn={this.state.isLoggedIn} />
-              <Route path='/' exact component={(props: any) => (
-                <Landing
-                 {...props}
-                 {...props.match.params} />
-              )} />
 
-              <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
-                <Repository
-                {...props}
-                {...props.match.params} />
-                )} />
-
-              
-              <Route path="/:provider/:id/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
-                <Repository
-                key={props.match.params.uri}
-                {...props} 
-                {...props.match.params}/>
-                )} />
-
-              <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
-                <SharedLanding 
-                {...props}
-                {...props.match.params}/>
-                )} />
-
-              <Route path="/share" exact component={(props: ISharedWithMeProps) => (
-                <SharedWithMe 
-                {...props}
-                {...props.match.params}/>
-                )} />
-
-              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard" exact component={(props: IDashboardProps) => (
-                <Dashboard
-                {...props}
-                {...props.match.params}/>
-              )} />
-
-              <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
-                <ContentPanel background='gradient'>
-                  <Authentication
+                
+                <Route path='/' exact component={(props: any) => (
+                  <Landing
                   {...props}
-                  mode='signin'
-                  login={this.login.bind(this)}
-                  {...props.match.params}/>
-                </ContentPanel>
-              )} />
-              
-              <Route path="/signup/:provider?" component={(props: IAuthenticationProps) => (
-                <ContentPanel background='gradient'>
-                  <Authentication
+                  {...props.match.params} />
+                )} />
+
+                <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
+                  <Repository
                   {...props}
-                  mode='signup'
-                  login={this.login.bind(this)}
+                  {...props.match.params} />
+                  )} />
+
+                <Route path="/:provider/:id/:user/:repo/:type/:sha/:uri*" exact component={(props: IRepositoryProps) => (
+                  <Repository
+                  key={props.match.params.uri}
+                  {...props} 
                   {...props.match.params}/>
-                </ContentPanel>
-              )} />
+                  )} />
 
-              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/logout" exact component={(props: RouteComponentProps<any>) => (
-                <Logout logout={this.logout.bind(this)}
-                {...props}
-                {...props.match.params}/>
-              )} />
-
-              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/settings" component={Settings} />
-              
-              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
-                <ConfirmAccountDeletion
+                <Route path="/share/:token" exact component={(props: ISharedLandingProps) => (
+                  <SharedLanding 
                   {...props}
-                  logout={this.logout.bind(this)}
                   {...props.match.params}/>
-              )} />
+                  )} />
 
-              <Route path="/create" component={NewTokenCreation} />
+                <Route path="/share" exact component={(props: ISharedWithMeProps) => (
+                  <SharedWithMe 
+                  {...props}
+                  {...props.match.params}/>
+                  )} />
 
-              <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
-              
+                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard" exact component={(props: IDashboardProps) => (
+                  <Dashboard
+                  {...props}
+                  {...props.match.params}/>
+                )} />
+
+                <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
+                  <ContentPanel background='gradient'>
+                    <Authentication
+                    {...props}
+                    mode='signin'
+                    login={this.login.bind(this)}
+                    {...props.match.params}/>
+                  </ContentPanel>
+                )} />
+                
+                <Route path="/signup/:provider?" component={(props: IAuthenticationProps) => (
+                  <ContentPanel background='gradient'>
+                    <Authentication
+                    {...props}
+                    mode='signup'
+                    login={this.login.bind(this)}
+                    {...props.match.params}/>
+                  </ContentPanel>
+                )} />
+
+                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/logout" exact component={(props: RouteComponentProps<any>) => (
+                  <Logout logout={this.logout.bind(this)}
+                  {...props}
+                  {...props.match.params}/>
+                )} />
+
+                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/settings" component={Settings} />
+                
+                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard/confirmaccountdeletion/:token" exact component={(props: IConfirmAccountDeletionProps) => (
+                  <ConfirmAccountDeletion
+                    {...props}
+                    logout={this.logout.bind(this)}
+                    {...props.match.params}/>
+                )} />
+
+                <Route path="/create" component={NewTokenCreation} />
+
+                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
+                
+                <Route path='/error' component={ErrorPage} />
+                
+                <Redirect from='*' to='/error' />
               <Footer />
             </Container>
 

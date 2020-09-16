@@ -1,0 +1,10 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+#errorPage {
+    color: globalStyles.$light;
+    
+    h2 {
+        font-weight: bold;
+        
+    }
+}
