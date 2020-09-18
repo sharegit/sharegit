@@ -42,13 +42,13 @@ export default class CookieConsent extends React.Component<IProps, IState> {
         document.removeEventListener('click', this.state.blocker, true);
     }
     agree() {
-        this.state.cookieDb.set('consented', 'full');
+        this.state.cookieDb.set('consented', 'full', {expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 730)});
         this.removeBlocker();
         this.setState({consented: true});
         this.props.onConsented();
     }
     disagree() {
-        this.state.cookieDb.set('consented', 'essential');
+        this.state.cookieDb.set('consented', 'essential', {expires: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30)});
         this.removeBlocker();
         this.setState({consented: true});
     }
