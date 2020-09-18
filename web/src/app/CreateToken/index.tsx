@@ -1,16 +1,18 @@
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import ContentPanel from 'components/ContentPanel';
 import FormTextField from 'components/FormTextField';
-import API, { SharedRepository } from 'models/API';
+import API, { SharedRepository, Branch } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Checkbox, CheckboxProps, Dropdown, Form, FormProps, List, FormCheckbox } from 'semantic-ui-react';
+import { Button, Checkbox, CheckboxProps, Form, FormProps, List } from 'semantic-ui-react';
 import Dictionary from 'util/Dictionary';
 import style from './style.scss';
 import printDate from 'util/Date';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import DropdownToggle from 'react-bootstrap/esm/DropdownToggle';
+import Dropdown from 'components/Dropdown';
 
 interface IProps extends RouteComponentProps {
 }
@@ -24,6 +26,7 @@ interface IState extends BaseState {
     expireDate?: Date;
     datePickerVisible?: boolean;
     datePickerOpen?: boolean;
+    defaultBranchSelection?: string;
     errors: Dictionary<string>
 }
 
@@ -36,7 +39,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         selectedRepositories: [],
         cancelToken: API.aquireNewCancelToken(),
         errors: new Dictionary(),
-        expireDate: new Date(new Date().getTime() + DEFAULT_EXPIRATION_VALUE * 60 * 1000)
+        expireDate: new Date(new Date().getTime() + DEFAULT_EXPIRATION_VALUE * 60 * 1000),
+        defaultBranchSelection: 'master'
     }
     constructor(props: IProps) {
         super(props);
@@ -67,10 +71,12 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 ])
             });
             this.state.repositories = [...myRepos];
-            this.setState(this.state);
+            this.setState(this.state, () => {
+                
+                // Assume everything selected
+                this.addAllRepositorySelection()
+            });
             
-            // Assume everything selected
-            this.addAllRepositorySelection()
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;
@@ -107,7 +113,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 snapshot: r.snapshot,
                 downloadAllowed: r.downloadAllowed,
                 path: r.path,
-                branches: []
+                branches: this.getDefaultBranch(r, this.state.defaultBranchSelection)
             }
         ));
         this.setState(this.state);
@@ -125,7 +131,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 snapshot: r.snapshot,
                 downloadAllowed: r.downloadAllowed,
                 path: r.path,
-                branches: []
+                branches: this.getDefaultBranch(r, this.state.defaultBranchSelection)
             });
             this.setState(this.state);
         }
@@ -163,6 +169,13 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 });
             this.setState(this.state);
         }
+    }
+    getSelectedBranchesFor(r: SharedRepository): Array<string> {
+        const index = this.state.selectedRepositories.findIndex(x=>x.owner==r.owner && x.provider==r.provider && x.repo == r.repo);
+        if (index > -1)
+            return this.state.selectedRepositories[index].branches.map(x=>x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name);
+        else 
+            return [];
     }
     makeRepositoryDownloadable(r: SharedRepository, downloadable: boolean) {
         if(r.provider != 'github')
@@ -271,6 +284,42 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 return `https://bitbucket.org/${r.owner}/${r.repo}`;
         }
     }
+
+    updateDefaultBranch(data: string) {
+        const defaultBranch = data == 'X' ? undefined : data;
+        this.setState({
+            defaultBranchSelection: defaultBranch,
+            selectedRepositories: this.state.selectedRepositories.map(r=> (
+                {
+                    id: r.id,
+                    owner: r.owner,
+                    repo: r.repo,
+                    provider: r.provider,
+                    description: r.description,
+                    snapshot: r.snapshot,
+                    downloadAllowed: r.downloadAllowed,
+                    path: r.path,
+                    branches: this.getDefaultBranch(r, defaultBranch)
+                }
+            ))
+        })    
+    }
+    getDefaultBranch(repo: SharedRepository, defaultBranchSelection?: string): Array<Branch> {
+        if (defaultBranchSelection == undefined)
+            return [];
+        
+        const s = defaultBranchSelection.split(' ')
+        const branch = {
+            name: s[0],
+            sha: false,
+            snapshot: (s.length>1 && s[1] == '(Snapshot)')
+        }
+        const originalRepo = this.state.repositories.find(x=>x.owner==repo.owner && x.provider==repo.provider && x.repo == repo.repo);
+        if (originalRepo != undefined && originalRepo.branches.some(x=>x.name == branch.name))
+            return [branch];
+        else
+            return [];
+    }
     render() {
         return (
             <ContentPanel background='light'>
@@ -294,8 +343,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                     {!!this.state.isExpiring && 
                         <div>
                             <Dropdown
-                                onChange={(event, data) => {
-                                    if (data.value == 'X') {
+                                onChange={(data) => {
+                                    if (data == 'X') {
                                         const current = new Date();
                                         this.setState({
                                             expireDate: new Date(current.getTime() + 60 * 24 * 60 * 1000),
@@ -303,17 +352,17 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                             datePickerOpen: true
                                         });
                                     } else {
-                                        this.changeExpiration(data.value as number)
+                                        this.changeExpiration(data as number)
                                         this.setState({datePickerVisible: false})
                                     }
                                 }}
                                 defaultValue={DEFAULT_EXPIRATION_VALUE}
                                 options={[
-                                    { key: '10-min', value: 10, text: '10 minutes' },
-                                    { key: '1-day', value: 60 * 24, text: '1 day' },
-                                    { key: '1-week', value: 60 * 24 * 7, text: '1 week' },
-                                    { key: '1-month', value: 60 * 24 * 30, text: '1 month' },
-                                    { key: 'X', value: 'X', text: 'Custom' }
+                                    { key: '10-min', value: 10, display: '10 minutes' },
+                                    { key: '1-day', value: 60 * 24, display: '1 day' },
+                                    { key: '1-week', value: 60 * 24 * 7, display: '1 week' },
+                                    { key: '1-month', value: 60 * 24 * 30, display: '1 month' },
+                                    { key: 'X', value: 'X', display: 'Custom' }
                             ]} />
                             {this.state.datePickerVisible === true &&
                                 <DatePicker
@@ -331,6 +380,17 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             <p>Token will expire on: {this.state.expireDate != undefined ? printDate(this.state.expireDate) : ''}</p>
                             <p>Please note that due to caching, if someone visits your link just at the right time, they will be able to access it for up to one hour.</p>
                         </div>}
+
+                        <p>Mass set branch to all repositories</p>
+                        <Dropdown
+                            onChange={(data) => this.updateDefaultBranch(data as string) }
+                            defaultValue='master'
+                            options={[
+                                { key: 'master', value: 'master', display: 'master (set all)' },
+                                { key: 'master (Snapshot)', value: 'master (Snapshot)', display: 'master (Snapshot) (set all)' },
+                                { key: 'X', value: 'X', display: 'Not set (clear all)' }
+                            ]}
+                        />
                     <h3>Available repositories</h3>
                     <Button onClick={(e) => {
                         e.preventDefault();
@@ -379,23 +439,23 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                                                 />
                                                                 <Dropdown
                                                                     placeholder='Select a branch or type the commit SHA'
-                                                                    fluid
                                                                     search
                                                                     selection
                                                                     multiple
                                                                     allowAdditions
-                                                                    onAddItem={(event, data) => {
-                                                                        r.branches.push({name: data.value as string, snapshot: true, sha: true})
+                                                                    onAddItem={(data) => {
+                                                                        r.branches.push({name: data as string, snapshot: true, sha: true})
                                                                         this.setState(this.state)
                                                                     }}
-                                                                    onChange={(event, data) => {
-                                                                        this.changeSelectedBranchesFor(r, data.value as string[])
+                                                                    onChange={(data) => {
+                                                                        this.changeSelectedBranchesFor(r, data as string[])
                                                                     }}
+                                                                    value={this.getSelectedBranchesFor(r)}
                                                                     options={r.branches.map(x=> (
                                                                         {
                                                                             key: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
                                                                             value: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name,
-                                                                            text: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name
+                                                                            display: x.snapshot && !x.sha ? `${x.name} (Snapshot)` : x.name
                                                                         }
                                                                     ))}
                                                                 />
