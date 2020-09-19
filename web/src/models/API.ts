@@ -145,7 +145,6 @@ export default class API {
                     statusCode: result.status
                 }
             } else if(result != undefined) {
-                console.error(`Error while requesting ${request} ${result.status}`)
                 throw new Error(result.status.toString());
             } else {
                 throw new Error(`Unknown error occurred during ${request}`);
@@ -153,6 +152,8 @@ export default class API {
         } catch (error) {
             if (!this.wasCancelled(error)) {
                 console.error(`Error while requesting ${request} ${error}`)
+                if(error.response != undefined && error.response.data != undefined && config.isDev)
+                    console.error(error.response.data);
                 throw (error);
             } else {
                 // Intentionally not logging here, because cancallation is expected behaviour
