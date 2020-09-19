@@ -1,29 +1,28 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #sharedWithMe {
-    width: globalStyles.$siteWidth;
-    max-width: globalStyles.$siteWidth;
-    p {
-        text-align: center;
-    }
+  width: globalStyles.$siteWidth;
+  max-width: globalStyles.$siteWidth;
+  p {
+    text-align: center;
+  }
 
-    h2 {
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
+  h2 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
 
-    #list {
-        float: left;
-    }
+  #list {
+    float: left;
+  }
 
-    button {
-        float: right;
-    }
+  button {
+    float: right;
+  }
 
-    span {
-        margin-left: 20px;
-        display: list-item;
-        list-style-type: disc;
-        list-style-position: inside;
-    }
+  span {
+    margin-left: 20px;
+    display: list-item;
+    list-style-position: inside;
+  }
 }
