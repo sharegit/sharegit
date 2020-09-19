@@ -99,7 +99,7 @@ export default class Repository extends React.Component<IProps, IState> {
             });
         } catch(e) {
             if (!API.wasCancelled(e)) {
-                this.props.history.push('/error');
+                this.props.history.replace('/error');
             }
         }
     }
@@ -133,7 +133,7 @@ export default class Repository extends React.Component<IProps, IState> {
             });
         } catch (e) {
             if (!API.wasCancelled(e)) {
-                this.props.history.push('/error');
+                this.props.history.replace('/error');
             }
         }
     }
@@ -147,7 +147,7 @@ export default class Repository extends React.Component<IProps, IState> {
             this.setState({blob: blob});
         } catch (e) {
             if (!API.wasCancelled(e)) {
-                this.props.history.push('/error');
+                this.props.history.replace('/error');
             }
         }
     }
