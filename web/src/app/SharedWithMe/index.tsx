@@ -10,12 +10,14 @@ import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import { Button } from '@material-ui/core';
+import ConfirmDialog from 'components/ConfirmDialog';
 
 export interface IProps extends RouteComponentProps<any> {
 }
 
 interface IState {
     tokens: Token[];
+    confirmForget?: Token;
 }
 
 export default class SharedWithMe extends React.Component<IProps, IState> {
@@ -83,12 +85,32 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                             }
                                         </List>
                                         <ListItemSecondaryAction>
-                                            <Button variant="contained" color="primary" onClick={() => { this.forget(token.token) }}>Forget</Button>
+                                            <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
                                         </ListItemSecondaryAction>
                                     </ListItem>
                                 ])
                         }
                     </List>
+                    <ConfirmDialog
+                        open={this.state.confirmForget != undefined}
+                        onCancel={() => this.setState({confirmForget: undefined})}
+                        onConfirm={async () => {
+                            if(this.state.confirmForget == undefined)
+                                throw new Error('Confirming token cannot be undefined here.');
+
+                            this.forget(this.state.confirmForget.token);
+                            this.setState({confirmForget: undefined});
+                        }}
+                        header='Forget link?'
+                        content={
+                            <div>
+                                <p>Forgetting link: {this.state.confirmForget != undefined
+                                               && (this.state.confirmForget!.customName != undefined ? this.state.confirmForget!.customName : this.state.confirmForget!.token)}</p>
+                                I would like to forget this link and I understand that this action is irreversible.
+                            </div>}
+                        cancelLabel='Cancel'
+                        confirmLabel="Forget link">
+                    </ConfirmDialog>
                 </div>
             </ContentPanel >
         )
