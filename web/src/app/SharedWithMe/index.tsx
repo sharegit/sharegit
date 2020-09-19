@@ -41,9 +41,9 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         if(toForget > -1) {
             this.state.tokens.splice(toForget, 1);
 
-            const tokens = JSON.stringify(this.state.tokens);
-            localStorage.setItem("alltokens", tokens);
-
+            const allTokens = new LocalStorageDictionary<Token>('alltokens');
+            allTokens.remove(token);
+            
             this.setState(this.state);
         }
     }
