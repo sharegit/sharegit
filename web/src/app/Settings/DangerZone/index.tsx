@@ -1,8 +1,9 @@
 import API from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Confirm, Icon } from 'semantic-ui-react';
+import { Button, Icon } from 'semantic-ui-react';
 import style from './style.scss';
+import ConfirmDialog from 'components/ConfirmDialog';
 
 interface IState extends BaseState {
     confirmAccountDeletion: boolean;
@@ -34,7 +35,7 @@ export default class DangerZone extends React.Component<IProps, IState> {
                     Delete my account
                 </Button>
 
-                <Confirm
+                <ConfirmDialog
                     open={this.state.confirmAccountDeletion}
                     onCancel={() => this.setState({confirmAccountDeletion: false})}
                     onConfirm={async () => {
@@ -49,9 +50,9 @@ export default class DangerZone extends React.Component<IProps, IState> {
                     }}
                     header='Confirm Account deletion'
                     content='An email confirmation will be sent to your provided email address. Please follow the instructions described there to completely remove your account from our services.'
-                    cancelButton='Cancel'
-                    confirmButton="Send Email confirmation">
-                </Confirm>
+                    cancelLabel='Cancel'
+                    confirmLabel="Send Email confirmation">
+                </ConfirmDialog>
             </div>
         )
     }

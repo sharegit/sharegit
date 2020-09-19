@@ -2,12 +2,13 @@ import React from 'react';
 import ContentPanel from 'components/ContentPanel';
 import { BaseState } from 'models/BaseState';
 import API, { SharedToken, SharedRepository } from 'models/API';
-import { Accordion, AccordionTitleProps, Icon, Button, List, Confirm } from 'semantic-ui-react';
+import { Accordion, AccordionTitleProps, Icon, Button, List } from 'semantic-ui-react';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import printDate from 'util/Date';
 import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
+import ConfirmDialog from 'components/ConfirmDialog';
 
 interface IState extends BaseState {
     name: string;
@@ -142,7 +143,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                 )
                         }
                     </Accordion>
-                    <Confirm
+                    <ConfirmDialog
                         open={this.state.confirmDeletion != undefined}
                         onCancel={() => this.setState({confirmDeletion: undefined})}
                         onConfirm={async () => {
@@ -159,9 +160,9 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                && (this.state.confirmDeletion!.customName != undefined ? this.state.confirmDeletion!.customName : this.state.confirmDeletion!.token)}</p>
                                 I understand this this action is irreversible and will result in the deletion of this link. Noone with this link will be able to access any of the repositories contained within this link. This process could take up to 1 hour, due to caching.
                             </div>}
-                        cancelButton='Cancel'
-                        confirmButton="Delete link!">
-                    </Confirm>
+                        cancelLabel='Cancel'
+                        confirmLabel="Delete link!">
+                    </ConfirmDialog>
                 </div>
             </ContentPanel>
         );

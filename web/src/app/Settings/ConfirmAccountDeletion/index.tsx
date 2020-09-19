@@ -2,8 +2,9 @@ import API from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Confirm, Icon, Segment } from 'semantic-ui-react';
+import { Button, Icon, Segment } from 'semantic-ui-react';
 import styles from '../style.scss';
+import ConfirmDialog from 'components/ConfirmDialog';
 
 
 interface IState extends BaseState {
@@ -37,7 +38,7 @@ export default class ConfirmAccountDeletion extends React.Component<IProps, ISta
                     </Button>
                 </Segment>
 
-                <Confirm
+                <ConfirmDialog
                     open={this.state.accountDeletionOpen}
                     onCancel={() => {
                         this.state.accountDeletionOpen = false;
@@ -59,9 +60,9 @@ export default class ConfirmAccountDeletion extends React.Component<IProps, ISta
                     }}
                     header='Account deletion'
                     content='I understand this this action is irreversible and will result the complete termination of my account and all my shared links will stop working.'
-                    cancelButton='Cancel'
-                    confirmButton="Delete!">
-                </Confirm>
+                    cancelLabel='Cancel'
+                    confirmLabel="Delete!">
+                </ConfirmDialog>
             </div>
         );
     }

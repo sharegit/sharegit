@@ -2,11 +2,12 @@ import config from 'config';
 import API, { GithubInstallations } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Form, Icon, Label, Confirm } from 'semantic-ui-react';
+import { Button, Form, Icon } from 'semantic-ui-react';
 import Random from 'util/Random';
 import style from './style.scss';
 import { Link } from 'react-router-dom';
 import BaseSettingsLayout from '../BaseSettingsLayout';
+import ConfirmDialog from 'components/ConfirmDialog';
 
 interface IState extends BaseState {
     state: string;
@@ -106,7 +107,7 @@ export default class Connection extends React.Component<IProps, IState> {
                             <Icon name='delete'></Icon>
                             Disconnect {this.getPrettyProvider()}
                         </Button>
-                        <Confirm
+                        <ConfirmDialog
                             open={this.state.confirmConnectionRemoval}
                             onCancel={() => this.setState({confirmConnectionRemoval: false})}
                             onConfirm={async () => {
@@ -119,9 +120,9 @@ export default class Connection extends React.Component<IProps, IState> {
                             ${this.props.provider == 'github' ? 'All of your GitHub installations will be removed from the accounts you have admin access to!'
                          : `We will forget about all of your ${this.getPrettyProvider()} related access tokens,
                             but please note that for ${this.getPrettyProvider()} you'll also have to manually disconnect ShareGit from your profile.`}`}
-                            cancelButton='Cancel'
-                            confirmButton={`Delete ${this.getPrettyProvider()} Connection`}>
-                        </Confirm>
+                            cancelLabel='Cancel'
+                            confirmLabel={`Delete ${this.getPrettyProvider()} Connection`}>
+                        </ConfirmDialog>
                     </BaseSettingsLayout>
                 </div>
             )
