@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Exceptions;
 using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
@@ -89,7 +90,8 @@ namespace WebAPI.Controllers
                         Name = x
                     }).ToArray();
             }
-            return new ForbidResult("token");
+            
+            throw new NotFoundException();
         }
 
         [HttpGet("{provider}/download/{id}/{user}/{repo}/{sha}")]
@@ -102,7 +104,7 @@ namespace WebAPI.Controllers
             }
 
             if (!IsAuthorized(provider, id, user, repo, sha, ""))
-                return new ForbidResult("token");
+                throw new NotFoundException();
 
             var accessToken = await RepositoryServiceGH.GetAccess(user);
             var downloadResponse = await RepositoryServiceGH.GetDownloadURL(user, repo, sha, accessToken);
@@ -114,10 +116,11 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<BlobResult>> GetRepoBlob(string provider, int id, string user, string repo, string sha, string uri)
         {
             if (!IsAuthorized(provider, id, user, repo, sha, uri))
-                return new ForbidResult("token");
-            Func<Task<BlobResult>> blobResultQuery = provider switch
+                throw new NotFoundException();
+
+            switch(provider)
             {
-                "github" => async () =>
+                case "github":
                         {
                             var accessToken = await RepositoryServiceGH.GetAccess(user);
 
@@ -129,8 +132,7 @@ namespace WebAPI.Controllers
                                 Content = content.Value.Content
                             };
                         }
-                ,
-                "gitlab" => async () =>
+                case "gitlab":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = await ShareRepository.GetAsync(claim.Value);
@@ -148,8 +150,7 @@ namespace WebAPI.Controllers
                             Content = content.Value.Content
                         };
                     }
-                ,
-                "bitbucket" => async () =>
+                case "bitbucket":
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = await ShareRepository.GetAsync(claim.Value);
@@ -169,18 +170,8 @@ namespace WebAPI.Controllers
                             Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(content.RAW))
                         };
                     }
-                ,
-                _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
-            };
-            var blobResult = await blobResultQuery();
-
-            if (blobResult.Content == null || blobResult.File == null)
-            {
-                return new NotFoundResult();
-            }
-            else
-            {
-                return blobResult;
+                default:
+                    throw new ArgumentException("Invalid argument: provider: [" + provider + "]");
             }
         }
 
@@ -192,7 +183,7 @@ namespace WebAPI.Controllers
         public async Task<ActionResult<TreeResult.TreeNode[]>> GetRepoTree(string provider, int id, string user, string repo, string sha, string uri)
         {
             if (!IsAuthorized(provider, id, user, repo, sha, uri))
-                return new ForbidResult("token");
+                throw new NotFoundException();
             switch (provider)
             {
                 case "github":

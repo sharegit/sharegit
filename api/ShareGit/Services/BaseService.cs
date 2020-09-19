@@ -1,4 +1,5 @@
-﻿using Core.Model;
+﻿using Core.Exceptions;
+using Core.Model;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -84,6 +85,9 @@ namespace ShareGit.Services
 
                 // Run request
                 using var response = await httpClient.SendAsync(request);
+
+                if ((int)response.StatusCode < 200 || (int)response.StatusCode >= 400)
+                    throw new NotFoundException();
 
                 APIResponse.RequestUri = response.RequestMessage.RequestUri.ToString();
                 APIResponse.RAW = await response.Content.ReadAsStringAsync();

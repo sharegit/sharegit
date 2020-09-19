@@ -17,7 +17,14 @@ namespace WebAPI.Controllers
         [HttpPost("hit")]
         public async Task<ActionResult> HitPage([FromQuery] string path, [FromQuery] string cid)
         {
-            await MeasurementService.Hit(path, cid);
+            try
+            {
+                await MeasurementService.Hit(path, cid);
+            }
+            catch
+            {
+                // Eat exception, we don't care about it
+            }
             return new OkResult();
         }
     }

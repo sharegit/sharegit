@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using WebAPI.Middlewares;
 using WebAPI.StartupExtensions;
 
 namespace WebAPI
@@ -55,6 +56,8 @@ namespace WebAPI
             app.SetupSwagger(env);
 
             app.SetupCors(env);
+
+            app.UseMiddleware<ErrorHandlingMiddleware>();
 
             app.UseHttpsRedirection();
 
