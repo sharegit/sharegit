@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button, Icon, Segment } from 'semantic-ui-react';
 import config from 'config';
 import API from 'models/API';
 import { BaseState } from 'models/BaseState';
@@ -10,6 +9,7 @@ import GithubMark from 'assets/icons/github-mark-dark.png'
 import GitlabMark from 'assets/icons/gitlab-mark.png'
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
 import CustomIcon from 'components/CustomIcon';
+import Button from '@material-ui/core/Button';
 
 interface IState extends BaseState {
     state: string;
@@ -210,19 +210,16 @@ export default class Authentication extends React.Component<IProps, IState>  {
                         <div>
                             <Button
                             className={styles.signupButton}
-                            as='a'
                             href={this.getAuthLink('github')}>
                                     {this.getAuthText()} with <CustomIcon src={GithubMark}></CustomIcon> Github
                             </Button>
                             <Button
                             className={styles.signupButton}
-                            as='a'
                             href={this.getAuthLink('gitlab')}>
                                     {this.getAuthText()} with <CustomIcon src={GitlabMark}></CustomIcon> GitLab
                             </Button>
                             <Button
                             className={styles.signupButton}
-                            as='a'
                             href={this.getAuthLink('bitbucket')}>
                                     {this.getAuthText()} with <CustomIcon src={BitbucketMark}></CustomIcon> Bitbucket
                             </Button>
