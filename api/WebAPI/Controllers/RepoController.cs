@@ -115,21 +115,22 @@ namespace WebAPI.Controllers
         {
             if (!IsAuthorized(provider, id, user, repo, sha, uri))
                 return new ForbidResult("token");
-            switch (provider)
+            Func<Task<BlobResult>> blobResultQuery = provider switch
             {
-                case "github":
-                    {
-                        var accessToken = await RepositoryServiceGH.GetAccess(user);
-
-                        var content = await RepositoryServiceGH.GetContent(user, repo, sha, uri, accessToken);
-
-                        return new BlobResult()
+                "github" => async () =>
                         {
-                            File = content.Value.Path,
-                            Content = content.Value.Content
-                        };
-                    }
-                case "gitlab":
+                            var accessToken = await RepositoryServiceGH.GetAccess(user);
+
+                            var content = await RepositoryServiceGH.GetContent(user, repo, sha, uri, accessToken);
+
+                            return new BlobResult()
+                            {
+                                File = content.Value.Path,
+                                Content = content.Value.Content
+                            };
+                        }
+                ,
+                "gitlab" => async () =>
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = await ShareRepository.GetAsync(claim.Value);
@@ -147,7 +148,8 @@ namespace WebAPI.Controllers
                             Content = content.Value.Content
                         };
                     }
-                case "bitbucket":
+                ,
+                "bitbucket" => async () =>
                     {
                         var claim = HttpContext.User.Claims.First(x => x.Type == ClaimTypes.Hash);
                         var token = await ShareRepository.GetAsync(claim.Value);
@@ -167,8 +169,18 @@ namespace WebAPI.Controllers
                             Content = Convert.ToBase64String(Encoding.UTF8.GetBytes(content.RAW))
                         };
                     }
-                default:
-                    throw new ArgumentException("Invalid argument: provider: [" + provider + "]");
+                ,
+                _ => throw new ArgumentException("Invalid argument: provider: [" + provider + "]")
+            };
+            var blobResult = await blobResultQuery();
+
+            if (blobResult.Content == null || blobResult.File == null)
+            {
+                return new NotFoundResult();
+            }
+            else
+            {
+                return blobResult;
             }
         }
 

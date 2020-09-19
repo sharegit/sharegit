@@ -217,7 +217,6 @@ export default class Repository extends React.Component<IProps, IState> {
                                             return;
 
                                         this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}${this.props.uri == undefined ? '' : '/' + this.props.uri}?token=${this.state.tokenMeta.token}`);
-                                        this.queryServer();
                                     })
                                 }}>
                             </BranchSelector>
