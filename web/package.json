@@ -40,6 +40,8 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
     "@types/dompurify": "^2.0.3",
     "@types/highlight.js": "^9.12.4",
     "@types/marked": "^1.1.0",
