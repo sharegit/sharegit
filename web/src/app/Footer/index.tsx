@@ -1,6 +1,7 @@
 import React from 'react';
 import style from './style.scss';
 import { Row, Col } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 export default class Footer extends React.Component {
     render() {
@@ -23,10 +24,13 @@ export default class Footer extends React.Component {
                             <span>Copyright notice</span>
                             <ul id={style.etc}>
                                 <li>
-                                    Terms of Service
+                                    <Link to='/legal/privacy'>Privacy</Link>
                                 </li>
                                 <li>
-                                    Privacy Policy
+                                    <Link to='/legal/tos'>Terms of Service</Link>
+                                </li>
+                                <li>
+                                    <Link to='/legal/cookies'>Cookies</Link>
                                 </li>
                             </ul>
                         </div>

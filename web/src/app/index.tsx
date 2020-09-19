@@ -26,6 +26,7 @@ import ProtectedRoute from 'components/ProtectedRoute';
 import CookieConsent from 'components/CookieConsent';
 import { Container } from 'react-bootstrap';
 import ErrorPage from './ErrorPage';
+import Legal from './Legal';
 
 
 highlight.configure({
@@ -195,6 +196,10 @@ export default class App extends React.Component<IProps, IState> {
                 <Route path="/create" component={NewTokenCreation} />
 
                 <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
+
+                <Route path='/legal' component={(props: RouteComponentProps<any>) => 
+                  <Legal {...props} />
+                }/>
 
                 <Route path='/error' component={ErrorPage} />
                 
