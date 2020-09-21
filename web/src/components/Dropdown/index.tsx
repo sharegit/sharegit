@@ -30,6 +30,7 @@ export default class Dropdown extends React.Component<IProps> {
     render() {
         return (
             <SemanticDropdown
+                onClick={(e) => e.stopPropagation()}
                 value={this.props.value}
                 placeholder={this.props.placeholder}
                 search={this.props.search}
@@ -37,10 +38,12 @@ export default class Dropdown extends React.Component<IProps> {
                 multiple={this.props.multiple}
                 allowAdditions={this.props.allowAdditions}
                 onChange={(event, data) => {
+                    event.stopPropagation();
                     if(this.props.onChange != undefined)
                         this.props.onChange(data.value);
                 }}
                 onAddItem={(event, data) => {
+                    event.stopPropagation();
                     if(this.props.onAddItem != undefined)
                         this.props.onAddItem(data.value);
                 }}

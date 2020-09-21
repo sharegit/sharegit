@@ -23,13 +23,15 @@ export default class FormTextField extends React.Component<IProps, IState> {
         switch(this.props.type) {
             case 'field':
                 return (
-                    <input name={this.props.id} value={this.props.value} onChange={(e) => {
+                    <input onClick={(e) => e.stopPropagation()} name={this.props.id} value={this.props.value} onChange={(e) => {
+                        e.stopPropagation();
                         this.props.onChanged(this.props.id, e.target.value);
                     }} placeholder={this.props.placeholder} />
                 );
             case 'area':
                 return (
-                    <textarea name={this.props.id} value={this.props.value} onChange={(e) => {
+                    <textarea onClick={(e) => e.stopPropagation()} name={this.props.id} value={this.props.value} onChange={(e) => {
+                        e.stopPropagation();
                         this.props.onChanged(this.props.id, e.target.value);
                     }} placeholder={this.props.placeholder} />
                 )
