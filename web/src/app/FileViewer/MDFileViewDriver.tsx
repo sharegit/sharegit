@@ -1,8 +1,8 @@
 import FileViewDriver from "./FileViewDriver";
 import React, { ReactNode } from "react";
 import marked from 'marked';
-import DOMPurify from 'dompurify'
-import highlight from 'highlight.js'
+import DOMPurify from 'dompurify' 
+import highlight from 'util/HighlightjsLineNumbers';
 import 'highlight.js/styles/github.css';
 
 

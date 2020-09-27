@@ -3,11 +3,14 @@ import FileViewDriver from './FileViewDriver';
 import SourceFileViewDriver from './SourceFileViewDriver';
 import MDFileViewDriver from './MDFileViewDriver';
 import BinaryFileViewDriver from './BinaryFileViewDriver';
+import ImageFileViewDriver from './ImageFileViewDriver';
+import highlight from 'util/HighlightjsLineNumbers';
 
 interface IState {
     fileType: string;
     fileName: string;
     viewDriver?: FileViewDriver;
+    needLineNumbers: boolean;
 }
 
 interface IProps {
@@ -23,7 +26,8 @@ export default class FileViewer extends React.Component<IProps, IState> {
     state : IState = {
         fileType: '',
         fileName: '',
-        viewDriver: undefined
+        viewDriver: undefined,
+        needLineNumbers: false
     }
     constructor(props: IProps) {
         super(props);
@@ -43,6 +47,16 @@ export default class FileViewer extends React.Component<IProps, IState> {
                     content: this.b64DecodeUnicode(this.props.displayed.content)
                 });
                 break;
+            case 'png':
+            case 'jpg':
+            case 'gif':
+                console.log('Creating Image driver')
+                this.state.viewDriver = new ImageFileViewDriver({
+                    filename: this.state.fileName,
+                    filetype: this.state.fileType,
+                    content: this.props.displayed.content
+                });
+                break;
             case '':
                 console.log('Creating Binary driver')
                 this.state.viewDriver = new BinaryFileViewDriver({
@@ -57,8 +71,9 @@ export default class FileViewer extends React.Component<IProps, IState> {
                 this.state.viewDriver = new SourceFileViewDriver({
                     filename: this.state.fileName,
                     filetype: this.state.fileType,
-                    content: this.b64DecodeUnicode(this.props.displayed.content)
+                    content: this.b64DecodeUnicode(this.props.displayed.content),
                 });
+                this.state.needLineNumbers = true;
                 break;
         }
     }
@@ -73,6 +88,9 @@ export default class FileViewer extends React.Component<IProps, IState> {
         }
     }
     componentDidMount() {
+        if(this.state.needLineNumbers) {
+            highlight.initLineNumbersOnLoad();
+        }
     }
     componentWillUnmount() {
     }

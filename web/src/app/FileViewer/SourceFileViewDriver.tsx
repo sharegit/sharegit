@@ -1,13 +1,14 @@
 import FileViewDriver from "./FileViewDriver";
 import React, { ReactNode } from "react";
-import DOMPurify from 'dompurify'
-import highlight from 'highlight.js'
+import DOMPurify from 'dompurify' 
+import highlight from 'util/HighlightjsLineNumbers';
 import 'highlight.js/styles/github.css';
+import styles from './style.scss';
 
 export default class SourceFileViewDriver extends FileViewDriver {
     public render(): ReactNode {
         return (
-            <div>
+            <div className={styles.tdContainer}>
                 <article dangerouslySetInnerHTML={{__html: this.generateCode()}}></article>
             </div>
         )
@@ -22,9 +23,9 @@ export default class SourceFileViewDriver extends FileViewDriver {
         const fixed = highlight.fixMarkup(highlighted);
         console.log(fixed);
         const lined = fixed.split('\n').map(x=> {
-            return `<tr><td style="white-space: pre">${x}</td></tr>`;
-        }).join('');
-        const inTable = `<table>${lined}</table>`
+            return `<span style="white-space: pre">${x}</span>`;
+        }).join('\n');
+        const inTable = `<code class="hljs">${lined}</code>`
         const sanitized = DOMPurify.sanitize(inTable)
         console.log(sanitized);
         return sanitized;

@@ -1,4 +1,5 @@
-import highlight from 'highlight.js';
+//import highlight from 'highlight.js';
+import highlight from 'util/HighlightjsLineNumbers';
 import { Action, Location, LocationState, UnregisterCallback } from 'history';
 import React from 'react';
 import { Route, RouteComponentProps, Redirect, Switch } from 'react-router-dom';
@@ -27,12 +28,6 @@ import CookieConsent from 'components/CookieConsent';
 import { Container } from 'react-bootstrap';
 import ErrorPage from './ErrorPage';
 import Legal from './Legal';
-
-
-highlight.configure({
-  tabReplace: '    '
-})
-highlight.initHighlightingOnLoad();
 
 interface IProps extends RouteComponentProps<any> {
 }

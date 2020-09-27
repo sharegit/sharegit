@@ -1,0 +1,7 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+.tdContainer td {
+    min-width: 50px;
+    padding-right: 10px;
+    padding-left: 10px;
+}
