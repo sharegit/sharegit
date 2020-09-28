@@ -3,11 +3,11 @@ import { BaseState } from 'models/BaseState';
 import { Token, getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { List } from 'semantic-ui-react';
 import RepositoryCard from './RepositoryCard';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
+import { List } from '@material-ui/core';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -107,7 +107,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                         {this.renderTokenValidity()}
                     </div>
                     <div className={styles.myclass}>
-                        <List divided relaxed>
+                        <List >
                             {
                                 this.state.repositories
                                     .map((r : SharedRepository) =>

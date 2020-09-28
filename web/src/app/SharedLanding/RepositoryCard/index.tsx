@@ -1,8 +1,12 @@
+import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
 import { GetApp } from '@material-ui/icons';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Icon, List } from 'semantic-ui-react';
 import styles from './style.scss';
+import GithubMark from 'assets/icons/github-mark-dark.png'
+import GitlabMark from 'assets/icons/gitlab-mark.png'
+import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
+import CustomIcon from 'components/CustomIcon';
 
 interface IState { }
 
@@ -17,26 +21,40 @@ interface IProps {
 }
 
 export default class RepositoryCard extends React.Component<IProps, IState> {
+
+    getProviderIcon() {
+        switch (this.props.provider) {
+            case 'github':
+                return <CustomIcon src={GithubMark} />
+            case 'gitlab':
+                return <CustomIcon src={GitlabMark} />
+            case 'bitbucket':
+                return <CustomIcon src={BitbucketMark} />
+        }
+    }
+
     render() {
         return (
-            <List.Item className={`${styles.repositoryCard} ${this.props.deselected != undefined ? styles.deselected : ''}`}>
-                <List.Icon name={this.props.provider} size='large' verticalAlign='middle' />
-                <List.Content>
-                    <List.Header>
-                        {this.props.link.startsWith('https://') ?
-                            <a href={this.props.link} target="_blank">
-                                {this.props.name}
-                            </a>
-                            :
-                            <Link target={this.props.target} to={this.props.link}>
-                                {this.props.name}
-                            </Link>}
-                        {this.props.downloadable ? <GetApp /> : null}
-                    </List.Header>
-                    <List.Description>{this.props.description}</List.Description>
-                    {this.props.children}
-                </List.Content>
-            </List.Item>
+            <ListItem
+                className={`${styles.repositoryCard} ${this.props.deselected != undefined ? styles.deselected : ''}`}
+                button
+                component={Link}
+                target={this.props.target}
+                to={this.props.link}
+            >
+                <ListItemIcon>
+                    {this.getProviderIcon()}
+                </ListItemIcon>
+                <ListItemText
+                    primary={
+                        <React.Fragment>
+                            {this.props.name}
+                            {this.props.downloadable ? <GetApp /> : null}
+                        </React.Fragment>
+                    }
+                    secondary={this.props.description}
+                />
+            </ListItem >
         )
     }
 }
