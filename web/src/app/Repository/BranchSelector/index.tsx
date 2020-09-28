@@ -1,7 +1,7 @@
 import API, { Branch, CancelToken } from 'models/API';
 import React from 'react';
-import { Dropdown, DropdownItemProps } from 'semantic-ui-react';
 import { RouteComponentProps } from 'react-router-dom';
+import Dropdown from 'components/Dropdown';
 
 interface IState {
     branches: Branch[];
@@ -55,21 +55,22 @@ export default class BranchSelector extends React.Component<IProps, IState> {
     render() {
         return (
             <Dropdown placeholder='Select Branch'
-                      fluid
                       search
                       selection
                       key={this.state.current}
                       value={this.state.current}
                       onChange={
-                        (event, props) => {
-                            if(props.value != undefined) {
-                                const newValue: string = props.value as string;
+                        (value) => {
+                            if(value != undefined) {
+                                const newValue: string = value as string;
                                 this.changeBranch(newValue);
                             }
                         }
                       }
                       options={
-                          this.state.branches.map((branch) => ({text: branch.name, value: branch.name} as DropdownItemProps))
+                          this.state.branches.map((branch) => (
+                                {key: branch.name, display: branch.name, value: branch.name}
+                              ))
                       }
             />
         )
