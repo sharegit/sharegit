@@ -2,13 +2,14 @@ import React from 'react';
 import ContentPanel from 'components/ContentPanel';
 import { BaseState } from 'models/BaseState';
 import API, { SharedToken, SharedRepository } from 'models/API';
-import { Accordion, AccordionTitleProps, Icon, Button, List } from 'semantic-ui-react';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import printDate from 'util/Date';
 import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 import ConfirmDialog from 'components/ConfirmDialog';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid } from '@material-ui/core';
 
 interface IState extends BaseState {
     name: string;
@@ -45,8 +46,8 @@ export default class Shares extends React.Component<IProps, IState>  {
         this.state.cancelToken.cancel()
     }
 
-    async handleClick(event: React.MouseEvent<HTMLDivElement>, data: AccordionTitleProps): Promise<void> {
-        const newIndex = data.index as number
+    async handleClick(event: React.ChangeEvent<{}>, index: number, expanded: boolean): Promise<void> {
+        const newIndex = index;
         this.setState({
             activeTokenIndex: this.state.activeTokenIndex == newIndex ? -1 : newIndex
         })
@@ -97,52 +98,57 @@ export default class Shares extends React.Component<IProps, IState>  {
             <ContentPanel background='light'>
                 <div>
                     <Button><Link to='/create'>Create new Token</Link></Button>
-                    <Accordion fluid styled>
                         {
                             this.state.sharedTokens
                                 .map((token : SharedToken, index: number) => 
-                                    <div key={token.token}>
-                                        <Accordion.Title
-                                            active={this.state.activeTokenIndex == index}
-                                            index={index}
-                                            onClick={async (event, data) => {
-                                                await this.handleClick(event, data)
-                                            }}>
-                                            <Icon name='dropdown' />
+                                    <Accordion
+                                        key={token.token}
+                                        expanded={this.state.activeTokenIndex == index}
+                                        onChange={async (event, expanded) => {
+                                            await this.handleClick(event, index, expanded)
+                                        }}>
+                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
                                             {!!token.customName ? token.customName : token.token}
                                             { token. expireDate != 0 &&
                                                 `${token.expireDate < new Date().getTime() / 1000 / 60 ? '(Expired at ' : '(Expires at '}${printDate(new Date(token.expireDate * 60 * 1000))}`}
-                                        </Accordion.Title>
-                                        <Accordion.Content active={this.state.activeTokenIndex == index}>
-                                            <Button onClick={() =>{
-                                                navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
-                                            }}>Copy link</Button>
-                                             <Button>
-                                                <Link target='_blank' to={`/share/${token.token}`}>
-                                                    Open link
-                                                </Link>
-                                            </Button>
-                                            <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
-                                            <h3>Repositories shared with this token:</h3>
-                                            <List divided relaxed>
-                                                {
-                                                    this.state.repositories[index]
-                                                        .map((r : SharedRepository) =>
-                                                            <RepositoryCard key={`${r.repo}_${token.token}`}
-                                                                            target='_blank'
-                                                                            link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
-                                                                            name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
-                                                                            downloadable={r.downloadAllowed}
-                                                                            description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                                            provider={r.provider}></RepositoryCard>
-                                                        )
-                                                }
-                                            </List>
-                                        </Accordion.Content>
-                                    </div>
+                                        </AccordionSummary>
+                                        <AccordionDetails>
+                                            <Grid container spacing={3}>
+                                                <Grid item xs={12}>
+                                                    <Button onClick={() =>{
+                                                        navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
+                                                    }}>Copy link</Button>
+                                                    <Button>
+                                                        <Link target='_blank' to={`/share/${token.token}`}>
+                                                            Open link
+                                                        </Link>
+                                                    </Button>
+                                                    <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <h3>Repositories shared with this token:</h3>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                    <List >
+                                                        {
+                                                            this.state.repositories[index]
+                                                                .map((r : SharedRepository) =>
+                                                                    <RepositoryCard key={`${r.repo}_${token.token}`}
+                                                                                    target='_blank'
+                                                                                    link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
+                                                                                    name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
+                                                                                    downloadable={r.downloadAllowed}
+                                                                                    description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                                                    provider={r.provider}></RepositoryCard>
+                                                                )
+                                                        }
+                                                    </List>
+                                                </Grid>
+                                            </Grid>
+                                        </AccordionDetails>
+                                    </Accordion>
                                 )
                         }
-                    </Accordion>
                     <ConfirmDialog
                         open={this.state.confirmDeletion != undefined}
                         onCancel={() => this.setState({confirmDeletion: undefined})}
