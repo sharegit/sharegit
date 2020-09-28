@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { List } from 'semantic-ui-react';
+import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
+import FileIcon from 'assets/icons/file.svg';
+import FolderIcon from 'assets/icons/folder.svg';
 
 interface IProps {
     provider: string;
@@ -47,31 +50,24 @@ export default class RepoListElement extends React.Component<IProps, IState> {
     typeToIcon(type : 'tree' | 'blob') {
         switch(type) {
             case 'tree':
-                return 'folder';
+                return <CustomIcon src={FolderIcon} />;
             case 'blob':
-                return 'file';
-            default:
-                return 'info';
+                return <CustomIcon src={FileIcon} />;
         }
     }
     renderSlot(path: string) {
         return (
-            <List.Item>
-                <List.Icon name={this.typeToIcon(this.state.type)} size='large' verticalAlign='middle'>
-                </List.Icon>
-                <List.Content>
-                    <Link to={`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}?token=${this.props.token}`} >
-                    <List.Header>
-                        <span>{path}</span>
-                        &nbsp;
-                        <span>{this.props.lastModifyDate}</span>
-                    </List.Header>
-                    <List.Description>
-                        {this.props.lastCommitMessage}
-                    </List.Description>
-                    </Link>
-                </List.Content>
-            </List.Item>
+            <ListItem
+                button
+                component={Link}
+                to={`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}?token=${this.props.token}`}>
+                <ListItemIcon>
+                    {this.typeToIcon(this.state.type)}
+                </ListItemIcon>
+                <ListItemText
+                    primary={ path }
+                    secondary={this.props.lastCommitMessage} />
+            </ListItem>
         )
     }
 }

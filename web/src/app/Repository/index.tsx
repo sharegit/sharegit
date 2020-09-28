@@ -3,7 +3,6 @@ import { BaseState } from 'models/BaseState';
 import { Token, TokenRepo } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Button, Icon, List } from 'semantic-ui-react';
 import FileViewer from '../FileViewer/FileViewer';
 import BranchSelector from './BranchSelector';
 import Path from './Path';
@@ -12,6 +11,11 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import { Link } from 'react-router-dom';
+import { Button, List } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
+import FirstPageIcon from 'assets/icons/first-page.svg';
+import GetAppIcon from 'assets/icons/get-app.svg';
+import HourglassIcon from 'assets/icons/hourglass.svg';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -191,7 +195,7 @@ export default class Repository extends React.Component<IProps, IState> {
             <ContentPanel background='light'>
                 <div id={styles.repository}>
                     <Link to={`/share/${this.state.tokenMeta.token}`}>
-                        <Button><Icon name='undo'></Icon>Browse other repositories shared under this link</Button>
+                        <Button><CustomIcon src={FirstPageIcon} /> Browse other repositories shared under this link</Button>
                     </Link>
                     <div id={styles.repositoryHeader}>
                         <div id={styles.currentRepository}>
@@ -240,9 +244,9 @@ export default class Repository extends React.Component<IProps, IState> {
                             {this.state.startingDownload !== true ?
                             <Button onClick={async () => {
                                 this.startDownloading();
-                            }}>Download as zip <Icon name='download'></Icon></Button>
+                            }}>Download as zip <CustomIcon src={GetAppIcon} /></Button>
                         :
-                            <Button disabled>Downloading as zip <Icon name='circle notched' loading /></Button>
+                            <Button disabled>Downloading as zip <CustomIcon src={HourglassIcon} /></Button>
                             }
                         </div>
                     :   null}
@@ -271,7 +275,7 @@ export default class Repository extends React.Component<IProps, IState> {
         if (this.props.type == 'tree') {
             return (
                 <div id={styles.tree}>
-                    <List divided relaxed>
+                    <List>
                         {this.state.objects.map((r: TreeNode) => (this.state.tokenMeta != undefined && this.state.repoMeta != undefined) &&
                             <RepoListElement
                                 token={this.state.tokenMeta.token}

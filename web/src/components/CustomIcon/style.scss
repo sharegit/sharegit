@@ -1,3 +1,5 @@
+@use '/src/styles/style.scss' as globalStyle;
+
 .img {
     margin-left: 0.3em;
     margin-right: 0.3em;
@@ -16,5 +18,11 @@
     &.large {
         width: 40px;
         height: 40px;
+    }
+    &.dark {
+        color: globalStyle.$dark !important;
+    }
+    &.light {
+        color: globalStyle.$light !important;
     }
 }
