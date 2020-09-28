@@ -37,7 +37,7 @@ export default class Path extends React.Component<IProps, IState> {
         }
     }
 
-    private build(): ReactElement[] {
+    private build() {
         let path = this.props.path.split('/')
         let restriction = this.state.restricted == undefined ? [] : this.state.restricted.split('/')
 
@@ -46,7 +46,7 @@ export default class Path extends React.Component<IProps, IState> {
         }
 
         let link = `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}`
-        let crums: ReactElement[] = []
+        let crums = []
         
         if(restriction.length == 0)
             crums.push(<Link key={path[0]} to={`${link}?token=${this.props.token}`}>{path[0]}</Link>);
@@ -73,11 +73,7 @@ export default class Path extends React.Component<IProps, IState> {
     render() {
         return (
             <Breadcrumbs>
-                {this.build().map((content) =>
-                    <React.Fragment key={content.key != null ? content.key : ''}>
-                        {content}
-                    </React.Fragment>
-                )}
+                {this.build()}
             </Breadcrumbs>
         )
     }
