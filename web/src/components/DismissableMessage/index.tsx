@@ -1,5 +1,6 @@
 import React from 'react';
-import { Message, MessageProps } from 'semantic-ui-react';
+import { Snackbar } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
 
 interface IProps {
     active?: boolean;
@@ -29,15 +30,32 @@ export default class DismissableMessage extends React.Component<IProps, IState> 
             active: nextProps.active !== false
         }
     }
+    getSeverity() {
+        switch (this.props.style) {
+            case 'positive':
+                return 'success';
+            case 'warning':
+                return 'warning';
+        }
+    }
     render() {
         if (this.state.active) {
             return (
-                <Message className={this.props.style}
-                onDismiss={(event: React.MouseEvent<HTMLElement>, data: MessageProps) => {
-                    event.preventDefault();
-                    this.setState({active: undefined, internalUpdate: true})
-                }}
-                header={this.props.headerMessage} />
+                <Snackbar className={this.props.style}
+                    anchorOrigin={{ vertical: 'top', horizontal:'center' }}
+                    open={this.state.active}
+                    autoHideDuration={6000}
+                    onClose={(event) => {
+                        event.preventDefault();
+                        this.setState({active: undefined, internalUpdate: true})
+                    }}>
+                    <Alert onClose={(event) => {
+                        event.preventDefault();
+                        this.setState({active: undefined, internalUpdate: true})
+                     }} severity={this.getSeverity()}>
+                        {this.props.headerMessage}
+                    </Alert>
+                </Snackbar>
             )
         } else {
             return null;
