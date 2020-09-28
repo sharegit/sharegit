@@ -3,7 +3,6 @@ import API, { Analytic, SharedToken } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Segment } from 'semantic-ui-react';
 import style from './style.scss';
 import Dictionary from 'util/Dictionary';
 
@@ -78,13 +77,11 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                         Dashboard
                     </h2>
                     <p>Hello {this.state.name}</p>
-                    <Segment>
-                        <h2>Analytics</h2>
-                        <p>The values here are not exact, they could take up to 24 hours to update.</p>
-                        <ul>
-                            {this.state.analytics.map(x=> this.renderAnalyticLine(x))}
-                        </ul>
-                    </Segment>
+                    <h2>Analytics</h2>
+                    <p>The values here are not exact, they could take up to 24 hours to update.</p>
+                    <ul>
+                        {this.state.analytics.map(x=> this.renderAnalyticLine(x))}
+                    </ul>
                 </div>
             </ContentPanel>
         )
