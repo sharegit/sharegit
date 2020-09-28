@@ -10,6 +10,7 @@ import GitlabMark from 'assets/icons/gitlab-mark.png'
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
 import CustomIcon from 'components/CustomIcon';
 import Button from '@material-ui/core/Button';
+import Loading from 'components/Loading';
 
 interface IState extends BaseState {
     state: string;
@@ -181,15 +182,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     <h3>And start sharing now</h3>}
                 {
                     this.state.processing ? 
-                    <div className='ui icon message'>
-                        <i className='notched circle loading icon'></i>
-                        <div className='content'>
-                            <div className='header'>
-                            Just one second
-                            </div>
-                            <p>Processing {this.getAuthText()} request</p>
-                        </div>
-                    </div>
+                    <Loading />
                 :
                     <div>
                         {this.state.failed ?

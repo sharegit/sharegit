@@ -5,6 +5,7 @@ import { Form, FormProps, Icon, Message, Button } from 'semantic-ui-react';
 import styles from '../style.scss';
 import Dictionary from 'util/Dictionary';
 import FormTextField from 'components/FormTextField';
+import Loading from 'components/Loading';
 
 interface IState extends BaseState {
     original?: AccountSettings;
@@ -78,13 +79,7 @@ export default class Account extends React.Component<IProps, IState> {
     render() {
         if (this.state.original == undefined){
             return (
-                <Message icon>
-                     <Icon name='circle notched' loading />
-                     <Message.Content>
-                     <Message.Header>Just one second</Message.Header>
-                     Loading Settings.
-                     </Message.Content>
-                 </Message>
+                <Loading />
             )
         }
         else {

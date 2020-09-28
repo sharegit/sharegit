@@ -5,6 +5,7 @@ import { Button, Form, FormProps, Icon, Message } from 'semantic-ui-react';
 import styles from '../style.scss';
 import FormTextField from 'components/FormTextField';
 import Dictionary from 'util/Dictionary';
+import Loading from 'components/Loading';
 
 interface IState extends BaseState {
     original?: PublicProfileSettings;
@@ -108,13 +109,7 @@ export default class PublicProfile extends React.Component<IProps, IState> {
     render() {
         if (this.state.original == undefined){
             return (
-                <Message icon>
-                     <Icon name='circle notched' loading />
-                     <Message.Content>
-                     <Message.Header>Just one second</Message.Header>
-                     Loading Settings.
-                     </Message.Content>
-                 </Message>
+                <Loading />
             )
         }
         else {

@@ -8,6 +8,7 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import { List } from '@material-ui/core';
+import Loading from 'components/Loading';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
@@ -128,7 +129,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
     
     renderTokenValidity() {
         if(this.state.tokenValid == undefined) {
-            return <p>Checking Token ... </p>
+            return <Loading />
         } else if (this.state.tokenValid) {
             return null;
         } else {
