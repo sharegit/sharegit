@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
-import { Breadcrumb } from 'semantic-ui-react'
+import { Breadcrumbs, Typography } from '@material-ui/core';
 
 interface IState {
     restricted?: string;
@@ -37,30 +37,30 @@ export default class Path extends React.Component<IProps, IState> {
         }
     }
 
-    private build(): ReactElement<typeof Breadcrumb.Section>[] {
+    private build(): ReactElement[] {
         let path = this.props.path.split('/')
         let restriction = this.state.restricted == undefined ? [] : this.state.restricted.split('/')
 
         if (path.length == 1) {
-            return [<Breadcrumb.Section key={path[0]} active>{path[0]}</Breadcrumb.Section>]
+            return [<Typography key={path[0]} >{path[0]}</Typography >]
         }
 
         let link = `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${'tree'}/${this.props.sha}`
-        let crums: ReactElement<typeof Breadcrumb.Section>[] = []
+        let crums: ReactElement[] = []
         
         if(restriction.length == 0)
-            crums.push(<Breadcrumb.Section key={path[0]}><Link to={`${link}?token=${this.props.token}`}>{path[0]}</Link></Breadcrumb.Section>);
+            crums.push(<Link key={path[0]} to={`${link}?token=${this.props.token}`}>{path[0]}</Link>);
         
         path = path.slice(1)
 
         while (path.length > 0) {
             console.log(`${path[0]} - ${restriction[0]}`);
             if (path.length == 1) {    
-                crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`} active>{path[0]}</Breadcrumb.Section>)
+                crums.push(<Typography key={`${path[0]}_${path.length}`} >{path[0]}</Typography>)
             } else {
                 link = `${link}/${path[0]}`
                 if(restriction.length <= 1 || path[0] != restriction[0]) {
-                    crums.push(<Breadcrumb.Section key={`${path[0]}_${path.length}`}><Link to={`${link}?token=${this.props.token}`}>{path[0]}</Link></Breadcrumb.Section>)
+                    crums.push(<Link key={`${path[0]}_${path.length}`} to={`${link}?token=${this.props.token}`}>{path[0]}</Link>)
                 }
             }
             path = path.slice(1)
@@ -72,17 +72,13 @@ export default class Path extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <Breadcrumb>
+            <Breadcrumbs>
                 {this.build().map((content) =>
                     <React.Fragment key={content.key != null ? content.key : ''}>
-                        <Breadcrumb.Divider />
                         {content}
                     </React.Fragment>
                 )}
-                {
-                    this.props.type == 'tree' ? <Breadcrumb.Divider /> : null
-                }
-            </Breadcrumb>
+            </Breadcrumbs>
         )
     }
 }
