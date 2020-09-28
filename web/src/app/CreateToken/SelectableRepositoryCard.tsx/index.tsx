@@ -1,5 +1,5 @@
 import { Button, Card, Checkbox, FormControlLabel, GridListTile, ListItemIcon, ListItemText } from '@material-ui/core';
-import { GetApp } from '@material-ui/icons';
+import GetAppIcon from 'assets/icons/get-app.svg';
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg';
 import GithubMark from 'assets/icons/github-mark-dark.png';
 import GitlabMark from 'assets/icons/gitlab-mark.png';
@@ -58,7 +58,7 @@ export default class SelectableRepositoryCard extends React.Component<IProps, IS
                             <a href={this.props.link} target="_blank">
                                 {this.props.baseRespo.repo}
                             </a>
-                            {this.props.downloadable ? <GetApp /> : null}
+                            {this.props.downloadable ? <CustomIcon src={GetAppIcon} /> : null}
                         </React.Fragment>
                     }
                     secondary={!!this.props.baseRespo.description ? this.props.baseRespo.description : "No description, website, or topics provided."}

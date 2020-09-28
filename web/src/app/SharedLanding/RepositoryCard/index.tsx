@@ -1,5 +1,5 @@
 import { ListItem, ListItemIcon, ListItemText } from '@material-ui/core';
-import { GetApp } from '@material-ui/icons';
+import GetAppIcon from 'assets/icons/get-app.svg';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styles from './style.scss';
@@ -49,7 +49,7 @@ export default class RepositoryCard extends React.Component<IProps, IState> {
                     primary={
                         <React.Fragment>
                             {this.props.name}
-                            {this.props.downloadable ? <GetApp /> : null}
+                            {this.props.downloadable ? <CustomIcon src={GetAppIcon} /> : null}
                         </React.Fragment>
                     }
                     secondary={this.props.description}

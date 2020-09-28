@@ -8,8 +8,9 @@ import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import printDate from 'util/Date';
 import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 import ConfirmDialog from 'components/ConfirmDialog';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import ExpandIcon from 'assets/icons/expand.svg';
 import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
 
 interface IState extends BaseState {
     name: string;
@@ -107,7 +108,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                         onChange={async (event, expanded) => {
                                             await this.handleClick(event, index, expanded)
                                         }}>
-                                        <AccordionSummary expandIcon={<ExpandMoreIcon />} >
+                                        <AccordionSummary expandIcon={<CustomIcon src={ExpandIcon}/>} >
                                             {!!token.customName ? token.customName : token.token}
                                             { token. expireDate != 0 &&
                                                 `${token.expireDate < new Date().getTime() / 1000 / 60 ? '(Expired at ' : '(Expires at '}${printDate(new Date(token.expireDate * 60 * 1000))}`}
