@@ -56,6 +56,8 @@ export default class BranchSelector extends React.Component<IProps, IState> {
         return (
             <Dropdown placeholder='Select Branch'
                       search
+                      label=''
+                      helperText=''
                       selection
                       key={this.state.current}
                       value={this.state.current}

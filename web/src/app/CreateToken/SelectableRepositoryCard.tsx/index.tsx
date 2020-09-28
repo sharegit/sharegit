@@ -96,7 +96,9 @@ export default class SelectableRepositoryCard extends React.Component<IProps, IS
                         You can also share only one file, example: 'backend/README.md'.`}
                     />
                     <Dropdown
-                        placeholder='Select a branch or type the commit SHA'
+                        placeholder='master'
+                        label='Selected branches'
+                        helperText='Select one or more branches or type a commit SHA. (Snapshot) means we will fetch the current HEAD commit of the selected branch'
                         search
                         selection
                         multiple

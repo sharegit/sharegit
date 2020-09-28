@@ -1,11 +1,11 @@
 import API, { AccountSettings } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Form, FormProps, Icon, Message, Button } from 'semantic-ui-react';
 import styles from '../style.scss';
 import Dictionary from 'util/Dictionary';
 import FormTextField from 'components/FormTextField';
 import Loading from 'components/Loading';
+import { Button } from '@material-ui/core';
 
 interface IState extends BaseState {
     original?: AccountSettings;
@@ -41,7 +41,7 @@ export default class Account extends React.Component<IProps, IState> {
         this.state.cancelToken.cancel();
     }
 
-    async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
+    async onSubmit(e: React.FormEvent<HTMLFormElement>) {
         try {
             e.preventDefault();
             if(this.state.errors.length == 0) {
@@ -85,8 +85,8 @@ export default class Account extends React.Component<IProps, IState> {
         else {
             return (
                 <div>
-                    <Form onSubmit={async (e, d) => {
-                        await this.onSubmit(e, d)
+                    <form onSubmit={async (e) => {
+                        await this.onSubmit(e)
                     }}>
                         <FormTextField  
                             id='email'
@@ -100,8 +100,8 @@ export default class Account extends React.Component<IProps, IState> {
                                 and this is where you will receive notification emails 
                                 form ShareGit.'
                          />
-                        <Button primary type='submit'>Save</Button>
-                    </Form>
+                        <Button type='submit'>Save</Button>
+                    </form>
                 </div>
             )
         }

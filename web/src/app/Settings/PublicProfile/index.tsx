@@ -1,11 +1,11 @@
 import API, { PublicProfileSettings } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Form, FormProps, Icon, Message } from 'semantic-ui-react';
 import styles from '../style.scss';
 import FormTextField from 'components/FormTextField';
 import Dictionary from 'util/Dictionary';
 import Loading from 'components/Loading';
+import { Button } from '@material-ui/core';
 
 interface IState extends BaseState {
     original?: PublicProfileSettings;
@@ -41,7 +41,7 @@ export default class PublicProfile extends React.Component<IProps, IState> {
         this.state.cancelToken.cancel();
     }
 
-    async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
+    async onSubmit(e: React.FormEvent<HTMLFormElement>) {
         try {
             e.preventDefault();
             if(this.state.errors.length == 0) {
@@ -115,8 +115,8 @@ export default class PublicProfile extends React.Component<IProps, IState> {
         else {
             return (
                 <div>
-                    <Form onSubmit={async (e, d) => {
-                        await this.onSubmit(e, d)
+                    <form onSubmit={async (e) => {
+                        await this.onSubmit(e)
                     }}>
                         <FormTextField  
                             id='display-name'
@@ -148,8 +148,8 @@ export default class PublicProfile extends React.Component<IProps, IState> {
                             placeholder='John Smith'
                             description='Short description of yourself. This will be displayed next to your shared repositories.'
                          />
-                        <Button primary type='submit'>Save</Button>
-                    </Form>
+                        <Button type='submit'>Save</Button>
+                    </form>
                 </div>
             )
         }

@@ -6,7 +6,6 @@ import { BaseState } from 'models/BaseState';
 import React from 'react';
 import "react-datepicker/dist/react-datepicker.css";
 import { RouteComponentProps } from 'react-router-dom';
-import { Form, FormProps } from 'semantic-ui-react';
 import Dictionary from 'util/Dictionary';
 import Basic from './Basic';
 import Selection from './Selection';
@@ -171,7 +170,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     
     
-    async onSubmit(e: React.FormEvent<HTMLFormElement>, d: FormProps) {
+    async onSubmit(e: React.FormEvent<HTMLFormElement>) {
         try {
             e.preventDefault();
             if(this.state.errors.length == 0) {
@@ -260,8 +259,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         return (
             <ContentPanel background='light'>
                 <div id={style.createToken}>
-                    <Form onSubmit={async (e, d) => {
-                            await this.onSubmit(e, d)
+                    <form onSubmit={async (e) => {
+                            await this.onSubmit(e)
                         }}>
                     <h2>Create a new share token</h2>
                     {this.state.formState != 0 ? null
@@ -282,6 +281,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                     :   <div>
                             <p>Please select the default branch of your repositories.</p>
                             <Dropdown
+                                label='Default branch'
+                                helperText='If the selected branch name exists we will attempt to set it for each new repository you select as a default. You can change this on a repo-by-repo basis in the next step. (Snapshot) means the current HEAD commit of the branch will be shared.'
                                 onChange={(data) => this.updateDefaultBranch(data as string) }
                                 defaultValue='master'
                                 options={[
@@ -296,8 +297,6 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                                     { key: 'X', value: 'X', display: 'Not set (clear all)' }
                                 ]}
                             />
-                            <span>If the selected branch name exists we will attempt to set it for each new repository you select as a default. You can change this on a repo-by-repo basis in the next step.</span>
-                            <span>(Snapshot) means the current HEAD commit of the branch will be shared.</span>
                             <Button onClick={() => this.setState({formState: 0})}>Back</Button>
                             <Button onClick={() => this.setState({formState: 2})}>Next</Button>
                         </div>}
@@ -318,7 +317,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             repositories={this.state.repositories}
                             selectedRepositories={this.state.selectedRepositories}
                             />}
-                    </Form>
+                    </form>
                 </div>
             </ContentPanel>
         )

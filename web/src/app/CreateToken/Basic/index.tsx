@@ -55,6 +55,8 @@ export default class Basic extends React.Component<IProps, IState> {
             fields.push(
                 <div key='datePicker'>
                     <Dropdown
+                        label='Expiration date'
+                        helperText='Select the expiration date from the list or click custom to select date manually'
                         onChange={(data) => {
                             const current = new Date();
                             const newDate = data == 'X' ? 

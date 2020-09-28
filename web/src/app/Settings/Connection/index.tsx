@@ -2,13 +2,12 @@ import config from 'config';
 import API, { GithubInstallations } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Form } from 'semantic-ui-react';
 import Random from 'util/Random';
 import style from './style.scss';
 import { Link } from 'react-router-dom';
 import BaseSettingsLayout from '../BaseSettingsLayout';
 import ConfirmDialog from 'components/ConfirmDialog';
-import { Button } from '@material-ui/core';
+import { Button, TextField } from '@material-ui/core';
 import CustomIcon from 'components/CustomIcon';
 import DeleteIcon from 'assets/icons/delete.svg'
 import GithubMark from 'assets/icons/github-mark-dark.png'
@@ -104,13 +103,14 @@ export default class Connection extends React.Component<IProps, IState> {
         if(this.props.connected) {
             return (
                 <div>
-                    <Form>
-                        <Form.Field id="displayName">
-                            <label>OAuth connection</label>
-                            <input readOnly id="oauthLoginId" value={this.props.username} />
-                            <span>This is your currently authorized {this.getPrettyProvider()} account.</span>
-                        </Form.Field>
-                    </Form>
+                    <TextField
+                        id="oauth_conn"
+                        InputProps={{readOnly: true}}
+                        fullWidth
+                        label='OAuth connection'
+                        defaultValue={this.props.username}
+                        helperText={`This is your currently authorized ${this.getPrettyProvider()} account.`}>
+                    </TextField>
                     {this.renderGithubInstallation()}
                     <BaseSettingsLayout header='Dangerzone' isdangerous>
                         {!!this.props.forbidDisconnect && 
