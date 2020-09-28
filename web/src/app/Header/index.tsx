@@ -2,8 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import NavMenuItem from './NavMenuItem';
 import styles from './style.scss';
-import { Icon } from 'semantic-ui-react';
 import { Navbar, Nav, NavDropdown, Row, Col } from 'react-bootstrap';
+import AddCircle from 'assets/icons/add-circle.svg';
+import CustomIcon from 'components/CustomIcon';
 
 interface IProps {
     isLoggedIn: boolean;
@@ -33,7 +34,7 @@ export default class Header extends React.Component<IProps> {
                                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
                                 </Nav>
                                 <Nav>
-                                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><Icon name='plus circle'></Icon></NavMenuItem>
+                                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><CustomIcon src={AddCircle}></CustomIcon></NavMenuItem>
                                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
                                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
                                     {this.props.isLoggedIn &&
