@@ -1,7 +1,7 @@
 import API, { AccountSettings } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Form, FormProps, Icon, Message, Button, Input, Label } from 'semantic-ui-react';
+import { Form, FormProps, Icon, Message, Button } from 'semantic-ui-react';
 import styles from '../style.scss';
 import Dictionary from 'util/Dictionary';
 import FormTextField from 'components/FormTextField';

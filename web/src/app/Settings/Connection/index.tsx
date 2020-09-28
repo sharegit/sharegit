@@ -2,12 +2,18 @@ import config from 'config';
 import API, { GithubInstallations } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Form, Icon } from 'semantic-ui-react';
+import { Form } from 'semantic-ui-react';
 import Random from 'util/Random';
 import style from './style.scss';
 import { Link } from 'react-router-dom';
 import BaseSettingsLayout from '../BaseSettingsLayout';
 import ConfirmDialog from 'components/ConfirmDialog';
+import { Button } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
+import DeleteIcon from 'assets/icons/delete.svg'
+import GithubMark from 'assets/icons/github-mark-dark.png'
+import GitlabMark from 'assets/icons/gitlab-mark.png'
+import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
 
 interface IState extends BaseState {
     state: string;
@@ -64,6 +70,16 @@ export default class Connection extends React.Component<IProps, IState> {
                 return 'GitLab';
         }
     }
+    getProviderIcon(): string {
+        switch(this.props.provider) {
+            case 'bitbucket':
+                return BitbucketMark;
+            case 'github':
+                return GithubMark;
+            case 'gitlab':
+                return GitlabMark;
+        }
+    }
     getNewConnectionLink(): string {
         switch(this.props.provider) {
             case 'bitbucket':
@@ -101,10 +117,10 @@ export default class Connection extends React.Component<IProps, IState> {
                             <span>
                                 You cannot disconnect this provider, please connect other services first or if you wish to delete your account, <Link to='/settings/dangerzone'>click here</Link>
                             </span>}
-                        <Button disabled={this.props.forbidDisconnect} primary onClick={ async () => {
+                        <Button disabled={this.props.forbidDisconnect} onClick={ async () => {
                             this.setState({confirmConnectionRemoval: true});
                         }}>
-                            <Icon name='delete'></Icon>
+                           <CustomIcon src={DeleteIcon}></CustomIcon>
                             Disconnect {this.getPrettyProvider()}
                         </Button>
                         <ConfirmDialog
@@ -130,11 +146,8 @@ export default class Connection extends React.Component<IProps, IState> {
         return (
             <div>
                 <Button
-                    as='a'
-                    primary
                     href={this.getNewConnectionLink()}>
-                        <Icon name={this.props.provider}></Icon>
-                        Connect with {this.getPrettyProvider()}
+                        Connect with <CustomIcon src={this.getProviderIcon()}></CustomIcon> {this.getPrettyProvider()}
                 </Button>
             </div>
         )
@@ -152,7 +165,6 @@ export default class Connection extends React.Component<IProps, IState> {
                             </li>
                         )}
                         <li><Button 
-                            as='a'
                             href={this.getNewConnectionLink()}>
                                 Add or change installations
                             </Button></li>

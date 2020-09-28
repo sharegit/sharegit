@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
-import { Button } from 'semantic-ui-react';
 import style from './style.scss';
+import { Button } from '@material-ui/core';
 
 interface IProps {
 }

@@ -2,9 +2,11 @@ import API from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
-import { Button, Icon, Segment } from 'semantic-ui-react';
 import styles from '../style.scss';
 import ConfirmDialog from 'components/ConfirmDialog';
+import { Button } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
+import DeleteIcon from 'assets/icons/delete.svg'
 
 
 interface IState extends BaseState {
@@ -27,16 +29,14 @@ export default class ConfirmAccountDeletion extends React.Component<IProps, ISta
     render() {
         return (
             <div>
-                <Segment id={styles.dangerZone} className={styles.segment}>
-                    <h2>Danger zone</h2>
-                    <Button primary onClick={() => {
-                        this.state.accountDeletionOpen = true;
-                        this.setState(this.state);
-                    }}>
-                        <Icon name='delete'></Icon>
-                        Delete my account
-                    </Button>
-                </Segment>
+                <h2>Account deletion request</h2>
+                <Button onClick={() => {
+                    this.state.accountDeletionOpen = true;
+                    this.setState(this.state);
+                }}>
+                    <CustomIcon src={DeleteIcon}></CustomIcon>
+                    Delete my account
+                </Button>
 
                 <ConfirmDialog
                     open={this.state.accountDeletionOpen}

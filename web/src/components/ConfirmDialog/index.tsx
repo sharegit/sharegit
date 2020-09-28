@@ -1,6 +1,5 @@
 import React from 'react';
-import { Confirm } from 'semantic-ui-react';
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@material-ui/core';
 
 interface IProps {
     open: boolean;

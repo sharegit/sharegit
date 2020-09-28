@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link, RouteComponentProps } from 'react-router-dom';
-import { Button } from 'semantic-ui-react';
+import { RouteComponentProps } from 'react-router-dom';
 import styles from './style.scss';
 import Authentication from 'app/Authentication';
 import FeatureCard from './FeatureCard';

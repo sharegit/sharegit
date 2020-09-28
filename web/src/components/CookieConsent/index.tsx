@@ -1,8 +1,8 @@
 import React from 'react';
 import style from './style.scss';
-import { Button } from 'semantic-ui-react';
 import Cookies from 'universal-cookie';
 import { Row, Col } from 'react-bootstrap';
+import { Button } from '@material-ui/core';
 
 
 interface IProps {

@@ -1,9 +1,11 @@
 import API from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
-import { Button, Icon } from 'semantic-ui-react';
 import style from './style.scss';
 import ConfirmDialog from 'components/ConfirmDialog';
+import { Button } from '@material-ui/core';
+import CustomIcon from 'components/CustomIcon';
+import DeleteIcon from 'assets/icons/delete.svg'
 
 interface IState extends BaseState {
     confirmAccountDeletion: boolean;
@@ -28,10 +30,10 @@ export default class DangerZone extends React.Component<IProps, IState> {
     render() {
         return (
             <div id={style.dangerZone}>
-                <Button primary onClick={() => {
+                <Button onClick={() => {
                     this.setState({confirmAccountDeletion: true});
                 }}>
-                    <Icon name='delete'></Icon>
+                    <CustomIcon src={DeleteIcon}></CustomIcon>
                     Delete my account
                 </Button>
 
