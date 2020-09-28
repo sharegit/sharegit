@@ -62,13 +62,11 @@ export default class Settings extends React.Component<IProps, IState> {
     
     render() {
         return (
-            <div id={style.settings}>
-            {this.state.successfullSave == undefined ? null :
-                <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
-                headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}
-                active /> }
-
-            <ContentPanel background='light'>
+            <ContentPanel id={style.settings} background='light'>
+                {this.state.successfullSave == undefined ? null :
+                    <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
+                    headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}
+                    active /> }
                     <SettingsMenu
                         className={style.menu}
                         githubConnected={this.state.connectedServices != undefined && this.state.connectedServices.githubLogin != null}
@@ -128,7 +126,6 @@ export default class Settings extends React.Component<IProps, IState> {
                         </Route>
                     </div>
             </ContentPanel>
-            </div>
         )
     }
 }

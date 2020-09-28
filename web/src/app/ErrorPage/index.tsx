@@ -1,16 +1,16 @@
 import React from 'react'
-import { Row, Col } from 'react-bootstrap'
 import ContentPanel from 'components/ContentPanel'
 import style from './style.scss';
+import { Grid } from '@material-ui/core';
 
 export default class ErrorPage extends React.Component {
     render() {
         return (
             <ContentPanel background='gradient' id={style.errorPage}>
-                <Col>
+                <Grid item xs={12}>
                     <h2>It doesn't look like anything to me</h2>
                     <p>The requested content cannot be found or you have no permission to view it.</p>
-                </Col>
+                </Grid>
             </ContentPanel>
         )
     }

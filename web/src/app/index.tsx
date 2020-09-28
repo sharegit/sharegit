@@ -18,16 +18,15 @@ import ConfirmAccountDeletion, { IProps as IConfirmAccountDeletionProps } from '
 import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
 import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import NewTokenCreation from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
 import Shares from './Shares';
 import ProtectedRoute from 'components/ProtectedRoute';
 import CookieConsent from 'components/CookieConsent';
-import { Container } from 'react-bootstrap';
 import ErrorPage from './ErrorPage';
 import Legal from './Legal';
+import { Grid } from '@material-ui/core';
 
 interface IProps extends RouteComponentProps<any> {
 }
@@ -111,7 +110,7 @@ export default class App extends React.Component<IProps, IState> {
 
             <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
-            <Container fluid className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
+            <Grid container direction='column' className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
               <Header isLoggedIn={this.state.isLoggedIn} />
 
 
@@ -201,7 +200,7 @@ export default class App extends React.Component<IProps, IState> {
                 <Redirect from='*' to='/error' />
               </Switch>
             <Footer />
-          </Container>
+          </Grid>
         </div>
 
       )

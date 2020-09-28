@@ -10,7 +10,7 @@ import GithubMark from 'assets/icons/github-mark-light.png'
 import GitlabMark from 'assets/icons/gitlab-mark.png'
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
 import CustomIcon from 'components/CustomIcon';
-import { Col } from 'react-bootstrap';
+import { Grid } from '@material-ui/core';
 
 interface IProps extends RouteComponentProps<any> {
 
@@ -27,7 +27,7 @@ export default class Landing extends React.Component<IProps, IState> {
         return (
             <div id={styles.landing}>
                 <ContentPanel background='gradient'>
-                    <Col md='auto'>
+                    <Grid item md='auto'>
                         <Authentication
                             id={styles.signUp}
                             history={this.props.history}
@@ -35,8 +35,8 @@ export default class Landing extends React.Component<IProps, IState> {
                             location={this.props.location}
                             mode='signup'
                             />
-                    </Col>
-                    <Col md='auto'>
+                    </Grid>
+                    <Grid item md='auto'>
                         <div id={styles.title}>
                             <h1><b>Share Your Repositories</b></h1>
                             <ul>
@@ -46,7 +46,7 @@ export default class Landing extends React.Component<IProps, IState> {
                             </ul>
                             <span><b>ShareGit</b> enables you to connect to multiple Git providers and <b>share</b> your <b>private repositories</b> with a link.</span>
                         </div>
-                    </Col>
+                    </Grid>
                 </ContentPanel>
                 <ContentPanel background='light'>
                     <FeatureCard

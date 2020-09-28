@@ -1,13 +1,13 @@
 import React from 'react';
 import style from './style.scss';
-import { Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { Grid } from '@material-ui/core';
 
 export default class Footer extends React.Component {
     render() {
         return(
-            <Row className='flex-fill d-flex align-items-end'>
-                <Col>
+            <Grid item container direction='column' justify='flex-end' alignItems='center'>
+                <Grid item>
                     <footer id={style.footer} className='footer'>
                         <div id={style.content}>
                             <ul id={style.nav}>
@@ -35,8 +35,8 @@ export default class Footer extends React.Component {
                             </ul>
                         </div>
                     </footer>
-                </Col>    
-            </Row>
+                </Grid>
+            </Grid>
         );
     }
 }

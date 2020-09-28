@@ -1,9 +1,7 @@
 import React from 'react';
 import style from './style.scss';
 import Cookies from 'universal-cookie';
-import { Row, Col } from 'react-bootstrap';
-import { Button } from '@material-ui/core';
-
+import { Button, Grid } from '@material-ui/core';
 
 interface IProps {
     onConsented: () => void;
@@ -57,24 +55,22 @@ export default class CookieConsent extends React.Component<IProps, IState> {
             return null;
         } else {
             return (
-                    <Row id={style.cookieConsent} className={`justify-content-between fixed-bottom align-items-center ${this.state.remind === true ? style.remind : ''}`}>
-                        <Col md='auto' className={`justify-content-md-left ${style.notice}`}>
-                            <p>WebSite is in view-only mode. Please accept our Cookie Policy in order to continue browsing our website.</p>
-                            <p>We use cookies also to gather statistics about the website in order to improve our services.</p>
-                        </Col>
-                        <Col md='auto' className={`${style.actions}`}>
-                            <Row className='justify-content-md-center'>
-                                <Col md='auto'>
-                                    <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}>Consent to all cookies</Button>
-                                </Col>
-                            </Row>
-                            <Row className='justify-content-md-center'>
-                                <Col md='auto'>
-                                    <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}>Continue with essential cookies only</Button>
-                                </Col>
-                            </Row>
-                        </Col>
-                </Row>
+                <Grid container item direction='row' justify="space-between" alignItems="center"  id={style.cookieConsent} className={`${this.state.remind === true ? style.remind : ''}`}>
+                    <Grid xs={8} item className={style.notice}>
+                        <p>WebSite is in view-only mode. Please accept our Cookie Policy in order to continue browsing our website.</p>
+                        <p>We use cookies also to gather statistics about the website in order to improve our services.</p>
+                    </Grid>
+                    <Grid xs={4} container item direction='column' justify="center" alignItems="flex-end"  className={`${style.actions}`}>
+                        <Grid container item direction='column' justify='center' alignItems='center'>
+                            <Grid item>
+                                <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}>Consent to all cookies</Button>
+                            </Grid>
+                            <Grid item>
+                                <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}>Continue with essential cookies only</Button>
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
             );
         }
     }

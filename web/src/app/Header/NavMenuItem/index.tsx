@@ -1,6 +1,5 @@
 import React, { ComponentProps } from 'react';
-import { LinkContainer } from 'react-router-bootstrap';
-import { Nav, NavDropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 interface IProps extends ComponentProps<any> {
     loginRequired?: any;
@@ -22,19 +21,15 @@ export default class NavMenuItem extends React.Component<IProps, IState> {
          && (!(this.props.logoutRequired != undefined) || !this.props.isLoggedIn)) {
             if(this.props.isInDropdown === true) {
                 return (
-                    <LinkContainer to={this.props.uri}>
-                        <NavDropdown.Item>
-                            {this.props.children}
-                        </NavDropdown.Item>
-                    </LinkContainer>
+                    <Link to={this.props.uri}>
+                        {this.props.children}
+                    </Link>
                 )
             } else {
                 return (
-                    <LinkContainer to={this.props.uri}>
-                        <Nav.Link>
-                            {this.props.children}
-                        </Nav.Link>
-                    </LinkContainer>
+                    <Link to={this.props.uri}>
+                        {this.props.children}
+                    </Link>
                 )
             }
             
