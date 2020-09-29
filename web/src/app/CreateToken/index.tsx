@@ -257,8 +257,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     render() {
         return (
-            <ContentPanel background='light'>
-                <div id={style.createToken}>
+            <div id={style.createToken}>
+                <ContentPanel background='light'>
                     <form onSubmit={async (e) => {
                             await this.onSubmit(e)
                         }}>
@@ -318,8 +318,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             selectedRepositories={this.state.selectedRepositories}
                             />}
                     </form>
-                </div>
-            </ContentPanel>
+                </ContentPanel>
+            </div>
         )
     }
 }

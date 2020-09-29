@@ -25,7 +25,7 @@ export default class Landing extends React.Component<IProps, IState> {
     }
     render() {
         return (
-            <div id={styles.landing}>
+            <div id={styles.landing} className='page'>
                 <ContentPanel background='gradient'>
                     <Grid item md='auto'>
                         <Authentication

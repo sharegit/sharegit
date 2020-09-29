@@ -1,8 +1,6 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #repository {
-    width:  globalStyles.$siteWidth;
-    max-width: globalStyles.$siteWidth;
     #repositoryHeader {
         margin-top: 20px;
         margin-bottom: 20px;

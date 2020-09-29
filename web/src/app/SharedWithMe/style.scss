@@ -1,8 +1,6 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #sharedWithMe {
-  width: globalStyles.$siteWidth;
-  max-width: globalStyles.$siteWidth;
   p {
     text-align: center;
   }

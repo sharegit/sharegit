@@ -96,8 +96,9 @@ export default class Shares extends React.Component<IProps, IState>  {
     }
     render() {
         return(
-            <ContentPanel background='light'>
-                <div>
+            <div>
+                <ContentPanel background='light'>
+                    <Grid item container direction='column'>
                     <Button><Link to='/create'>Create new Token</Link></Button>
                         {
                             this.state.sharedTokens
@@ -170,8 +171,9 @@ export default class Shares extends React.Component<IProps, IState>  {
                         cancelLabel='Cancel'
                         confirmLabel="Delete link!">
                     </ConfirmDialog>
-                </div>
-            </ContentPanel>
+                    </Grid>
+                </ContentPanel>
+            </div>
         );
     }
 }

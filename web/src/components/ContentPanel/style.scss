@@ -19,4 +19,7 @@
         display: block;
         width: 100%;
     }
+    &:first-child {
+        padding-top: 150px;
+    }
 }

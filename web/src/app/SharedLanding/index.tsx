@@ -89,8 +89,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <ContentPanel background='light'>
-                <div id={styles.sharelandingcontainer}>
+            <div id={styles.sharelandingcontainer}>
+                <ContentPanel background='light'>
                     <div id={styles.landingHeader}>
                         <div id={styles.availableReposText}>
                             <h3>Repositories shared with you</h3>
@@ -122,8 +122,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                             }
                         </List>
                     </div>
-                </div>
-            </ContentPanel>
+                </ContentPanel>
+            </div>
         )
     }
     

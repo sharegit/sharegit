@@ -192,8 +192,8 @@ export default class Repository extends React.Component<IProps, IState> {
             return null;
 
         return (
-            <ContentPanel background='light'>
-                <div id={styles.repository}>
+            <div id={styles.repository}>
+                <ContentPanel background='light'>
                     <Link to={`/share/${this.state.tokenMeta.token}`}>
                         <Button><CustomIcon src={FirstPageIcon} /> Browse other repositories shared under this link</Button>
                     </Link>
@@ -256,8 +256,8 @@ export default class Repository extends React.Component<IProps, IState> {
                     {this.renderTree()}
                     {this.renderFileContents()}
                     {this.renderREADMEIfPresent()}
-                </div >
-            </ContentPanel>
+                </ContentPanel>
+            </div >
         )
     }
     renderFileContents() {

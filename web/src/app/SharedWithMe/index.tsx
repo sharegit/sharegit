@@ -9,7 +9,7 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { Button } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import ConfirmDialog from 'components/ConfirmDialog';
 
 export interface IProps extends RouteComponentProps<any> {
@@ -62,57 +62,59 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
     }
     render() {
         return (
-            <ContentPanel background='light'>
-                <div id={styles.sharedWithMe}>
-                    <h2>Tokens shared with you</h2>
-                    {this.state.tokens.length == 0 ? <p>You have no tokens yet!</p> : null}
-                    <List>
-                        {
-                            this.state.tokens.map((token: Token) =>
-                                [
-                                    <ListItem button key={token.token} component={Link} to={`/share/${token.token}`} >
-                                        <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
-                                        <List disablePadding dense >
-                                            {
-                                                token.repositories.length == 0 ?
-                                                    <ListItem component={ListItemText} primary="Not yet visited" /> :
-                                                    token.repositories.map((r: TokenRepo) => (
-                                                        <ListItem
-                                                            key={`${r.provider}/${r.owner}/${r.name}`}
-                                                            component={ListItemText}
-                                                            primary={`\[${r.provider}\]/${r.owner}/${r.name}`} />
-                                                    ))
-                                            }
-                                        </List>
-                                        <ListItemSecondaryAction>
-                                            <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
-                                        </ListItemSecondaryAction>
-                                    </ListItem>
-                                ])
-                        }
-                    </List>
-                    <ConfirmDialog
-                        open={this.state.confirmForget != undefined}
-                        onCancel={() => this.setState({confirmForget: undefined})}
-                        onConfirm={async () => {
-                            if(this.state.confirmForget == undefined)
-                                throw new Error('Confirming token cannot be undefined here.');
+            <div id={styles.sharedWithMe}>
+                <ContentPanel background='light'>
+                    <Grid item container direction='column'>
+                        <h2>Tokens shared with you</h2>
+                        {this.state.tokens.length == 0 ? <p>You have no tokens yet!</p> : null}
+                        <List>
+                            {
+                                this.state.tokens.map((token: Token) =>
+                                    [
+                                        <ListItem button key={token.token} component={Link} to={`/share/${token.token}`} >
+                                            <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
+                                            <List disablePadding dense >
+                                                {
+                                                    token.repositories.length == 0 ?
+                                                        <ListItem component={ListItemText} primary="Not yet visited" /> :
+                                                        token.repositories.map((r: TokenRepo) => (
+                                                            <ListItem
+                                                                key={`${r.provider}/${r.owner}/${r.name}`}
+                                                                component={ListItemText}
+                                                                primary={`\[${r.provider}\]/${r.owner}/${r.name}`} />
+                                                        ))
+                                                }
+                                            </List>
+                                            <ListItemSecondaryAction>
+                                                <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
+                                            </ListItemSecondaryAction>
+                                        </ListItem>
+                                    ])
+                            }
+                        </List>
+                        <ConfirmDialog
+                            open={this.state.confirmForget != undefined}
+                            onCancel={() => this.setState({confirmForget: undefined})}
+                            onConfirm={async () => {
+                                if(this.state.confirmForget == undefined)
+                                    throw new Error('Confirming token cannot be undefined here.');
 
-                            this.forget(this.state.confirmForget.token);
-                            this.setState({confirmForget: undefined});
-                        }}
-                        header='Forget link?'
-                        content={
-                            <div>
-                                <p>Forgetting link: {this.state.confirmForget != undefined
-                                               && (this.state.confirmForget!.customName != undefined ? this.state.confirmForget!.customName : this.state.confirmForget!.token)}</p>
-                                I would like to forget this link and I understand that this action is irreversible.
-                            </div>}
-                        cancelLabel='Cancel'
-                        confirmLabel="Forget link">
-                    </ConfirmDialog>
-                </div>
-            </ContentPanel >
+                                this.forget(this.state.confirmForget.token);
+                                this.setState({confirmForget: undefined});
+                            }}
+                            header='Forget link?'
+                            content={
+                                <div>
+                                    <p>Forgetting link: {this.state.confirmForget != undefined
+                                                    && (this.state.confirmForget!.customName != undefined ? this.state.confirmForget!.customName : this.state.confirmForget!.token)}</p>
+                                    I would like to forget this link and I understand that this action is irreversible.
+                                </div>}
+                            cancelLabel='Cancel'
+                            confirmLabel="Forget link">
+                        </ConfirmDialog>
+                    </Grid>
+                </ContentPanel>
+            </div>
         )
     }
 }

@@ -5,6 +5,7 @@ import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import style from './style.scss';
 import Dictionary from 'util/Dictionary';
+import { Grid } from '@material-ui/core';
 
 interface IState extends BaseState {
     name: string;
@@ -71,19 +72,21 @@ export default class Dashboard extends React.Component<IProps, IState>  {
     }
     render() {
         return (
-            <ContentPanel background='light'>
-                <div id={style.dashboard}>
-                    <h2>
-                        Dashboard
-                    </h2>
-                    <p>Hello {this.state.name}</p>
-                    <h2>Analytics</h2>
-                    <p>The values here are not exact, they could take up to 24 hours to update.</p>
-                    <ul>
-                        {this.state.analytics.map(x=> this.renderAnalyticLine(x))}
-                    </ul>
-                </div>
-            </ContentPanel>
+            <div id={style.dashboard}>
+                <ContentPanel background='light'>
+                    <Grid item container direction='column'>
+                        <h2>
+                            Dashboard
+                        </h2>
+                        <p>Hello {this.state.name}</p>
+                        <h2>Analytics</h2>
+                        <p>The values here are not exact, they could take up to 24 hours to update.</p>
+                        <ul>
+                            {this.state.analytics.map(x=> this.renderAnalyticLine(x))}
+                        </ul>
+                    </Grid>
+                </ContentPanel>
+            </div>
         )
     }
 }

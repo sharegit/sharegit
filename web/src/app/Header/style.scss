@@ -1,8 +1,11 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #header {
-    background-color: globalStyles.$dark;
-    padding: 15px;
+    padding: 40px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
     #logo {
         float: left;
         margin-left: 10px;
@@ -11,35 +14,27 @@
         height: 2em;
         margin-right: 10px;
     }
-    background-color: globalStyles.$dark;
-    color: globalStyles.$light;
+    color: globalStyles.$dark;
     text-decoration: none;
-    
+}
+.menu {
     /* unvisited link */
     a:link {
-        color:globalStyles.$light;
+        color:globalStyles.$dark;
     }
     
     /* visited link */
     a:visited {
-        color: globalStyles.$light;
+        color: globalStyles.$dark;
     }
     
     /* mouse over link */
     a:hover {
-        color: globalStyles.$light;
+        color: globalStyles.$dark;
     }
     
     /* selected link */
     a:active {
         color: globalStyles.$blue;
-    }
-    :global(.dropdown-menu) {
-        right: 0;
-        left: auto;
-        background-color: globalStyles.$dark !important;
-        * {
-            background-color: globalStyles.$dark !important;
-        }
     }
 }

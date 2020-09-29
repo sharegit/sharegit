@@ -107,13 +107,11 @@ export default class App extends React.Component<IProps, IState> {
   render() {
     return (
         <div id={styles.app}>
-
             <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
+            <Header isLoggedIn={this.state.isLoggedIn} />
+
             <Grid container direction='column' className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
-              <Header isLoggedIn={this.state.isLoggedIn} />
-
-
               <Switch>
                 <Route path='/' exact component={(props: any) => (
                   <Landing
@@ -199,8 +197,9 @@ export default class App extends React.Component<IProps, IState> {
                 
                 <Redirect from='*' to='/error' />
               </Switch>
+            </Grid>
+            
             <Footer />
-          </Grid>
         </div>
 
       )
