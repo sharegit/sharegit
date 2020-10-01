@@ -170,9 +170,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     
     
-    async onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    async onSubmit() {
         try {
-            e.preventDefault();
             if(this.state.errors.length == 0) {
                 await this.create();
             } else {
@@ -259,8 +258,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         return (
             <div id={style.createToken}>
                 <ContentPanel background='light'>
-                    <form onSubmit={async (e) => {
-                            await this.onSubmit(e)
+                    <form onSubmit={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                         }}>
                     <h2>Create a new share token</h2>
                     {this.state.formState != 0 ? null
@@ -312,6 +312,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             onChangeRepoDownloadable={this.makeRepositoryDownloadable.bind(this)}
                             onChangeSelectedBranches={this.changeSelectedBranchesFor.bind(this)}
                             onChangePath={this.changePath.bind(this)}
+
+                            onBack={() => this.setState({formState: 1})}
+                            onSubmit={async () => await this.onSubmit()}
 
                             errors={this.state.errors}
                             repositories={this.state.repositories}

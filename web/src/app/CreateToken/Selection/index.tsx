@@ -16,6 +16,9 @@ interface IProps {
     onChangeSelectedBranches: (r: SharedRepository, newBranches: string[]) => void;
     onChangePath: (r: SharedRepository, id: string, newPath: string) => void;
 
+    onBack: () => void;
+    onSubmit: () => void;
+
     errors: Dictionary<string>;
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
@@ -126,8 +129,8 @@ export default class Selection extends React.Component<IProps> {
                                                     this.props.onAddSingleRepo(r);
                 }} /> ) }
             </GridList>,
-            <Button key='back' onClick={() => this.setState({formState: 1})}>Back</Button>,
-            <Button key='create' disabled={!this.canCreate()} type='submit'>Create</Button>
+            <Button key='back' onClick={() => this.props.onBack()}>Back</Button>,
+            <Button key='create' disabled={!this.canCreate()} onClick={() => this.props.onSubmit()}>Create</Button>
         ]
     }
 }
