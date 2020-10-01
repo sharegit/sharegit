@@ -85,7 +85,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                                                 <Grid item className={styles.repoItem}
                                                                     key={`${r.provider}/${r.owner}/${r.name}`}
                                                                     component={ListItemText}
-                                                                    primary={`\[${r.provider}\]/${r.owner}/${r.name}`} />
+                                                                    primary={`\[${r.provider}\]/${r.owner}/${r.name}${!!r.path ? '/'+r.path : ''}`} />
                                                             ))
                                                     }
                                                 </Grid>
