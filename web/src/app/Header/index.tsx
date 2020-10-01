@@ -6,6 +6,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import NavMenuItem from './NavMenuItem';
 import style from './style.scss';
+import ShareGitLogo from 'assets/icons/logo_light.svg';
 
 interface IProps {
     isLoggedIn: boolean;
@@ -21,22 +22,28 @@ export default class Header extends React.Component<IProps, IState> {
     render() {
         return (
             <Grid id={style.header} item container justify='space-between' alignItems='center'>
-                <Grid item>
-                    <Link id={style.logo} to="/">
-                        <img className={style.logo} src='/static/img/logo_big_w.png' alt='logo'/>
-                        ShareGit
-                    </Link>
+                <Grid xs={4} item container direction='row' justify='flex-start' alignItems='center'>
+                    <Grid item>
+                        <Link className={style.logo} to="/">
+                            <CustomIcon size='large' src={ShareGitLogo} />
+                        </Link>
+                    </Grid>
+                    <Grid item>
+                        <Link className={style.logo} to="/">
+                            ShareGit
+                        </Link>
+                    </Grid>
                 </Grid>
-                <Grid item> 
+                <Grid xs={8} item container direction='row' justify='flex-end' alignItems='center'> 
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><CustomIcon src={AddCircle}></CustomIcon></NavMenuItem>
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
 
-                    <DropdownMenu className={style.menu} buttonHeader='Shared with me'>
+                    <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='Shared with me'>
                         <NavMenuItem isInDropdown uri='/share'>Manage my sha</NavMenuItem>
                     </DropdownMenu>
                     {this.props.isLoggedIn && 
-                        <DropdownMenu className={style.menu} buttonHeader='My Account'>
+                        <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='My Account'>
                             <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
                             <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/shares">My Shares</NavMenuItem>
                             <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/settings">Settings</NavMenuItem>

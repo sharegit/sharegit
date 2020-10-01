@@ -1,23 +1,33 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #header {
-    padding: 40px;
+    padding: 50px;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
-    #logo {
-        float: left;
-        margin-left: 10px;
-    }
-    img.logo {
-        height: 2em;
-        margin-right: 10px;
+    .logo {
+        font-size: 1.8em;
+        color: globalStyles.$light;
+        text-decoration: none;
+        text-shadow: 1px 1px 3px #000000;
     }
     color: globalStyles.$dark;
+    background: globalStyles.$gradient;
+
     text-decoration: none;
 }
 .menu {
+    * {
+        color: globalStyles.$light;
+        text-shadow: 1px 1px 3px #000000;
+        text-decoration: none;
+    }
+}
+.menuItem {
+    * {
+        text-decoration: none;
+    }
     /* unvisited link */
     a:link {
         color:globalStyles.$dark;

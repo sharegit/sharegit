@@ -3,7 +3,8 @@ import { Button, Popper, Grow, Paper, ClickAwayListener, MenuList } from '@mater
 
 
 interface IProps extends ComponentProps<any>, React.HTMLAttributes<HTMLDivElement>{
-    buttonHeader: ReactNode
+    buttonHeader: ReactNode;
+    buttonClassName?: string;
 }
 
 interface IState {
@@ -32,14 +33,15 @@ export default class DropdownMenu extends React.Component<IProps, IState> {
     }
     render() {
         return [
-            <Button 
+            <Button  className={this.props.buttonClassName}
+            key='dropdown_button'
             ref={this.state.menuOpenRef}
             aria-controls={this.state.isMenuOpen ? "menu-list-grow" : undefined}
             aria-haspopup="true"
             onClick={this.toggleOpen.bind(this)} >
             {this.props.buttonHeader}
             </Button>,
-            <Popper className={this.props.className} open={this.state.isMenuOpen}  anchorEl={this.state.menuOpenRef.current} transition>
+            <Popper key='dropdown' className={this.props.className} open={this.state.isMenuOpen}  anchorEl={this.state.menuOpenRef.current} transition>
                 {({ TransitionProps, placement }) => (
                     <Grow
                     {...TransitionProps}

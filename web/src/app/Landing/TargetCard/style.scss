@@ -16,7 +16,7 @@
         content: ' ';
         display: block;
 
-        background: linear-gradient(95.64deg, globalStyles.$green 3.82%, globalStyles.$blue 123.47%);
+        background: globalStyles.$gradient;
     }
     .text {
         margin-top: 10px;

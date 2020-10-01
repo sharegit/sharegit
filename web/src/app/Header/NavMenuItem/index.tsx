@@ -1,6 +1,6 @@
 import React, { ComponentProps } from 'react';
 import { Link } from 'react-router-dom';
-import { MenuItem } from '@material-ui/core';
+import { MenuItem, Grid } from '@material-ui/core';
 
 interface IProps extends ComponentProps<any> {
     loginRequired?: any;
@@ -30,9 +30,11 @@ export default class NavMenuItem extends React.Component<IProps, IState> {
                 )
             } else {
                 return (
-                    <Link to={this.props.uri}>
-                        {this.props.children}
-                    </Link>
+                    <Grid item>
+                        <Link to={this.props.uri}>
+                            {this.props.children}
+                        </Link>
+                    </Grid>
                 )
             }
             

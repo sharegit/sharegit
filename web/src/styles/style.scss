@@ -6,9 +6,12 @@ $green: #0BA14B;
 $darkblue: #0665d5;
 $limegreen: #0af8d1;
 
-$gradient: linear-gradient(95.64deg, $darkblue 3.82%, $limegreen 123.47%);
+$gradient: linear-gradient(90deg, $darkblue 3.82%, $limegreen 123.47%);
 $siteWidth: 1120px;
 
+* {
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+}
 
 .left {
     float: left;
