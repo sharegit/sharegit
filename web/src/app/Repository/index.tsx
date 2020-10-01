@@ -11,7 +11,7 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import { Link } from 'react-router-dom';
-import { Button, List } from '@material-ui/core';
+import { Button, List, Grid } from '@material-ui/core';
 import CustomIcon from 'components/CustomIcon';
 import FirstPageIcon from 'assets/icons/first-page.svg';
 import GetAppIcon from 'assets/icons/get-app.svg';
@@ -194,68 +194,70 @@ export default class Repository extends React.Component<IProps, IState> {
         return (
             <div id={styles.repository}>
                 <ContentPanel background='light'>
-                    <Link to={`/share/${this.state.tokenMeta.token}`}>
-                        <Button><CustomIcon src={FirstPageIcon} /> Browse other repositories shared under this link</Button>
-                    </Link>
-                    <div id={styles.repositoryHeader}>
-                        <div id={styles.currentRepository}>
-                            <h3>{this.props.repo}</h3>
-                        </div>
-                        <div id={styles.authorText}>
-                            <p> <b>Author:</b> <i>{this.props.user}</i></p>
-                        </div>
-                        <div className="clear"></div>
-                        <div id={styles.branch}>
-                            <BranchSelector
-                                history={this.props.history}
-                                location={this.props.location}
-                                match={this.props.match}
-                                key={`${this.state.sha}`}
-                                user={this.props.user}
-                                repo={this.props.repo}
-                                current={this.state.sha}
-                                onBranchSelectionChanged={(newValue: string) => {
-                                    this.setState({sha: newValue},
-                                        () => {
-                                        if (this.state.tokenMeta == undefined || this.state.repoMeta == undefined)
-                                            return;
+                    <Grid direction='column' item container>
+                        <Link to={`/share/${this.state.tokenMeta.token}`}>
+                            <Button><CustomIcon src={FirstPageIcon} /> Browse other repositories shared under this link</Button>
+                        </Link>
+                        <div id={styles.repositoryHeader}>
+                            <div id={styles.currentRepository}>
+                                <h3>{this.props.repo}</h3>
+                            </div>
+                            <div id={styles.authorText}>
+                                <p> <b>Author:</b> <i>{this.props.user}</i></p>
+                            </div>
+                            <div className="clear"></div>
+                            <div id={styles.branch}>
+                                <BranchSelector
+                                    history={this.props.history}
+                                    location={this.props.location}
+                                    match={this.props.match}
+                                    key={`${this.state.sha}`}
+                                    user={this.props.user}
+                                    repo={this.props.repo}
+                                    current={this.state.sha}
+                                    onBranchSelectionChanged={(newValue: string) => {
+                                        this.setState({sha: newValue},
+                                            () => {
+                                            if (this.state.tokenMeta == undefined || this.state.repoMeta == undefined)
+                                                return;
 
-                                        this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}${this.props.uri == undefined ? '' : '/' + this.props.uri}?token=${this.state.tokenMeta.token}`);
-                                    })
-                                }}>
-                            </BranchSelector>
+                                            this.props.history.push(`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.props.type}/${this.state.sha}${this.props.uri == undefined ? '' : '/' + this.props.uri}?token=${this.state.tokenMeta.token}`);
+                                        })
+                                    }}>
+                                </BranchSelector>
+                            </div>
+                            
+                            <div id={styles.path}>
+                                <Path
+                                    token={this.state.tokenMeta.token}
+                                    provider={this.props.provider}
+                                    id={this.props.id}
+                                    user={this.props.user}
+                                    repo={this.props.repo}
+                                    sha={this.state.sha}
+                                    path={this.props.uri == undefined ? this.props.repo : `${this.props.repo}/${this.props.uri}`}
+                                    restricted={this.state.repoMeta.path}
+                                    type={this.props.type}>
+                                </Path>
+                            </div>
+                            {this.state.repoMeta.downloadable ? 
+                            <div id={styles.download}>
+                                {this.state.startingDownload !== true ?
+                                <Button onClick={async () => {
+                                    this.startDownloading();
+                                }}>Download as zip <CustomIcon src={GetAppIcon} /></Button>
+                            :
+                                <Button disabled>Downloading as zip <CustomIcon src={HourglassIcon} /></Button>
+                                }
+                            </div>
+                        :   null}
+                            <div className="clear"></div>
                         </div>
-                        
-                        <div id={styles.path}>
-                            <Path
-                                token={this.state.tokenMeta.token}
-                                provider={this.props.provider}
-                                id={this.props.id}
-                                user={this.props.user}
-                                repo={this.props.repo}
-                                sha={this.state.sha}
-                                path={this.props.uri == undefined ? this.props.repo : `${this.props.repo}/${this.props.uri}`}
-                                restricted={this.state.repoMeta.path}
-                                type={this.props.type}>
-                            </Path>
-                        </div>
-                        {this.state.repoMeta.downloadable ? 
-                        <div id={styles.download}>
-                            {this.state.startingDownload !== true ?
-                            <Button onClick={async () => {
-                                this.startDownloading();
-                            }}>Download as zip <CustomIcon src={GetAppIcon} /></Button>
-                        :
-                            <Button disabled>Downloading as zip <CustomIcon src={HourglassIcon} /></Button>
-                            }
-                        </div>
-                    :   null}
-                        <div className="clear"></div>
-                    </div>
 
-                    {this.renderTree()}
-                    {this.renderFileContents()}
-                    {this.renderREADMEIfPresent()}
+                        {this.renderTree()}
+                        {this.renderFileContents()}
+                        {this.renderREADMEIfPresent()}
+                    </Grid>
                 </ContentPanel>
             </div >
         )

@@ -7,7 +7,7 @@ import RepositoryCard from './RepositoryCard';
 import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
-import { List } from '@material-ui/core';
+import { List, Grid } from '@material-ui/core';
 import Loading from 'components/Loading';
 
 export interface IProps extends RouteComponentProps<any> {
@@ -91,37 +91,40 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         return (
             <div id={styles.sharelandingcontainer}>
                 <ContentPanel background='light'>
-                    <div id={styles.landingHeader}>
-                        <div id={styles.availableReposText}>
-                            <h3>Repositories shared with you</h3>
+                    <Grid direction='column' item container>
+
+                        <div id={styles.landingHeader}>
+                            <div id={styles.availableReposText}>
+                                <h3>Repositories shared with you</h3>
+                            </div>
+                            <div id={styles.authorText}>
+                                <p> <b>Shared by:</b> <i>{this.state.author}</i> <br />
+                                <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
+                            </div>
+                            <div className="clear"></div>
                         </div>
-                        <div id={styles.authorText}>
-                            <p> <b>Shared by:</b> <i>{this.state.author}</i> <br />
-                            <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
+                        {!!this.state.authorBio ? <p>The following Biography was provided by {this.state.author}: <br />{this.state.authorBio}</p> : null}
+                        {this.state.tokenExp != undefined && 
+                            'This token will expire on: ' + this.state.tokenExp}
+                        <div id={styles.tokenChecker}>
+                            {this.renderTokenValidity()}
                         </div>
-                        <div className="clear"></div>
-                    </div>
-                    {!!this.state.authorBio ? <p>The following Biography was provided by {this.state.author}: <br />{this.state.authorBio}</p> : null}
-                    {this.state.tokenExp != undefined && 
-                        'This token will expire on: ' + this.state.tokenExp}
-                    <div id={styles.tokenChecker}>
-                        {this.renderTokenValidity()}
-                    </div>
-                    <div className={styles.myclass}>
-                        <List >
-                            {
-                                this.state.repositories
-                                    .map((r : SharedRepository) =>
-                                        <RepositoryCard key={r.repo}
-                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${this.props.token}`}
-                                                        name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
-                                                        downloadable={r.downloadAllowed}
-                                                        description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                        provider={r.provider}></RepositoryCard>
-                                    )
-                            }
-                        </List>
-                    </div>
+                        <div className={styles.myclass}>
+                            <List >
+                                {
+                                    this.state.repositories
+                                        .map((r : SharedRepository) =>
+                                            <RepositoryCard key={r.repo}
+                                                            link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${this.props.token}`}
+                                                            name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
+                                                            downloadable={r.downloadAllowed}
+                                                            description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                            provider={r.provider}></RepositoryCard>
+                                        )
+                                }
+                            </List>
+                        </div>
+                    </Grid>
                 </ContentPanel>
             </div>
         )
