@@ -75,7 +75,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                             <Grid container direction='column' justify='center' alignItems='flex-start'>
                                                 <Grid item container direction='row' className={styles.repoHeader}>
                                                     <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
-                                                    <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
+                                                    <Button variant="contained" color="primary" onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
                                                 </Grid>
                                                 <Grid item container direction='row' className={styles.repoList}>
                                                     {
