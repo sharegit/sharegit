@@ -72,22 +72,24 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                 this.state.tokens.map((token: Token) =>
                                     [
                                         <ListItem button key={token.token} component={Link} to={`/share/${token.token}`} >
-                                            <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
-                                            <List disablePadding dense >
-                                                {
-                                                    token.repositories.length == 0 ?
-                                                        <ListItem component={ListItemText} primary="Not yet visited" /> :
-                                                        token.repositories.map((r: TokenRepo) => (
-                                                            <ListItem
-                                                                key={`${r.provider}/${r.owner}/${r.name}`}
-                                                                component={ListItemText}
-                                                                primary={`\[${r.provider}\]/${r.owner}/${r.name}`} />
-                                                        ))
-                                                }
-                                            </List>
-                                            <ListItemSecondaryAction>
-                                                <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
-                                            </ListItemSecondaryAction>
+                                            <Grid container direction='column' justify='center' alignItems='flex-start'>
+                                                <Grid item container direction='row' className={styles.repoHeader}>
+                                                    <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
+                                                    <Button variant="contained" color="primary" onClick={() => { this.setState({confirmForget: token}) }}>Forget</Button>
+                                                </Grid>
+                                                <Grid item container direction='row' className={styles.repoList}>
+                                                    {
+                                                        token.repositories.length == 0 ?
+                                                            <Grid item className={styles.repoItem} component={ListItemText} primary="Not yet visited" /> :
+                                                            token.repositories.map((r: TokenRepo) => (
+                                                                <Grid item className={styles.repoItem}
+                                                                    key={`${r.provider}/${r.owner}/${r.name}`}
+                                                                    component={ListItemText}
+                                                                    primary={`\[${r.provider}\]/${r.owner}/${r.name}`} />
+                                                            ))
+                                                    }
+                                                </Grid>
+                                            </Grid>
                                         </ListItem>
                                     ])
                             }
