@@ -17,6 +17,16 @@
 
     text-decoration: none;
 }
+.repoList {
+    font-size: 0.8em;
+}
+.action {
+    * {
+        color: globalStyles.$light;
+        font-weight: bold;
+    }
+    background: globalStyles.$gradient;
+}
 .menu {
     * {
         color: globalStyles.$light;

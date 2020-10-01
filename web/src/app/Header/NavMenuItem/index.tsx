@@ -8,6 +8,7 @@ interface IProps extends ComponentProps<any> {
     uri: string;
     isLoggedIn?: boolean;
     type?: boolean;
+    className?: string;
 }
 interface IState {
 
@@ -22,7 +23,7 @@ export default class NavMenuItem extends React.Component<IProps, IState> {
          && (!(this.props.logoutRequired != undefined) || !this.props.isLoggedIn)) {
             if(this.props.isInDropdown === true) {
                 return (
-                    <MenuItem>
+                    <MenuItem className={this.props.className}>
                         <Link to={this.props.uri}>
                             {this.props.children}
                         </Link>
@@ -30,7 +31,7 @@ export default class NavMenuItem extends React.Component<IProps, IState> {
                 )
             } else {
                 return (
-                    <Grid item>
+                    <Grid item className={this.props.className}>
                         <Link to={this.props.uri}>
                             {this.props.children}
                         </Link>

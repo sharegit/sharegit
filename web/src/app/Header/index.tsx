@@ -1,23 +1,52 @@
 import { Grid } from '@material-ui/core';
 import AddCircle from 'assets/icons/add-circle.svg';
+import ShareGitLogo from 'assets/icons/logo_light.svg';
 import CustomIcon from 'components/CustomIcon';
 import DropdownMenu from 'components/DropdownMenu';
+import { Token } from 'models/Tokens';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import NavMenuItem from './NavMenuItem';
 import style from './style.scss';
-import ShareGitLogo from 'assets/icons/logo_light.svg';
 
 interface IProps {
     isLoggedIn: boolean;
 }
+
+interface RepoMinInfo {
+    sharer: string;
+    link: string;
+    customName: string;
+    repos: string;
+}
+
 interface IState {
+    repos: Array<RepoMinInfo>;
+    missingCount: number;
 }
 
 export default class Header extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
-        this.state = { };
+        this.state = {
+            repos: [],
+            missingCount: 0
+        };
+    }
+    componentDidMount() {
+        const tokens = new LocalStorageDictionary<Token>('alltokens');
+        const sharedWithMe = tokens.getAll();
+        this.setState({
+            missingCount: Math.max(0, sharedWithMe.length - 6),
+            repos: sharedWithMe.slice(0, 6).map(x => {
+                return {
+                    sharer: x.author,
+                    customName: x.customName,
+                    link: '/share/' + x.token,
+                    repos: x.repositories.map(x=>`${x.owner}/${x.name}${!!x.path ? '/'+x.path : ''}`).join(',').substr(0, 40) + '...'
+                };
+        })})
     }
     render() {
         return (
@@ -40,7 +69,25 @@ export default class Header extends React.Component<IProps, IState> {
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
 
                     <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='Shared with me'>
-                        <NavMenuItem isInDropdown uri='/share'>Manage my sha</NavMenuItem>
+                        {this.state.repos.map(x=>
+                            <NavMenuItem isInDropdown uri={x.link}>
+                                <div>
+                                    {x.sharer}'s "{x.customName}"
+                                </div>
+                                <div className={style.repoList}>
+                                    {x.repos}
+                                </div>
+                            </NavMenuItem>
+                        )}
+                        <NavMenuItem className={style.action} isInDropdown uri='/share'>
+                            <div>
+                                Manage links shared with me
+                            </div>
+                            {this.state.missingCount > 0 && 
+                            <div>
+                                {`${this.state.missingCount} More ...`}
+                            </div>}
+                        </NavMenuItem>
                     </DropdownMenu>
                     {this.props.isLoggedIn && 
                         <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='My Account'>
