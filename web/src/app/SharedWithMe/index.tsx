@@ -65,7 +65,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
             <div id={styles.sharedWithMe}>
                 <ContentPanel background='light'>
                     <Grid item container direction='column'>
-                        <h2>Tokens shared with you</h2>
+                        <h2>Links shared with you</h2>
                         {this.state.tokens.length == 0 ? <p>You have no tokens yet!</p> : null}
                         <List>
                             {
