@@ -49,7 +49,7 @@ export default class DropdownMenu extends React.Component<IProps, IState> {
                     >
                     <Paper>
                         <ClickAwayListener onClickAway={this.close.bind(this)}>
-                        <MenuList autoFocusItem={this.state.isMenuOpen} id="menu-list-grow">
+                        <MenuList autoFocusItem={this.state.isMenuOpen} onClick={this.close.bind(this)} id="menu-list-grow">
                             {this.props.children}
                         </MenuList>
                         </ClickAwayListener>
