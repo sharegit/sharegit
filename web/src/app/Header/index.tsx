@@ -3,7 +3,7 @@ import AddCircle from 'assets/icons/add-circle.svg';
 import ShareGitLogo from 'assets/icons/logo_light.svg';
 import CustomIcon from 'components/CustomIcon';
 import DropdownMenu from 'components/DropdownMenu';
-import { Token } from 'models/Tokens';
+import { Token, compareTokens } from 'models/Tokens';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
@@ -39,7 +39,7 @@ export default class Header extends React.Component<IProps, IState> {
         const sharedWithMe = tokens.getAll();
         this.setState({
             missingCount: Math.max(0, sharedWithMe.length - 6),
-            repos: sharedWithMe.slice(0, 6).map(x => {
+            repos: sharedWithMe.sort(compareTokens).slice(0, 6).map(x => {
                 return {
                     sharer: x.author,
                     customName: x.customName,

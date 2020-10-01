@@ -1,4 +1,4 @@
-import { Token, TokenRepo } from 'models/Tokens';
+import { Token, TokenRepo, compareTokens } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -38,7 +38,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                 allTokens.remove(x.token);
 
             return canStay;
-        });
+        }).sort(compareTokens);
 
         this.setState(this.state);
     }

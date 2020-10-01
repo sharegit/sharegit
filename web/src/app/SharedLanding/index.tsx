@@ -76,7 +76,8 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                     provider: x.provider,
                     downloadable: x.downloadAllowed,
                     path: x.path
-                }))
+                })),
+                firstOpenDate: new Date()
             })
         } catch(error) {
             this.state.tokenValid = false;

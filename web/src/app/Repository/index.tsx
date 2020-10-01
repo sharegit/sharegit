@@ -80,7 +80,8 @@ export default class Repository extends React.Component<IProps, IState> {
                         provider: x.provider,
                         downloadable: x.downloadAllowed,
                         path: x.path
-                    }))
+                    })),
+                    firstOpenDate: new Date()
                 };
 
                 tokens.put(tokenMeta.token, existingToken);

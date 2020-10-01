@@ -13,7 +13,18 @@ export interface Token {
     repositories: TokenRepo[];
     customName: string;
     tokenExp?: Date;
+    firstOpenDate: Date;
 }
+
+export function compareTokens(a: Token, b: Token) {
+    if (a.firstOpenDate == undefined || a.firstOpenDate < b.firstOpenDate) 
+        return 1;
+    if (b.firstOpenDate == undefined || a.firstOpenDate > b.firstOpenDate)
+        return -1;
+    
+    return 0;
+}
+
 export function getSharedPathType(path: string | undefined): 'tree' | 'blob' {
     if(path == undefined || path.endsWith("/"))
         return 'tree';
