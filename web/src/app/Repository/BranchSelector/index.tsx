@@ -2,6 +2,7 @@ import API, { Branch, CancelToken } from 'models/API';
 import React from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import Dropdown from 'components/Dropdown';
+import style from './style.scss';
 
 interface IState {
     branches: Branch[];
@@ -54,7 +55,8 @@ export default class BranchSelector extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <Dropdown placeholder='Select Branch'
+            <Dropdown className={style.branchSelector}  
+                      placeholder='Select Branch'
                       search
                       label=''
                       helperText=''

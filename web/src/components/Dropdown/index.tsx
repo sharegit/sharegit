@@ -11,6 +11,7 @@ export interface DropdownOption {
 }
 
 interface IProps {
+    className?: string;
     onChange?: (value: DropdownValue | string[]) => void;
     onAddItem?: (value: DropdownValue | string[]) => void;
     defaultValue?: DropdownValue;
@@ -59,6 +60,7 @@ export default class Dropdown extends React.Component<IProps> {
         const filter = createFilterOptions<DropdownOption>();
         return (
             <Autocomplete
+            className={this.props.className}
             multiple={this.props.multiple}
             onClick={(e) => e.stopPropagation()}
             filterOptions={(options, params) => {
