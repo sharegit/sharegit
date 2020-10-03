@@ -70,12 +70,7 @@ export default class Shares extends React.Component<IProps, IState>  {
         if (this.isTokenExpired(a) && !this.isTokenExpired(b))
             return +1;
         
-        if (a.customName < b.customName)
-            return -1;
-        if (b.customName < a.customName)
-            return +1;
-        
-        return 0;
+        return a.customName.localeCompare(b.customName);
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel()
