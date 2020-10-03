@@ -193,7 +193,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             <ul className={`${style.small} ${style.repos}`}>
                                                 {
                                                     token.repositories.slice(0, 15).map((r: SharedRepository) => 
-                                                        <li className={style.repo}>{r.repo}, </li>
+                                                        <li key={`${r.provider}${r.owner}${r.repo}${r.path}`} className={style.repo}>{r.repo}, </li>
                                                     ) 
                                                 }
                                                 {token.repositories.length > 15 &&
