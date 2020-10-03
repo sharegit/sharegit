@@ -3,7 +3,7 @@ import AddCircle from 'assets/icons/add-circle.svg';
 import ShareGitLogo from 'assets/icons/logo_light.svg';
 import CustomIcon from 'components/CustomIcon';
 import DropdownMenu from 'components/DropdownMenu';
-import { Token, compareTokens } from 'models/Tokens';
+import { Token, compareTokens, prettyRemainingTime } from 'models/Tokens';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
@@ -17,6 +17,7 @@ interface IProps {
 interface RepoMinInfo {
     sharer: string;
     link: string;
+    expDate?: Date;
     customName: string;
     repos: string;
 }
@@ -43,6 +44,7 @@ export default class Header extends React.Component<IProps, IState> {
                 return {
                     sharer: x.author,
                     customName: x.customName,
+                    expDate: x.tokenExp,
                     link: '/share/' + x.token,
                     repos: x.repositories.map(x=>`${x.owner}/${x.name}${!!x.path ? '/'+x.path : ''}`).join(',').substr(0, 40) + '...'
                 };
@@ -63,7 +65,7 @@ export default class Header extends React.Component<IProps, IState> {
                         </Link>
                     </Grid>
                 </Grid>
-                <Grid xs={8} item container direction='row' justify='flex-end' alignItems='center'> 
+                <Grid xs={8} item container direction='row' justify='flex-end' alignItems='center' className={style.menu}> 
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><CustomIcon src={AddCircle}></CustomIcon></NavMenuItem>
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
@@ -74,6 +76,10 @@ export default class Header extends React.Component<IProps, IState> {
                                 <div>
                                     {x.sharer}'s "{x.customName}"
                                 </div>
+                                {x.expDate != undefined &&
+                                    <div className={style.exp}>
+                                        Expires in {prettyRemainingTime(x.expDate)}
+                                    </div>}
                                 <div className={style.repoList}>
                                     {x.repos}
                                 </div>

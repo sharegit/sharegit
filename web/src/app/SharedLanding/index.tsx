@@ -1,6 +1,6 @@
 import API, { SharedRepository } from 'models/API';
 import { BaseState } from 'models/BaseState';
-import { Token, getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
+import { Token, getSharedPathType, getAdditionalPath, getPreferredSha, prettyRemainingTime } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import RepositoryCard from './RepositoryCard';
@@ -104,9 +104,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                             </div>
                             <div className="clear"></div>
                         </div>
-                        {!!this.state.authorBio ? <p>The following Biography was provided by {this.state.author}: <br />{this.state.authorBio}</p> : null}
                         {this.state.tokenExp != undefined && 
-                            'This token will expire on: ' + this.state.tokenExp}
+                            'This link will expire in ' + prettyRemainingTime(this.state.tokenExp)}
+                        {!!this.state.authorBio ? <p>The following Biography was provided by {this.state.author}: <br />{this.state.authorBio}</p> : null}
                         <div id={styles.tokenChecker}>
                             {this.renderTokenValidity()}
                         </div>

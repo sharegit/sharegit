@@ -1,4 +1,4 @@
-import { Token, TokenRepo, compareTokens } from 'models/Tokens';
+import { Token, TokenRepo, compareTokens, prettyRemainingTime, prettyRemainingTimeOfToken } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -74,7 +74,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                         <ListItem button key={token.token} component={Link} to={`/share/${token.token}`} >
                                             <Grid container direction='column' justify='center' alignItems='flex-start'>
                                                 <Grid item container direction='row' className={styles.repoHeader}>
-                                                    <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires on: ' + token.tokenExp : ''} />
+                                                    <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires in: ' + prettyRemainingTimeOfToken(token) : ''} />
                                                     <Button variant="contained" color="primary" onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
                                                 </Grid>
                                                 <Grid item container direction='row' className={styles.repoList}>

@@ -16,6 +16,46 @@ export interface Token {
     firstOpenDate: Date;
 }
 
+/**
+ * Calculates the remaining time and returns
+ * how many days, hours or minutes until 'expDate'
+ */
+export function remainingTime(expDate: Date | undefined) {
+    if (expDate == undefined)
+        return undefined;
+    
+    const now = new Date();
+    const exp = new Date(expDate);
+    const delta = exp.getTime() - now.getTime();
+
+    return {
+        days: Math.floor(delta / (1000 * 60 * 60 * 24)),
+        hours: Math.floor(delta / (1000 * 60 * 60)),
+        minutes: Math.floor(delta / (1000 * 60))
+    };
+}
+
+export function prettyRemainingTime(time: Date | undefined) {
+    const remaining = remainingTime(time);
+    if (remaining == undefined)
+        return '';
+        
+    if (remaining.days > 0)
+        return `${remaining.days} days`;
+    
+    if (remaining.hours > 0)
+        return `${remaining.hours} hours`;
+
+    if (remaining.minutes > 0)
+        return `${remaining.minutes} minutes`;
+
+    return 'seconds'
+}
+
+export function prettyRemainingTimeOfToken(a: Token) {
+    return prettyRemainingTime(a.tokenExp);
+}
+
 export function compareTokens(a: Token, b: Token) {
     if (a.firstOpenDate == undefined || a.firstOpenDate < b.firstOpenDate) 
         return 1;
