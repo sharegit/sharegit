@@ -63,7 +63,7 @@ export default class Settings extends React.Component<IProps, IState> {
     render() {
         return (
             <div id={style.settings}>
-                <ContentPanel background='light'>
+                <ContentPanel background='light' alignItems='flex-start'>
                     {this.state.successfullSave == undefined ? null :
                         <DismissableMessage style={this.state.successfullSave === false ? 'warning' : 'positive'}
                         headerMessage={this.state.successfullSave === false ? 'An Unknown Error occurred during saving your settings!' : 'Settings successfully saved!'}

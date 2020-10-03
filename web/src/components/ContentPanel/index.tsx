@@ -4,6 +4,9 @@ import { Grid } from '@material-ui/core';
 
 interface IProps extends ComponentProps<any>, React.HTMLAttributes<HTMLDivElement> {
     background: 'light' | 'dark' | 'gradient';
+    direction?: 'row' | 'column';
+    justify?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+    alignItems?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
 }
 
 interface IState {
@@ -25,7 +28,10 @@ export default class ContentPanel extends React.Component<IProps, IState> {
     }
     render() {
         return (
-            <Grid item container direction='row' justify='center' alignItems='center'
+            <Grid item container
+                direction={this.props.direction == undefined ? 'row' : this.props.direction}
+                justify={this.props.justify == undefined ? 'center' : this.props.justify}
+                alignItems={this.props.alignItems == undefined ? 'center' : this.props.alignItems}
                 id={this.props.id}
                 className={`${style.contentPanel}
                             ${this.getBackgroundStyle()}
