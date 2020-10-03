@@ -57,9 +57,9 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
     }
     renderTokenHeader(token: Token) {
         if (!!token.author) {
-            return [<div className={styles.author}>{token.author}'s</div>,
-                    <div className={styles.name}>{!!token.customName ? token.customName : token.token}</div>].concat( 
-                        token.tokenExp != undefined ? <div className={styles.exp}>Expires in: {prettyRemainingTimeOfToken(token)}</div> : <span />
+            return [<div key='author' className={styles.author}>{token.author}'s</div>,
+                    <div key='name' className={styles.name}>{!!token.customName ? token.customName : token.token}</div>].concat( 
+                        token.tokenExp != undefined ? <div key='exp' className={styles.exp}>Expires in: {prettyRemainingTimeOfToken(token)}</div> : <span key='exp' />
                     )
         } else {
             return token.token
@@ -69,7 +69,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         const str = `${r.name}${!!r.path ? '/'+r.path : ''}`;
 
         if (r.downloadable)
-            return [<CustomIcon src={GetAppIcon} />,<span>{str}</span>]
+            return [<CustomIcon key='icon' src={GetAppIcon} />,<span key='rep'>{str}</span>]
         else
             return str
     }
