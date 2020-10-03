@@ -1,0 +1,48 @@
+@use '/src/styles/style.scss' as globalStyles;
+
+.shareCard {
+    display: inline-block;
+    margin: 10px;
+    max-width: 350px;
+    height: 250px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .repo {
+        margin-right: 8px;
+        text-decoration: none;
+        list-style: none;
+        display: inline-block;
+    }
+    .header {
+        font-weight: bold;
+    }
+}
+.shareCards {
+    display: inline-block;
+}
+.small {
+    font-size: 0.8em;
+    padding: 5px;
+}
+.repos {
+    white-space: normal;
+    * {
+        white-space: normal;
+    }
+}
+
+.disabled {
+    hr {
+        background: globalStyles.$disabledGradient;
+        height: 2px;
+    }
+}
+.enabled {
+    hr {
+        background: globalStyles.$gradient;
+        height: 2px;
+    }
+}

@@ -113,11 +113,16 @@ export default class App extends React.Component<IProps, IState> {
 
             <Grid container direction='column' className={`min-vh-100 d-flex h-100 flex-column clear-top ${styles.appContentContainer}`}>
               <Switch>
-                <Route path='/' exact component={(props: any) => (
-                  <Landing
-                  {...props}
-                  {...props.match.params} />
-                )} />
+                <Route path='/' exact component={(props: any) => {
+                  if (this.state.isLoggedIn)
+                    return (<Shares
+                      {...props}
+                      {...props.match.params}/>)
+                  else
+                    return (<Landing
+                      {...props}
+                      {...props.match.params} />)
+                }} />
 
                 <Route path="/:provider/:id/:user/:repo" exact component={(props: IRepositoryProps) => (
                   <Repository
@@ -143,12 +148,6 @@ export default class App extends React.Component<IProps, IState> {
                   {...props}
                   {...props.match.params}/>
                   )} />
-
-                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/dashboard" exact component={(props: IDashboardProps) => (
-                  <Dashboard
-                  {...props}
-                  {...props.match.params}/>
-                )} />
 
                 <Route path="/auth/:provider?" component={(props: IAuthenticationProps) => (
                   <ContentPanel background='gradient'>
@@ -187,7 +186,6 @@ export default class App extends React.Component<IProps, IState> {
 
                 <Route path="/create" component={NewTokenCreation} />
 
-                <ProtectedRoute isAuthenticated={this.state.isLoggedIn} path="/shares" component={Shares} />
 
                 <Route path='/legal' component={(props: RouteComponentProps<any>) => 
                   <Legal {...props} />

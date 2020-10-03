@@ -169,12 +169,20 @@ namespace WebAPI.Controllers
         {
             var userId = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier);
             var user = await AccountRepository.GetAsync(userId.Value);
-            return user.SharedTokens.Select(x => new Core.APIModels.SharedToken()
+            var tokensWithRepositories = user.SharedTokens.Select(async x => new Core.APIModels.SharedToken()
             {
                 Token = x.Token,
                 CustomName = x.CustomName,
-                ExpireDate = x.ExpireDate
+                ExpireDate = x.ExpireDate,
+                Repositories = (await ShareRepository.GetAsync(x.Token)).AccessibleRepositories.Select(
+                    x => new SharedRepository()
+                    {
+                        Provider = x.Provider,
+                        Repo = x.Repo,
+                        Path = x.Path
+                    }).ToArray()
             }).ToList();
+            return await Task.WhenAll(tokensWithRepositories);
         }
 
         [HttpGet("repos")]

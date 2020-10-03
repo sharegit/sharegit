@@ -11,5 +11,6 @@
         public string Author { get; set; }
         public string AuthorWebsite { get; set; }
         public string AuthorBio { get; set; }
+        public SharedRepository[] Repositories { get; set; }
     }
 }

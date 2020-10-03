@@ -64,6 +64,7 @@ export interface SharedToken {
     author: string;
     authorWebsite: string;
     authorBio: string;
+    repositories: SharedRepository[];
 }
 export interface Branch {
     name: string;

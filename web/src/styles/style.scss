@@ -4,9 +4,12 @@ $red: #DB162F;
 $blue: #009Fb7;
 $green: #0BA14B;
 $darkblue: #0665d5;
+$disabledDarkblue: #4a4b4d;
 $limegreen: #0af8d1;
+$disabledLimegreen: #e3f1ef;
 
 $gradient: linear-gradient(90deg, $darkblue 3.82%, $limegreen 123.47%);
+$disabledGradient: linear-gradient(90deg, $disabledDarkblue 3.82%, $disabledLimegreen 123.47%);
 $siteWidth: 1120px;
 
 * {

@@ -109,7 +109,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
                                         else if (parsedState.m == 'add') {
                                             this.props.history.push(`/settings/${this.props.provider}`);
                                         } else {
-                                            this.props.history.push('/dashboard');
+                                            this.props.history.push('/');
                                         }
                                     } catch (e) {
                                         this.setState({processing: false, failed: true});
@@ -122,10 +122,10 @@ export default class Authentication extends React.Component<IProps, IState>  {
                         }
                     }
                 } else {
-                    this.props.history.push(`/dashboard`);
+                    this.props.history.push(`/`);
                 }
             } else if(localStorage.getItem('OAuthJWT') != undefined) {
-                this.props.history.push(`/dashboard`);
+                this.props.history.push(`/`);
             }
         }
 

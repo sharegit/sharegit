@@ -1,7 +1,7 @@
 import React from 'react';
 import ContentPanel from 'components/ContentPanel';
 import { BaseState } from 'models/BaseState';
-import API, { SharedToken, SharedRepository } from 'models/API';
+import API, { SharedToken, SharedRepository, Analytic } from 'models/API';
 import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
@@ -9,15 +9,20 @@ import printDate from 'util/Date';
 import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 import ConfirmDialog from 'components/ConfirmDialog';
 import ExpandIcon from 'assets/icons/expand.svg';
-import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid } from '@material-ui/core';
+import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid, Card, CardContent, CardActions, Typography, InputBase, TextField } from '@material-ui/core';
 import CustomIcon from 'components/CustomIcon';
+import style from './style.scss';
+import Dictionary from 'util/Dictionary';
+
+
 
 interface IState extends BaseState {
     name: string;
     sharedTokens: SharedToken[];
     activeTokenIndex: number;
-    repositories: { [K in number]: SharedRepository[] };
     confirmDeletion?: SharedToken;
+    filter: string;
+    analytics: Dictionary<Analytic>
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -31,50 +36,51 @@ export default class Shares extends React.Component<IProps, IState>  {
             name: '',
             sharedTokens: [],
             activeTokenIndex: -1,
-            repositories: []
+            filter: '',
+            analytics: new Dictionary<Analytic>()
         }
     }
     async componentDidMount() {
         const tokensRequest = API.getSharedTokens(this.state.cancelToken)
+        const essentialsRequest = API.fetchDashboardEssential(this.state.cancelToken)
+        const analyticsRequest = API.getAnalytics(this.state.cancelToken)
 
+        const essentials = await essentialsRequest;
         const tokens = await tokensRequest;
-        this.setState({
-            sharedTokens: tokens,
-            repositories: tokens.map(x => [])
+        const analytics = await analyticsRequest;
+
+        analytics.analytics.forEach( x => {
+            if (tokens.some(t=>x.token == t.token))
+                this.state.analytics.put(x.token, x);
         })
+                
+        this.setState({
+            sharedTokens: tokens.sort(this.sortTokensBy.bind(this)),
+            name: essentials.name,
+            analytics: this.state.analytics
+        })
+    }
+    sortTokensBy(a: SharedToken, b: SharedToken): number {
+        if (this.isTokenExpired(b) && !this.isTokenExpired(a))
+            return -1;
+        if (this.isTokenExpired(a) && !this.isTokenExpired(b))
+            return +1;
+        
+        if (a.customName < b.customName)
+            return -1;
+        if (b.customName < a.customName)
+            return +1;
+        
+        return 0;
     }
     componentWillUnmount() {
         this.state.cancelToken.cancel()
     }
 
-    async handleClick(event: React.ChangeEvent<{}>, index: number, expanded: boolean): Promise<void> {
-        const newIndex = index;
-        this.setState({
-            activeTokenIndex: this.state.activeTokenIndex == newIndex ? -1 : newIndex
-        })
-        
-        if(newIndex >= 0) {
-            if(this.state.repositories[newIndex].length == 0) {
-                try {
-                    const repositories = await API.getSharedRepositories(this.state.sharedTokens[newIndex].token, this.state.cancelToken)
-                    this.state.repositories[newIndex] = repositories.repositories;
-                    this.setState({
-                        repositories: this.state.repositories
-                    })
-                } catch (e) {
-                    if (!API.wasCancelled(e)) {
-                        throw e;
-                    }
-                }
-            }
-        }
-    }
     addToken(token: SharedToken) {
         this.state.sharedTokens.push(token);
-        this.state.repositories[this.state.sharedTokens.length - 1] = []
         this.setState({
-            sharedTokens: this.state.sharedTokens,
-            repositories: this.state.repositories
+            sharedTokens: this.state.sharedTokens
         });
     }
     async deleteToken(token: string) {
@@ -94,63 +100,95 @@ export default class Shares extends React.Component<IProps, IState>  {
             }
         }
     }
+    searched(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
+        const newValue = event.target.value;
+        this.setState({
+            filter: newValue
+        })
+    }
+    filter(token: SharedToken) {
+        if (this.state.filter == '')
+            return true;
+
+        const filter = this.state.filter.toLowerCase();
+
+        if (token.repositories.some(x=>x.repo.toLowerCase().includes(filter) || x.provider.toLowerCase().includes(filter)))
+            return true;
+
+        if (token.customName.toLowerCase().includes(filter))
+            return true;
+
+        return false;
+    }
+    constructAnalytics(token: string) {
+        const anal = this.state.analytics.get(token);
+        if(anal != undefined)
+            return <span className={style.small}>Unique Views: {anal.uniquePageViews}, Clicks: {anal.pageViews}</span>
+
+        return null;
+    }
+    isTokenExpired(token: SharedToken) {
+        if (token.expireDate > 0)
+            return token.expireDate < new Date().getTime() / 1000 / 60;
+        
+        return false;
+    }
     render() {
         return(
             <div>
                 <ContentPanel background='light'>
                     <Grid item container direction='column'>
-                    <Button><Link to='/create'>Create new Token</Link></Button>
+                        <h2>You are logged in as {this.state.name}</h2>
+                    <Button component={Link} to='/create'>Create new Token</Button>
+                        <h2>Your shares</h2>
+                    <TextField
+                        label={'Search'}
+                        onChange={this.searched.bind(this)}
+                        placeholder="Search repository, link title or provider"
+                        inputProps={{ 'aria-label': 'search' }}/>
+                    <Grid item container justify='center' alignItems='center'>
                         {
                             this.state.sharedTokens
-                                .map((token : SharedToken, index: number) => 
-                                    <Accordion
-                                        key={token.token}
-                                        expanded={this.state.activeTokenIndex == index}
-                                        onChange={async (event, expanded) => {
-                                            await this.handleClick(event, index, expanded)
-                                        }}>
-                                        <AccordionSummary expandIcon={<CustomIcon src={ExpandIcon}/>} >
-                                            {!!token.customName ? token.customName : token.token}
+                                .filter(this.filter.bind(this))
+                                .map((token : SharedToken) => 
+                                    <Card key={token.token} className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled}`}>
+                                        <CardContent>
+                                            <Typography className={style.header}>
+                                                {!!token.customName ? token.customName : token.token}
+                                            </Typography>
+                                            {this.constructAnalytics(token.token)}
+                                            <hr />
                                             { token. expireDate != 0 &&
-                                                `${token.expireDate < new Date().getTime() / 1000 / 60 ? '(Expired at ' : '(Expires at '}${printDate(new Date(token.expireDate * 60 * 1000))}`}
-                                        </AccordionSummary>
-                                        <AccordionDetails>
-                                            <Grid container spacing={3}>
-                                                <Grid item xs={12}>
-                                                    <Button onClick={() =>{
-                                                        navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
-                                                    }}>Copy link</Button>
-                                                    <Button>
-                                                        <Link target='_blank' to={`/share/${token.token}`}>
-                                                            Open link
-                                                        </Link>
-                                                    </Button>
-                                                    <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
-                                                </Grid>
-                                                <Grid item xs={12}>
-                                                    <h3>Repositories shared with this token:</h3>
-                                                </Grid>
-                                                <Grid item xs={12}>
-                                                    <List >
-                                                        {
-                                                            this.state.repositories[index]
-                                                                .map((r : SharedRepository) =>
-                                                                    <RepositoryCard key={`${r.repo}_${token.token}`}
-                                                                                    target='_blank'
-                                                                                    link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
-                                                                                    name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
-                                                                                    downloadable={r.downloadAllowed}
-                                                                                    description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                                                    provider={r.provider}></RepositoryCard>
-                                                                )
-                                                        }
-                                                    </List>
-                                                </Grid>
-                                            </Grid>
-                                        </AccordionDetails>
-                                    </Accordion>
+                                                <div className={style.small}>
+                                                    {this.isTokenExpired(token) ? '(Expired at ' : '(Expires at '}
+                                                    {printDate(new Date(token.expireDate * 60 * 1000))}
+                                                </div> }
+                                            
+                                            <Typography className={style.header}>Repositories:</Typography>
+                                            <ul className={`${style.small} ${style.repos}`}>
+                                                {
+                                                    token.repositories.slice(0, 15).map((r: SharedRepository) => 
+                                                        <li className={style.repo}>{r.repo}, </li>
+                                                    ) 
+                                                }
+                                                {token.repositories.length > 15 &&
+                                                        <li className={style.repo}>{token.repositories.length - 15} more ...</li>}
+                                            </ul>
+                                        </CardContent>
+                                        <CardActions>
+                                            <Button onClick={() =>{
+                                                navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
+                                            }}>Copy link</Button>
+                                            <Button component={Link} target='__blank' to={`/share/${token.token}`}>
+                                                Open link
+                                            </Button>
+                                            <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
+                                        </CardActions>
+
+                                    </Card>
                                 )
                         }
+                        </Grid>
                     <ConfirmDialog
                         open={this.state.confirmDeletion != undefined}
                         onCancel={() => this.setState({confirmDeletion: undefined})}
@@ -177,3 +215,31 @@ export default class Shares extends React.Component<IProps, IState>  {
         );
     }
 }
+
+
+// <AccordionDetails>
+// <Grid container spacing={3}>
+//     <Grid item xs={12}>
+        
+//     </Grid>
+//     <Grid item xs={12}>
+//         <h3>Repositories shared with this token:</h3>
+//     </Grid>
+//     <Grid item xs={12}>
+//         <List >
+//             {
+//                 this.state.repositories[index]
+//                     .map((r : SharedRepository) =>
+//                         <RepositoryCard key={`${r.repo}_${token.token}`}
+//                                         target='_blank'
+//                                         link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
+//                                         name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
+//                                         downloadable={r.downloadAllowed}
+//                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
+//                                         provider={r.provider}></RepositoryCard>
+//                     )
+//             }
+//         </List>
+//     </Grid>
+// </Grid>
+// </AccordionDetails>

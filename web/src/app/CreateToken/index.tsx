@@ -53,7 +53,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 CustomName: this.state.customName,
                 ExpireDate: this.state.expireDate == undefined || this.state.isExpiring !== true ? 0 : Math.ceil(this.state.expireDate.getTime() / 1000 / 60)
             }, this.state.cancelToken)
-            this.props.history.push('/shares');
+            this.props.history.push('/');
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;

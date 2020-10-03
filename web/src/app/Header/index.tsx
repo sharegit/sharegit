@@ -97,8 +97,7 @@ export default class Header extends React.Component<IProps, IState> {
                     </DropdownMenu>
                     {this.props.isLoggedIn && 
                         <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='My Account'>
-                            <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/dashboard">Dashboard</NavMenuItem>
-                            <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/shares">My Shares</NavMenuItem>
+                            <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/">My Shares</NavMenuItem>
                             <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/settings">Settings</NavMenuItem>
                             <NavMenuItem isInDropdown isLoggedIn={this.props.isLoggedIn} loginRequired uri="/logout">Logout</NavMenuItem>
                         </DropdownMenu>}
