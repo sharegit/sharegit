@@ -18,10 +18,15 @@
     text-decoration: none;
 }
 .repoList {
+    display: block;
     font-size: 0.8em;
 }
 .exp {
+    display: block;
     FONT-SIZE: 0.7em;
+}
+.repoLink {
+    display: block;
 }
 .action {
     * {

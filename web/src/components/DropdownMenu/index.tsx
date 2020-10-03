@@ -48,11 +48,10 @@ export default class DropdownMenu extends React.Component<IProps, IState> {
                     style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                     >
                     <Paper>
-                        <ClickAwayListener onClickAway={this.close.bind(this)}>
-                        <MenuList autoFocusItem={this.state.isMenuOpen} onClick={this.close.bind(this)} id="menu-list-grow">
+                        <ClickAwayListener onClickAway={this.close.bind(this)}><div></div></ClickAwayListener>
+                        <MenuList autoFocusItem={this.state.isMenuOpen}  id="menu-list-grow">
                             {this.props.children}
                         </MenuList>
-                        </ClickAwayListener>
                     </Paper>
                     </Grow>
                 )}

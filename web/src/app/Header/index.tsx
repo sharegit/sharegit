@@ -72,16 +72,18 @@ export default class Header extends React.Component<IProps, IState> {
 
                     <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='Shared with me'>
                         {this.state.repos.map(x=>
-                            <NavMenuItem key={x.link} isInDropdown uri={x.link}>
+                            <NavMenuItem key={x.link} isInDropdown uri={x.link} className={style.repoLink}>
                                 <div>
-                                    {x.sharer}'s "{x.customName}"
-                                </div>
-                                {x.expDate != undefined &&
-                                    <div className={style.exp}>
-                                        Expires in {prettyRemainingTime(x.expDate)}
-                                    </div>}
-                                <div className={style.repoList}>
-                                    {x.repos}
+                                    <div className={style.repoLink}>
+                                        {x.sharer}'s "{x.customName}"
+                                    </div>
+                                    {x.expDate != undefined &&
+                                        <div className={style.exp}>
+                                            Expires in {prettyRemainingTime(x.expDate)}
+                                        </div>}
+                                    <div className={style.repoList}>
+                                        {x.repos}
+                                    </div>
                                 </div>
                             </NavMenuItem>
                         )}

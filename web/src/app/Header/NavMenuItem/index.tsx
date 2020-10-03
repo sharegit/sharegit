@@ -23,18 +23,14 @@ export default class NavMenuItem extends React.Component<IProps, IState> {
          && (!(this.props.logoutRequired != undefined) || !this.props.isLoggedIn)) {
             if(this.props.isInDropdown === true) {
                 return (
-                    <MenuItem className={this.props.className}>
-                        <Link to={this.props.uri}>
-                            {this.props.children}
-                        </Link>
+                    <MenuItem className={this.props.className} component={Link} to={this.props.uri}>
+                        {this.props.children}
                     </MenuItem>
                 )
             } else {
                 return (
-                    <Grid item className={this.props.className}>
-                        <Link to={this.props.uri}>
-                            {this.props.children}
-                        </Link>
+                    <Grid item className={this.props.className} component={Link} to={this.props.uri}>
+                        {this.props.children}
                     </Grid>
                 )
             }
