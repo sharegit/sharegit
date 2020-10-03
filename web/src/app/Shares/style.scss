@@ -1,9 +1,8 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 .shareCard {
-    display: inline-block;
     margin: 10px;
-    max-width: 350px;
+    width: 350px;
     height: 250px;
 
     display: flex;

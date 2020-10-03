@@ -9,7 +9,7 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, Card } from '@material-ui/core';
 import ConfirmDialog from 'components/ConfirmDialog';
 import CustomIcon from 'components/CustomIcon';
 import GetAppIcon from 'assets/icons/get-app.svg';
@@ -55,16 +55,19 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
             this.setState(this.state);
         }
     }
-    renderTokenHeader(token: Token): string {
+    renderTokenHeader(token: Token) {
         if (!!token.author) {
-            return `${token.author}'s [${!!token.customName ? token.customName : token.token}]`
+            return [<div className={styles.author}>{token.author}'s</div>,
+                    <div className={styles.name}>{!!token.customName ? token.customName : token.token}</div>].concat( 
+                        token.tokenExp != undefined ? <div className={styles.exp}>Expires in: {prettyRemainingTimeOfToken(token)}</div> : <span />
+                    )
         } else {
-            return `[${token.token}]`
+            return token.token
         }
     }
     constructRepositoryLabel(r: TokenRepo) {
-        const str = `\[${r.provider}\]/${r.owner}/${r.name}${!!r.path ? '/'+r.path : ''}`;
-        
+        const str = `${r.name}${!!r.path ? '/'+r.path : ''}`;
+
         if (r.downloadable)
             return [<CustomIcon src={GetAppIcon} />,<span>{str}</span>]
         else
@@ -77,33 +80,34 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                     <Grid item container direction='column'>
                         <h2>Links shared with you</h2>
                         {this.state.tokens.length == 0 ? <p>You have no tokens yet!</p> : null}
-                        <List>
+                       <Grid item container justify='center' alignItems='center'>
                             {
                                 this.state.tokens.map((token: Token) =>
                                     [
-                                        <ListItem button key={token.token} component={Link} to={`/share/${token.token}`} >
+                                        <Card key={token.token} className={styles.sharedLink} onClick={() => this.props.history.push(`/share/${token.token}`)}>
                                             <Grid container direction='column' justify='center' alignItems='flex-start'>
-                                                <Grid item container direction='row' className={styles.repoHeader}>
-                                                    <ListItemText primary={this.renderTokenHeader(token)} secondary={token.tokenExp != undefined ? 'Expires in: ' + prettyRemainingTimeOfToken(token) : ''} />
-                                                    <Button variant="contained" color="primary" onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
-                                                </Grid>
-                                                <Grid item container direction='row' className={styles.repoList}>
+                                                {this.renderTokenHeader(token)}
+                                                <hr />
+                                                <Button className={styles.forget} onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
+                                                
+                                                <ul className={styles.repoList}>
                                                     {
                                                         token.repositories.length == 0 ?
-                                                            <Grid item className={styles.repoItem} component={ListItemText} primary="Not yet visited" /> :
-                                                            token.repositories.map((r: TokenRepo) => (
-                                                                <Grid item className={styles.repoItem}
+                                                            <li className={styles.repoItem} >Not yet visited</li>:
+                                                            token.repositories.slice(0, 15).map((r: TokenRepo) => (
+                                                                <li className={styles.repoItem}
                                                                     key={`${r.provider}/${r.owner}/${r.name}`}
-                                                                    component={ListItemText}
-                                                                    primary={this.constructRepositoryLabel(r)} />
+                                                                    >{this.constructRepositoryLabel(r)}</li>
                                                             ))
                                                     }
-                                                </Grid>
+                                                    {token.repositories.length > 15 && 
+                                                        <li className={styles.repoItem}>{token.repositories.length - 15} more ...</li>}
+                                                </ul>
                                             </Grid>
-                                        </ListItem>
+                                        </Card>
                                     ])
                             }
-                        </List>
+                        </Grid>
                         <ConfirmDialog
                             open={this.state.confirmForget != undefined}
                             onCancel={() => this.setState({confirmForget: undefined})}

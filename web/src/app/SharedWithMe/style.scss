@@ -1,6 +1,7 @@
 @use '/src/styles/style.scss' as globalStyles;
 
 #sharedWithMe {
+  
   p {
     text-align: center;
   }
@@ -20,11 +21,9 @@
 
   .repoItem {
     display: inline-block;
-    * {
-      font-size: 0.85em;
-      margin-right: 5px;
-      padding-right: 5px;
-    }
+    font-size: 0.8em;
+    margin-right: 5px;
+    padding-right: 5px;
   }
   .repoHeader {
     * {
@@ -37,5 +36,48 @@
   }
   .repoList {
     padding-left: 30px;
+  }
+  .sharedLink {
+    margin: 10px;
+    width: 350px;
+    height: 250px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    transition: transform .1s; 
+
+    .author {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-top: 10px;
+      margin-left: 15px;
+    }
+    .name {
+      font-style: italic;
+      margin-left: 25px;
+    }
+    .exp {
+      margin-left: 20px;
+      font-style: italic;
+      font-weight: 0.7em;
+    }
+    hr {
+      background: globalStyles.$gradient;
+      height: 2px;
+      width: 90%;
+      margin-left: 5%;
+      margin-bottom: 10px;
+    }
+  }
+  .sharedLink:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+  }
+  .forget {
+    position: absolute;
+    top: 4px;
+    right: 4px;
   }
 }
