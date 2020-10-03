@@ -88,7 +88,11 @@ namespace WebAPI.Controllers
 
             var providers = accessibleRepositories.GroupBy(x => x.Provider);
             List<SharedRepository> sharedRepositories = new List<SharedRepository>();
-            foreach(var provider in providers)
+
+            List<Task<Core.Model.APIResponse<Core.Model.Github.GithubRepositories>>> githubResponses = new List<Task<Core.Model.APIResponse<Core.Model.Github.GithubRepositories>>>();
+            Task<Core.Model.APIResponse<Core.Model.GitLab.GitlabProject[]>> gitlabResponse = null;
+            Task<Core.Model.APIResponse<Core.Model.Bitbucket.PaginatedBitbucketResponse<BitbucketRepository>>> bitbucketResponse = null;
+            foreach (var provider in providers)
             {
                 switch(provider.Key)
                 {
@@ -99,26 +103,7 @@ namespace WebAPI.Controllers
                         {
                             var ownerAccess = await RepositoryServiceGH.GetAccess(owner);
 
-                            var repositoriesResponseGH = await RepositoryServiceGH.GetInstallationRepositories(ownerAccess);
-                            foreach (var rep in repositoriesResponseGH.Value.Repositories)
-                            {
-                                var dbRepo = accessibleRepositories.FirstOrDefault(x =>
-                                    x.Repo == rep.Name
-                                    && x.Provider == provider.Key
-                                    && x.Owner == rep.Owner.Login);
-                                if (dbRepo != null)
-                                    sharedRepositories.Add(new SharedRepository()
-                                    {
-                                        Id = rep.Id,
-                                        Description = rep.Description,
-                                        Owner = rep.Owner.Login,
-                                        Provider = provider.Key,
-                                        Repo = rep.Name,
-                                        Path = dbRepo.Path,
-                                        DownloadAllowed = dbRepo.DownloadAllowed,
-                                        Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
-                                    });
-                            }
+                            githubResponses.Add(RepositoryServiceGH.GetInstallationRepositories(ownerAccess));
                         }
                         break;
                     case "gitlab":
@@ -129,25 +114,7 @@ namespace WebAPI.Controllers
                                 UserId = user.Id,
                                 AccessToken = JWT.Decode<string>(user.GitlabConnection.EncodedAccessToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                             };
-                            var repositoriesResponseGL = await RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabUserAccess);
-                            foreach (var rep in repositoriesResponseGL.Value)
-                            {
-                                var dbRepo = accessibleRepositories.FirstOrDefault(x =>
-                                    x.RepoId == rep.Id
-                                    && x.Provider == provider.Key);
-                                if (dbRepo != null)
-                                    sharedRepositories.Add(new SharedRepository()
-                                    {
-                                        Id = rep.Id,
-                                        Description = rep.Description,
-                                        Owner = rep.Namespace.Path,
-                                        Provider = provider.Key,
-                                        Repo = rep.Path,
-                                        Path = dbRepo.Path,
-                                        DownloadAllowed = dbRepo.DownloadAllowed,
-                                        Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
-                                    });
-                            }
+                            gitlabResponse = RepositoryServiceGL.GetProjects(user.GitlabConnection.GitlabId, gitlabUserAccess);
                         }
                         break;
                     case "bitbucket":
@@ -160,34 +127,88 @@ namespace WebAPI.Controllers
                                 RefreshToken = JWT.Decode<string>(user.BitbucketConnection.EncodedRefreshToken, RollingEnv.Get("SHARE_GIT_API_PRIV_KEY_LOC")),
                                 AccessTokenExp = user.BitbucketConnection.AccessTokenExp
                             };
-                            var repositoriesResponseBB = await RepositoryServiceBB.GetRepositories(bitbucketUserAccess);
-                            foreach (var rep in repositoriesResponseBB.Value.Values)
-                            {
-                                var dbRepo = accessibleRepositories.FirstOrDefault(x =>
-                                    x.Owner== rep.Workspace.Slug
-                                    && x.Repo == rep.Slug
-                                    && x.Provider == provider.Key);
-                                if (dbRepo != null)
-                                    sharedRepositories.Add(new SharedRepository()
-                                    {
-                                        // Id = rep.Id,
-                                        Description = rep.Description,
-                                        Owner = rep.Workspace.Slug,
-                                        Provider = provider.Key,
-                                        Repo = rep.Slug,
-                                        Path = dbRepo.Path,
-                                        DownloadAllowed = dbRepo.DownloadAllowed,
-                                        Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
-                                    });
-                            }
+                            bitbucketResponse = RepositoryServiceBB.GetRepositories(bitbucketUserAccess);
                         }
                         break;
                     default:
                         throw new ArgumentException("Invalid argument: provider: [" + provider.Key + "]");
                 }
             }
-                
+            if(gitlabResponse != null)
+            {
+                var repositoriesResponseGL = await gitlabResponse;
+                foreach (var rep in repositoriesResponseGL.Value)
+                {
+                    var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                        x.RepoId == rep.Id
+                        && x.Provider == "gitlab");
+                    if (dbRepo != null)
+                        sharedRepositories.Add(new SharedRepository()
+                        {
+                            Id = rep.Id,
+                            Description = rep.Description,
+                            Owner = rep.Namespace.Path,
+                            Provider = "gitlab",
+                            Repo = rep.Path,
+                            Path = dbRepo.Path,
+                            DownloadAllowed = dbRepo.DownloadAllowed,
+                            Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                        });
+                }
+            }
 
+            if (githubResponses.Any())
+            {
+                var repositoriesResponsesGH = await Task.WhenAll(githubResponses);
+                foreach (var repositoriesResponseGH in repositoriesResponsesGH)
+                {
+                    foreach (var rep in repositoriesResponseGH.Value.Repositories)
+                    {
+                        var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                            x.Repo == rep.Name
+                            && x.Provider == "github"
+                            && x.Owner == rep.Owner.Login);
+                        if (dbRepo != null)
+                            sharedRepositories.Add(new SharedRepository()
+                            {
+                                Id = rep.Id,
+                                Description = rep.Description,
+                                Owner = rep.Owner.Login,
+                                Provider = "github",
+                                Repo = rep.Name,
+                                Path = dbRepo.Path,
+                                DownloadAllowed = dbRepo.DownloadAllowed,
+                                Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                            });
+                    }
+                }
+            }
+
+            if (bitbucketResponse != null)
+            {
+                var repositoriesResponseBB = await bitbucketResponse;
+
+                foreach (var rep in repositoriesResponseBB.Value.Values)
+                {
+                    var dbRepo = accessibleRepositories.FirstOrDefault(x =>
+                        x.Owner == rep.Workspace.Slug
+                        && x.Repo == rep.Slug
+                        && x.Provider == "bitbucket");
+                    if (dbRepo != null)
+                        sharedRepositories.Add(new SharedRepository()
+                        {
+                            // Id = rep.Id,
+                            Description = rep.Description,
+                            Owner = rep.Workspace.Slug,
+                            Provider = "bitbucket",
+                            Repo = rep.Slug,
+                            Path = dbRepo.Path,
+                            DownloadAllowed = dbRepo.DownloadAllowed,
+                            Branches = dbRepo.Branches.Select(x => new Branch() { Name = x }).ToArray()
+                        });
+                }
+            }
+            
             return new SharedRepositories()
             {
                 Repositories = sharedRepositories
