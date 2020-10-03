@@ -63,10 +63,10 @@ export default class CookieConsent extends React.Component<IProps, IState> {
                     <Grid xs={4} container item direction='column' justify="center" alignItems="flex-end"  className={`${style.actions}`}>
                         <Grid container item direction='column' justify='center' alignItems='center'>
                             <Grid item>
-                                <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}>Consent to all cookies</Button>
+                                <Button id={style.agree} className='consenter' onClick={this.agree.bind(this)}><span className='consenter'>Consent to all cookies</span></Button>
                             </Grid>
                             <Grid item>
-                                <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}>Continue with essential cookies only</Button>
+                                <Button id={style.disagree} className='consenter' onClick={this.disagree.bind(this)}><span className='consenter'>Continue with essential cookies only</span></Button>
                             </Grid>
                         </Grid>
                     </Grid>
