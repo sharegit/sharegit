@@ -72,7 +72,7 @@ export default class Header extends React.Component<IProps, IState> {
 
                     <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='Shared with me'>
                         {this.state.repos.map(x=>
-                            <NavMenuItem isInDropdown uri={x.link}>
+                            <NavMenuItem key={x.link} isInDropdown uri={x.link}>
                                 <div>
                                     {x.sharer}'s "{x.customName}"
                                 </div>
