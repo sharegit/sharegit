@@ -13,6 +13,7 @@ import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid, Card
 import CustomIcon from 'components/CustomIcon';
 import style from './style.scss';
 import Dictionary from 'util/Dictionary';
+import Loading from 'components/Loading';
 
 
 
@@ -22,7 +23,8 @@ interface IState extends BaseState {
     activeTokenIndex: number;
     confirmDeletion?: SharedToken;
     filter: string;
-    analytics: Dictionary<Analytic>
+    analytics: Dictionary<Analytic>;
+    loaded: boolean;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -37,7 +39,8 @@ export default class Shares extends React.Component<IProps, IState>  {
             sharedTokens: [],
             activeTokenIndex: -1,
             filter: '',
-            analytics: new Dictionary<Analytic>()
+            analytics: new Dictionary<Analytic>(),
+            loaded: false
         }
     }
     async componentDidMount() {
@@ -57,7 +60,8 @@ export default class Shares extends React.Component<IProps, IState>  {
         this.setState({
             sharedTokens: tokens.sort(this.sortTokensBy.bind(this)),
             name: essentials.name,
-            analytics: this.state.analytics
+            analytics: this.state.analytics,
+            loaded: true
         })
     }
     sortTokensBy(a: SharedToken, b: SharedToken): number {
@@ -148,7 +152,8 @@ export default class Shares extends React.Component<IProps, IState>  {
                         inputProps={{ 'aria-label': 'search' }}/>
                     <Grid item container justify='center' alignItems='center'>
                         {
-                            this.state.sharedTokens
+                            !this.state.loaded ? <Loading />
+                        :   this.state.sharedTokens
                                 .filter(this.filter.bind(this))
                                 .map((token : SharedToken) => 
                                     <Card key={token.token} className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled}`}>
