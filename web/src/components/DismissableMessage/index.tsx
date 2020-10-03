@@ -6,6 +6,7 @@ interface IProps {
     active?: boolean;
     headerMessage: string;
     style: 'warning' | 'positive';
+    onClose?: () => void;
 }
 
 interface IState {
@@ -48,10 +49,14 @@ export default class DismissableMessage extends React.Component<IProps, IState> 
                     onClose={(event) => {
                         event.preventDefault();
                         this.setState({active: undefined, internalUpdate: true})
+                        if (this.props.onClose)
+                            this.props.onClose();
                     }}>
                     <Alert onClose={(event) => {
                         event.preventDefault();
                         this.setState({active: undefined, internalUpdate: true})
+                        if (this.props.onClose)
+                            this.props.onClose();
                      }} severity={this.getSeverity()}>
                         {this.props.headerMessage}
                     </Alert>

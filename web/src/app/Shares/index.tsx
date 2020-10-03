@@ -14,6 +14,7 @@ import CustomIcon from 'components/CustomIcon';
 import style from './style.scss';
 import Dictionary from 'util/Dictionary';
 import Loading from 'components/Loading';
+import DismissableMessage from 'components/DismissableMessage';
 
 
 
@@ -25,6 +26,9 @@ interface IState extends BaseState {
     filter: string;
     analytics: Dictionary<Analytic>;
     loaded: boolean;
+
+    newTokenAdded?: string;
+    popupMessage?: string;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -33,6 +37,9 @@ export interface IProps  extends RouteComponentProps<any> {
 export default class Shares extends React.Component<IProps, IState>  {
     constructor(props: IProps) {
         super(props);
+        const state = props.location.state;
+        const newToken = state == undefined ? undefined :  (state as any).newToken as SharedToken;
+        const newTokenToken = newToken == undefined ? undefined : newToken.token;
         this.state = {
             cancelToken: API.aquireNewCancelToken(),
             name: '',
@@ -40,8 +47,13 @@ export default class Shares extends React.Component<IProps, IState>  {
             activeTokenIndex: -1,
             filter: '',
             analytics: new Dictionary<Analytic>(),
-            loaded: false
+            loaded: false,
+            newTokenAdded: newTokenToken,
+            popupMessage: newToken == undefined ? undefined : 
+                `Token ${newToken.customName} successfully created, link copied to the clipboard.`
         }
+
+        window.history.replaceState(null, '')
     }
     async componentDidMount() {
         const tokensRequest = API.getSharedTokens(this.state.cancelToken)
@@ -136,6 +148,11 @@ export default class Shares extends React.Component<IProps, IState>  {
         return(
             <div>
                 <ContentPanel background='light'>
+                    {this.state.popupMessage == undefined ? null :
+                            <DismissableMessage style='positive'
+                            headerMessage={this.state.popupMessage}
+                            active
+                            onClose={() => this.setState({popupMessage: undefined})} /> }
                     <Grid item container direction='column'>
                         <h2>You are logged in as {this.state.name}</h2>
                     <Button component={Link} to='/create'>Create new Token</Button>
@@ -151,7 +168,15 @@ export default class Shares extends React.Component<IProps, IState>  {
                         :   this.state.sharedTokens
                                 .filter(this.filter.bind(this))
                                 .map((token : SharedToken) => 
-                                    <Card key={token.token} className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled}`}>
+                                    <Card
+                                        key={token.token}
+                                        className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled} ${this.state.newTokenAdded == token.token ? style.highlighted : ''}`}
+                                        onMouseEnter={() => {
+                                            if (token.token == this.state.newTokenAdded)
+                                                this.setState({
+                                                    newTokenAdded: undefined
+                                                })
+                                        }}>
                                         <CardContent>
                                             <Typography className={style.header}>
                                                 {!!token.customName ? token.customName : token.token}

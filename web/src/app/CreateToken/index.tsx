@@ -10,6 +10,8 @@ import Dictionary from 'util/Dictionary';
 import Basic from './Basic';
 import Selection from './Selection';
 import style from './style.scss';
+import config from 'config';
+import Loading from 'components/Loading';
 
 interface IProps extends RouteComponentProps {
 }
@@ -24,6 +26,7 @@ interface IState extends BaseState {
     defaultBranchSelection?: string;
     errors: Dictionary<string>;
     formState: 0 | 1 | 2;
+    creating?: boolean;
 }
 
 const DEFAULT_EXPIRATION_VALUE: number = 60 * 24;
@@ -53,7 +56,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 CustomName: this.state.customName,
                 ExpireDate: this.state.expireDate == undefined || this.state.isExpiring !== true ? 0 : Math.ceil(this.state.expireDate.getTime() / 1000 / 60)
             }, this.state.cancelToken)
-            this.props.history.push('/');
+            
+            navigator.clipboard.writeText(`${config.share_uri}/${newToken.token}`);
+            this.props.history.push('/', {newToken: newToken});
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;
@@ -173,6 +178,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     async onSubmit() {
         try {
             if(this.state.errors.length == 0) {
+                this.setState({creating: true});
                 await this.create();
             } else {
                 // TODO: display error message to fix all errors
@@ -254,6 +260,74 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         else
             return [];
     }
+    renderFormBasic() {
+        if(this.state.formState != 0 || this.state.creating === true)
+            return null;
+        
+        return (<Basic
+            customNameError={this.state.errors.get('customName')}
+            customNameValue={this.state.customName}
+            changeCustomName={this.changeCustomName.bind(this)}
+
+            isExpiring={this.state.isExpiring}
+            changeIsExpiring={(newValue) => this.setState({isExpiring: newValue})}
+            
+            expireDate={this.state.expireDate}
+            expireDateChanged={this.changeExpirationDate.bind(this)}
+
+            onNext={() => this.setState({formState: 1})}
+        /> )
+    }
+    renderFormBranches() {
+        if(this.state.formState != 1 || this.state.creating === true)
+            return null;
+
+        return (<div>
+            <p>Please select the default branch of your repositories.</p>
+            <Dropdown
+                label='Default branch'
+                helperText='If the selected branch name exists we will attempt to set it for each new repository you select as a default. You can change this on a repo-by-repo basis in the next step. (Snapshot) means the current HEAD commit of the branch will be shared.'
+                onChange={(data) => this.updateDefaultBranch(data as string) }
+                defaultValue='master'
+                options={[
+                    { key: 'master', value: 'master', display: 'master (set all)' },
+                    { key: 'master (Snapshot)', value: 'master (Snapshot)', display: 'master (Snapshot) (set all)' },
+                    { key: 'staging', value: 'staging', display: 'staging (set all)' },
+                    { key: 'staging (Snapshot)', value: 'staging (Snapshot)', display: 'staging (Snapshot) (set all)' },
+                    { key: 'default', value: 'default', display: 'default (set all)' },
+                    { key: 'default (Snapshot)', value: 'default (Snapshot)', display: 'default (Snapshot) (set all)' },
+                    { key: 'main', value: 'main', display: 'main (set all)' },
+                    { key: 'main (Snapshot)', value: 'main (Snapshot)', display: 'main (Snapshot) (set all)' },
+                    { key: 'X', value: 'X', display: 'Not set (clear all)' }
+                ]}
+            />
+            <Button onClick={() => this.setState({formState: 0})}>Back</Button>
+            <Button onClick={() => this.setState({formState: 2})}>Next</Button>
+        </div>)
+    }
+    renderFormRepoSelection() {
+        if(this.state.formState != 2 || this.state.creating === true)
+            return null;
+            
+        return (<Selection
+                onRemoveAllRepos={this.removeAllRepositorySelection.bind(this)}
+                onAddAllRepos={this.addAllRepositorySelection.bind(this)}
+
+                onRemoveSingleRepo={this.removeRepositorySelection.bind(this)}
+                onAddSingleRepo={this.addRepositorySelection.bind(this)}
+
+                onChangeRepoDownloadable={this.makeRepositoryDownloadable.bind(this)}
+                onChangeSelectedBranches={this.changeSelectedBranchesFor.bind(this)}
+                onChangePath={this.changePath.bind(this)}
+
+                onBack={() => this.setState({formState: 1})}
+                onSubmit={async () => await this.onSubmit()}
+
+                errors={this.state.errors}
+                repositories={this.state.repositories}
+                selectedRepositories={this.state.selectedRepositories}
+                />)
+    }
     render() {
         return (
             <div id={style.createToken}>
@@ -263,63 +337,12 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             e.stopPropagation();
                         }}>
                     <h2>Create a new share token</h2>
-                    {this.state.formState != 0 ? null
-                    :   <Basic
-                            customNameError={this.state.errors.get('customName')}
-                            customNameValue={this.state.customName}
-                            changeCustomName={this.changeCustomName.bind(this)}
-
-                            isExpiring={this.state.isExpiring}
-                            changeIsExpiring={(newValue) => this.setState({isExpiring: newValue})}
-                            
-                            expireDate={this.state.expireDate}
-                            expireDateChanged={this.changeExpirationDate.bind(this)}
-
-                            onNext={() => this.setState({formState: 1})}
-                        />}
-                    {this.state.formState != 1 ? null
-                    :   <div>
-                            <p>Please select the default branch of your repositories.</p>
-                            <Dropdown
-                                label='Default branch'
-                                helperText='If the selected branch name exists we will attempt to set it for each new repository you select as a default. You can change this on a repo-by-repo basis in the next step. (Snapshot) means the current HEAD commit of the branch will be shared.'
-                                onChange={(data) => this.updateDefaultBranch(data as string) }
-                                defaultValue='master'
-                                options={[
-                                    { key: 'master', value: 'master', display: 'master (set all)' },
-                                    { key: 'master (Snapshot)', value: 'master (Snapshot)', display: 'master (Snapshot) (set all)' },
-                                    { key: 'staging', value: 'staging', display: 'staging (set all)' },
-                                    { key: 'staging (Snapshot)', value: 'staging (Snapshot)', display: 'staging (Snapshot) (set all)' },
-                                    { key: 'default', value: 'default', display: 'default (set all)' },
-                                    { key: 'default (Snapshot)', value: 'default (Snapshot)', display: 'default (Snapshot) (set all)' },
-                                    { key: 'main', value: 'main', display: 'main (set all)' },
-                                    { key: 'main (Snapshot)', value: 'main (Snapshot)', display: 'main (Snapshot) (set all)' },
-                                    { key: 'X', value: 'X', display: 'Not set (clear all)' }
-                                ]}
-                            />
-                            <Button onClick={() => this.setState({formState: 0})}>Back</Button>
-                            <Button onClick={() => this.setState({formState: 2})}>Next</Button>
-                        </div>}
                     
-                    {this.state.formState != 2 ? null
-                    :   <Selection
-                            onRemoveAllRepos={this.removeAllRepositorySelection.bind(this)}
-                            onAddAllRepos={this.addAllRepositorySelection.bind(this)}
-
-                            onRemoveSingleRepo={this.removeRepositorySelection.bind(this)}
-                            onAddSingleRepo={this.addRepositorySelection.bind(this)}
-
-                            onChangeRepoDownloadable={this.makeRepositoryDownloadable.bind(this)}
-                            onChangeSelectedBranches={this.changeSelectedBranchesFor.bind(this)}
-                            onChangePath={this.changePath.bind(this)}
-
-                            onBack={() => this.setState({formState: 1})}
-                            onSubmit={async () => await this.onSubmit()}
-
-                            errors={this.state.errors}
-                            repositories={this.state.repositories}
-                            selectedRepositories={this.state.selectedRepositories}
-                            />}
+                    {this.state.creating === true ? <Loading /> : null}
+                    {this.renderFormBasic()}
+                    {this.renderFormBranches()}
+                    {this.renderFormRepoSelection()}
+                    
                     </form>
                 </ContentPanel>
             </div>
