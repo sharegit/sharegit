@@ -11,6 +11,8 @@ import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import { Button, Grid } from '@material-ui/core';
 import ConfirmDialog from 'components/ConfirmDialog';
+import CustomIcon from 'components/CustomIcon';
+import GetAppIcon from 'assets/icons/get-app.svg';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -60,6 +62,14 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
             return `[${token.token}]`
         }
     }
+    constructRepositoryLabel(r: TokenRepo) {
+        const str = `\[${r.provider}\]/${r.owner}/${r.name}${!!r.path ? '/'+r.path : ''}`;
+        
+        if (r.downloadable)
+            return [<CustomIcon src={GetAppIcon} />,<span>{str}</span>]
+        else
+            return str
+    }
     render() {
         return (
             <div id={styles.sharedWithMe}>
@@ -85,7 +95,7 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                                                                 <Grid item className={styles.repoItem}
                                                                     key={`${r.provider}/${r.owner}/${r.name}`}
                                                                     component={ListItemText}
-                                                                    primary={`\[${r.provider}\]/${r.owner}/${r.name}${!!r.path ? '/'+r.path : ''}`} />
+                                                                    primary={this.constructRepositoryLabel(r)} />
                                                             ))
                                                     }
                                                 </Grid>
