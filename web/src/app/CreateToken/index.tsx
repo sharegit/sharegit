@@ -75,12 +75,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 ])
             });
             this.state.repositories = [...myRepos];
-            this.setState(this.state, () => {
-                
-                // Assume everything selected
-                this.addAllRepositorySelection()
-            });
-            
+            this.setState(this.state);
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;

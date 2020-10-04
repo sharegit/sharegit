@@ -1,4 +1,4 @@
-import { Button, GridList, List } from '@material-ui/core';
+import { Button, GridList, List, Grid } from '@material-ui/core';
 import { SharedRepository } from 'models/API';
 import React from 'react';
 import Dictionary from 'util/Dictionary';
@@ -109,7 +109,7 @@ export default class Selection extends React.Component<IProps> {
                                                     this.props.onRemoveSingleRepo(r);
                 }} /> ) }
             </List>,
-            <GridList className={style.selectionList} spacing={2} cols={3} key='selectableRepoList'>
+            <Grid container direction='row' className={style.selectionList} key='selectableRepoList'>
                 {this.props.repositories
                             .filter(x=>!this.isSelected(x))
                             .map((r : SharedRepository) =>
@@ -128,7 +128,7 @@ export default class Selection extends React.Component<IProps> {
                                                 onClick={() => {
                                                     this.props.onAddSingleRepo(r);
                 }} /> ) }
-            </GridList>,
+            </Grid>,
             <Button key='back' onClick={() => this.props.onBack()}>Back</Button>,
             <Button key='create' disabled={!this.canCreate()} onClick={() => this.props.onSubmit()}>Create</Button>
         ]

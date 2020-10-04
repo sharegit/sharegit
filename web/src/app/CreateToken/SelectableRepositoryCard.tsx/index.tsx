@@ -1,4 +1,4 @@
-import { Button, Card, Checkbox, FormControlLabel, GridListTile, ListItemIcon, ListItemText } from '@material-ui/core';
+import { Button, Card, Checkbox, FormControlLabel, GridListTile, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
 import GetAppIcon from 'assets/icons/get-app.svg';
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg';
 import GithubMark from 'assets/icons/github-mark-dark.png';
@@ -9,6 +9,7 @@ import FormTextField from 'components/FormTextField';
 import { SharedRepository } from 'models/API';
 import React from 'react';
 import styles from './style.scss';
+import truncate from 'util/Truncate';
 
 interface IState { }
 
@@ -43,30 +44,25 @@ export default class SelectableRepositoryCard extends React.Component<IProps, IS
 
     render() {
         return (
-            <GridListTile 
+            <Card 
                 className={`${styles.repositoryCard} ${this.props.selected ? '' : styles.deselected}`}
                 component={Card}
-                onClick={() => { if (!this.props.selected) this.props.onClick();}}
-            >
-                <ListItemIcon>
-                    {this.getProviderIcon()}
-                </ListItemIcon>
-                <ListItemText
-                    onClick={(e) => {if(this.props.selected) e.stopPropagation();}}
-                    primary={
-                        <React.Fragment>
-                            <a href={this.props.link} target="_blank">
-                                {this.props.baseRespo.repo}
-                            </a>
-                            {this.props.downloadable ? <CustomIcon src={GetAppIcon} /> : null}
-                        </React.Fragment>
-                    }
-                    secondary={!!this.props.baseRespo.description ? this.props.baseRespo.description : "No description, website, or topics provided."}
-                />
+                onClick={() => { if (!this.props.selected) this.props.onClick();}} >
+                <div>
+                    <div className={styles.header}
+                        onClick={(e) => e.stopPropagation()}>
+                        {this.getProviderIcon()}
+                        <a className={styles.name} href={this.props.link} target="_blank">
+                            {truncate(this.props.baseRespo.repo, 20)}
+                        </a>
+                        {this.props.downloadable ? <CustomIcon src={GetAppIcon} /> : null}
+                    </div>
+                </div>
+                <span className={styles.desc}>{!!this.props.baseRespo.description ? this.props.baseRespo.description : "No description, website, or topics provided."}</span>
                 
                 {!this.props.selected ? null
                 :   <div>
-                    <Button onClick={() => this.props.onClick()}>Deselect</Button>
+                    <Button className={styles.deselect} onClick={() => this.props.onClick()}>Deselect</Button>
                     {this.props.baseRespo.provider != 'github' ? null
                     :   <FormControlLabel
                             onClick={(e) => e.stopPropagation()}
@@ -120,7 +116,7 @@ export default class SelectableRepositoryCard extends React.Component<IProps, IS
                     />
                     </div>
                 }
-            </GridListTile  >
+            </Card>
         )
     }
 }
