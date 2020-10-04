@@ -1,7 +1,6 @@
 import { Token, TokenRepo, compareTokens, prettyRemainingTime, prettyRemainingTimeOfToken } from 'models/Tokens';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,6 +13,7 @@ import ConfirmDialog from 'components/ConfirmDialog';
 import CustomIcon from 'components/CustomIcon';
 import GetAppIcon from 'assets/icons/get-app.svg';
 import GlobalEvent from 'util/GlobalEvent';
+import { Link } from 'react-router-dom';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -97,27 +97,29 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
                             {
                                 this.state.tokens.map((token: Token) =>
                                     [
-                                        <Card key={token.token} className={styles.sharedLink} onClick={() => this.props.history.push(`/share/${token.token}`)}>
-                                            <Grid container direction='column' justify='center' alignItems='flex-start'>
-                                                {this.renderTokenHeader(token)}
-                                                <hr />
-                                                <Button className={styles.forget} onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
-                                                
-                                                <ul className={styles.repoList}>
-                                                    {
-                                                        token.repositories.length == 0 ?
-                                                            <li className={styles.repoItem} >Not yet visited</li>:
-                                                            token.repositories.slice(0, 15).map((r: TokenRepo) => (
-                                                                <li className={styles.repoItem}
-                                                                    key={`${r.provider}/${r.owner}/${r.name}`}
-                                                                    >{this.constructRepositoryLabel(r)}</li>
-                                                            ))
-                                                    }
-                                                    {token.repositories.length > 15 && 
-                                                        <li className={styles.repoItem}>{token.repositories.length - 15} more ...</li>}
-                                                </ul>
-                                            </Grid>
-                                        </Card>
+                                        <Link key={token.token} to={`/share/${token.token}`}>
+                                            <Card  className={styles.sharedLink}>
+                                                <Grid container direction='column' justify='center' alignItems='flex-start'>
+                                                    {this.renderTokenHeader(token)}
+                                                    <hr />
+                                                    <Button className={styles.forget} onClick={(e) => { e.stopPropagation(); e.preventDefault(); this.setState({confirmForget: token}) }}>Forget</Button>
+                                                    
+                                                    <ul className={styles.repoList}>
+                                                        {
+                                                            token.repositories.length == 0 ?
+                                                                <li className={styles.repoItem} >Not yet visited</li>:
+                                                                token.repositories.slice(0, 15).map((r: TokenRepo) => (
+                                                                    <li className={styles.repoItem}
+                                                                        key={`${r.provider}/${r.owner}/${r.name}`}
+                                                                        >{this.constructRepositoryLabel(r)}</li>
+                                                                ))
+                                                        }
+                                                        {token.repositories.length > 15 && 
+                                                            <li className={styles.repoItem}>{token.repositories.length - 15} more ...</li>}
+                                                    </ul>
+                                                </Grid>
+                                            </Card>
+                                        </Link>
                                     ])
                             }
                         </Grid>
