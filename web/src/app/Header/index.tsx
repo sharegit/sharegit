@@ -9,9 +9,11 @@ import { Link } from 'react-router-dom';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import NavMenuItem from './NavMenuItem';
 import style from './style.scss';
+import GlobalEvent from 'util/GlobalEvent';
 
 interface IProps {
     isLoggedIn: boolean;
+    
 }
 
 interface RepoMinInfo {
@@ -25,6 +27,7 @@ interface RepoMinInfo {
 interface IState {
     repos: Array<RepoMinInfo>;
     missingCount: number;
+    sharedListUpdated: GlobalEvent;
 }
 
 export default class Header extends React.Component<IProps, IState> {
@@ -32,10 +35,19 @@ export default class Header extends React.Component<IProps, IState> {
         super(props);
         this.state = {
             repos: [],
-            missingCount: 0
+            missingCount: 0,
+            sharedListUpdated: new GlobalEvent('sharedListUpdated')
         };
     }
     componentDidMount() {
+        this.updateRepositories();
+        
+        this.state.sharedListUpdated.addListener(this.updateRepositories.bind(this));
+    }
+    componentWillUnmount() {
+        this.state.sharedListUpdated.removeListener();
+    }
+    updateRepositories() {
         const tokens = new LocalStorageDictionary<Token>('alltokens');
         const sharedWithMe = tokens.getAll();
         this.setState({
@@ -48,7 +60,7 @@ export default class Header extends React.Component<IProps, IState> {
                     link: '/share/' + x.token,
                     repos: x.repositories.map(x=>`${x.owner}/${x.name}${!!x.path ? '/'+x.path : ''}`).join(',').substr(0, 40) + '...'
                 };
-        })})
+        })});
     }
     render() {
         return (

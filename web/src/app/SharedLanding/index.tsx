@@ -9,9 +9,12 @@ import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import { List, Grid } from '@material-ui/core';
 import Loading from 'components/Loading';
+import * as ReactDOM from 'react-dom'
+import GlobalEvent from 'util/GlobalEvent';
 
 export interface IProps extends RouteComponentProps<any> {
     token: string;
+    onLinkVisited: () => void;
 }
 
 interface IState extends BaseState {
@@ -79,6 +82,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 })),
                 firstOpenDate: new Date()
             })
+
+            const event = new GlobalEvent('sharedListUpdated');
+            event.dispatch();
         } catch(error) {
             this.state.tokenValid = false;
             this.setState(this.state);

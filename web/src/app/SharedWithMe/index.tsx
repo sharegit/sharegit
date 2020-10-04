@@ -13,6 +13,7 @@ import { Button, Grid, Card } from '@material-ui/core';
 import ConfirmDialog from 'components/ConfirmDialog';
 import CustomIcon from 'components/CustomIcon';
 import GetAppIcon from 'assets/icons/get-app.svg';
+import GlobalEvent from 'util/GlobalEvent';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -20,11 +21,13 @@ export interface IProps extends RouteComponentProps<any> {
 interface IState {
     tokens: Token[];
     confirmForget?: Token;
+    sharedListUpdated: GlobalEvent;
 }
 
 export default class SharedWithMe extends React.Component<IProps, IState> {
     state: IState = {
         tokens: [],
+        sharedListUpdated: new GlobalEvent('sharedListUpdated')
     }
     constructor(props: IProps) {
         super(props)
@@ -32,15 +35,23 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
     componentDidMount() {
         const allTokens = new LocalStorageDictionary<Token>('alltokens');
 
+        let anyRemoved = false;
+
         this.state.tokens = allTokens.getAll().filter(x => {
             const d = x.tokenExp == undefined ? undefined : new Date(x.tokenExp);
             const canStay = d == undefined || d.getTime() > new Date().getTime();
 
-            if (!canStay)
+            if (!canStay) {
                 allTokens.remove(x.token);
+                anyRemoved = true;
+            }
 
             return canStay;
         }).sort(compareTokens);
+
+        if (anyRemoved) {
+            this.state.sharedListUpdated.dispatch();
+        }
 
         this.setState(this.state);
     }
@@ -51,6 +62,8 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
 
             const allTokens = new LocalStorageDictionary<Token>('alltokens');
             allTokens.remove(token);
+
+            this.state.sharedListUpdated.dispatch();
             
             this.setState(this.state);
         }
