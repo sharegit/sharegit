@@ -15,12 +15,22 @@
         padding: 0px;
     }
     padding: 30px;
-    width: 300px;
+    width: 310px;
+    max-width: 310px;
+    
+    min-height: 300px;
     text-align: center;
 
-    background-color: globalStyles.$light;
+    background-color: white;
 
     -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35) !important;
     -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35) !important;
     box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35) !important;
+    a > span {
+        display: block;
+        text-align: justify;
+    }
+    .disclaimer {
+        font-size: 0.7em;
+    }
 }

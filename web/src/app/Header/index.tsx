@@ -1,4 +1,4 @@
-import { Grid } from '@material-ui/core';
+import { Grid, Button } from '@material-ui/core';
 import AddCircle from 'assets/icons/add-circle.svg';
 import ShareGitLogo from 'assets/icons/logo_light.svg';
 import CustomIcon from 'components/CustomIcon';
@@ -67,8 +67,8 @@ export default class Header extends React.Component<IProps, IState> {
                 </Grid>
                 <Grid xs={8} item container direction='row' justify='flex-end' alignItems='center' className={style.menu}> 
                     <NavMenuItem isLoggedIn={this.props.isLoggedIn} loginRequired uri="/create"><CustomIcon src={AddCircle}></CustomIcon></NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth">Sign in</NavMenuItem>
-                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup">Sign up</NavMenuItem>
+                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/auth"><Button>Login</Button></NavMenuItem>
+                    <NavMenuItem isLoggedIn={this.props.isLoggedIn} logoutRequired uri="/signup"><Button>Register</Button></NavMenuItem>
 
                     <DropdownMenu buttonClassName={style.menu} className={style.menuItem} buttonHeader='Shared with me'>
                         {this.state.repos.map(x=>

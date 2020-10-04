@@ -11,6 +11,7 @@ import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
 import CustomIcon from 'components/CustomIcon';
 import Button from '@material-ui/core/Button';
 import Loading from 'components/Loading';
+import { Grid } from '@material-ui/core';
 
 interface IState extends BaseState {
     state: string;
@@ -140,9 +141,9 @@ export default class Authentication extends React.Component<IProps, IState>  {
     getAuthText(): string {
         switch (this.state.mode) {
             case 'signin':
-                return 'Sign in';
+                return 'Login';
             case 'signup':
-                return 'Sign up';
+                return 'Register';
             case 'add':
                 return 'Connect other service';
         }
@@ -150,9 +151,9 @@ export default class Authentication extends React.Component<IProps, IState>  {
     getAuthWarn() {
         switch (this.state.mode) {
             case 'signin':
-                return (<p>There is no matching account associated with that provider yet, <Link to='/signup'>Sign Up?</Link></p>);
+                return (<p>There is no matching account associated with that provider yet, <Link to='/signup'>Register?</Link></p>);
             case 'signup':
-                return (<p>There is already an account associated with that provider, <Link to='/auth'>Sign In?</Link></p>);
+                return (<p>There is already an account associated with that provider, <Link to='/auth'>Login?</Link></p>);
             case 'add':
                 return (<p>There is already a separate account associated with that provider, please delete it and try again. <Link to={`/settings/${this.props.provider}`}>Back to Settings</Link></p>);
         }
@@ -174,12 +175,16 @@ export default class Authentication extends React.Component<IProps, IState>  {
     }
     render() {
         return (
-            <div className={`${this.props.className} ${styles.authBox}`} id={this.props.id}>
-                <h2>
-                    {this.getAuthText()}
-                </h2>
+            <Grid item container direction='column' justify='flex-start' alignItems='center' className={`${this.props.className} ${styles.authBox}`} id={this.props.id}>
+                <div>
+                    <h2>
+                        {this.getAuthText()}
+                    </h2> 
+                {this.props.mode == 'signin' && 
+                    <span className={styles.disclaimer}>Don't have an account? <Link to='/signup'>Register now.</Link></span>}
                 {this.props.mode == 'signup' && 
-                    <h3>And start sharing now</h3>}
+                    <span className={styles.disclaimer}>Already have an account? <Link to='/auth'>Login.</Link></span>}      
+                </div>
                 {
                     this.state.processing ? 
                     <Loading />
@@ -220,8 +225,8 @@ export default class Authentication extends React.Component<IProps, IState>  {
                     </div>
                 }
                 {this.props.mode == 'signup' && 
-                    <span>By Signing up you aggree to our Privacy Policy and the Terms of Service.</span>}
-            </div>
+                    <span className={styles.disclaimer}>By Registering you aggree to our Privacy Policy and the Terms of Service.</span>}
+            </Grid>
         )
     }
 }

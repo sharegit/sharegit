@@ -36,6 +36,8 @@
     background: globalStyles.$gradient;
 }
 .menu {
+    margin: 5px;
+    padding: 5px;
     * {
         color: globalStyles.$light;
         text-shadow: 1px 1px 3px #000000;
