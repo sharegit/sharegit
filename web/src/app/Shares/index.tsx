@@ -44,6 +44,7 @@ export interface IProps  extends RouteComponentProps<any> {
 }
 
 export default class Shares extends React.Component<IProps, IState>  {
+    private searchTimeoutHandle: number = 0;
     constructor(props: IProps) {
         super(props);
         const state = props.location.state;
@@ -123,9 +124,14 @@ export default class Shares extends React.Component<IProps, IState>  {
     }
     searched(event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) {
         const newValue = event.target.value;
-        this.setState({
-            filter: newValue
-        })
+        if (this.searchTimeoutHandle)
+            clearTimeout(this.searchTimeoutHandle);
+
+        this.searchTimeoutHandle = setTimeout(() =>{
+            this.setState({
+                filter: newValue
+            })
+        }, 500);
     }
     filter(token: SharedToken) {
         if (this.state.filter == '')
@@ -191,11 +197,10 @@ export default class Shares extends React.Component<IProps, IState>  {
                         {
                             !this.state.loaded ? <Loading />
                         :   this.state.sharedTokens
-                                .filter(this.filter.bind(this))
                                 .map((token : SharedToken) => 
                                     <Card
                                         key={token.token}
-                                        className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled} ${this.state.newTokenAdded == token.token ? style.highlighted : ''}`}
+                                        className={`${style.shareCard} ${this.isTokenExpired(token) ? style.disabled : style.enabled} ${this.state.newTokenAdded == token.token ? style.highlighted : ''} ${!this.filter(token) ? style.deselected : style.visible}`}
                                         onMouseEnter={() => {
                                             if (token.token == this.state.newTokenAdded)
                                                 this.setState({
