@@ -44,7 +44,7 @@ namespace ShareGit
         public async Task<APIResponse<GitlabFile>> GetContent(int projectId, string sha, string uri, GitlabUserAccess userAccess)
         {
             return await FetchAPI<GitlabFile>(
-                $"/projects/{projectId}/repository/files/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
+                $"/projects/{projectId}/repository/files/{HttpUtility.UrlEncode(uri)?.Replace("+", "%20")}",
                 HttpMethod.Get,
                 new UserGitlabAuth(userAccess),
                 ("ref", sha));

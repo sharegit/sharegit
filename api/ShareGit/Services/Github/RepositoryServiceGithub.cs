@@ -119,7 +119,7 @@ namespace ShareGit
         public async Task<APIResponse<GithubContent>> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
             return await FetchAPI<GithubContent>(
-                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
+                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri)?.Replace("+", "%20")}",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));
@@ -130,7 +130,7 @@ namespace ShareGit
         public async Task<APIResponse<GithubContent[]>> GetDirectoryContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
             return await FetchAPI<GithubContent[]>(
-                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
+                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri)?.Replace("+", "%20")}",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));

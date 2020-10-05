@@ -49,7 +49,7 @@ namespace ShareGit
         {
             userAccess = await RefreshTokenIfNecessary(userAccess);
             return await FetchBitbucketAPIRecursively<BitbucketDirecotryObject>(
-                $"/repositories/{workspace}/{slug}/src/{sha}/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
+                $"/repositories/{workspace}/{slug}/src/{sha}/{HttpUtility.UrlEncode(uri)?.Replace("+", "%20")}",
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess));
         }
@@ -58,7 +58,7 @@ namespace ShareGit
         {
             userAccess = await RefreshTokenIfNecessary(userAccess);
             return await FetchAPI<string>(
-                $"/repositories/{workspace}/{slug}/src/{sha}/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
+                $"/repositories/{workspace}/{slug}/src/{sha}/{HttpUtility.UrlEncode(uri)?.Replace("+", "%20")}",
                 HttpMethod.Get,
                 new UserBitbucketAuth(userAccess));
         }
