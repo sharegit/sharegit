@@ -15,6 +15,7 @@ namespace Core.APIModels
             public string Path { get; set; }
             public Branch[] Branches { get; set; }
         }
+        public string Token { get; set; }
         public string Stamp { get; set; }
         public Repository[] Repositories { get; set; }
         public string CustomName { get; set; }

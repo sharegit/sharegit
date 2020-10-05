@@ -19,6 +19,7 @@ interface IProps {
     onBack: () => void;
     onSubmit: () => void;
 
+    mode: 'e' | 'd' | 'c';
     errors: Dictionary<string>;
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
@@ -65,6 +66,16 @@ export default class Selection extends React.Component<IProps> {
                 return path;
         } else {
             return '';
+        }
+    }
+    getCreateLabel() {
+        switch(this.props.mode) {
+            case 'e':
+                return 'Edit';
+            case 'd':
+                return 'Duplicate';
+            case 'c':
+                return 'Create';
         }
     }
     canCreate(): boolean {
@@ -130,7 +141,7 @@ export default class Selection extends React.Component<IProps> {
                 }} /> ) }
             </Grid>,
             <Button key='back' onClick={() => this.props.onBack()}>Back</Button>,
-            <Button key='create' disabled={!this.canCreate()} onClick={() => this.props.onSubmit()}>Create</Button>
+            <Button key='create' disabled={!this.canCreate()} onClick={() => this.props.onSubmit()}>{this.getCreateLabel()}</Button>
         ]
     }
 }

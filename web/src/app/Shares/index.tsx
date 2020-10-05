@@ -45,6 +45,7 @@ export default class Shares extends React.Component<IProps, IState>  {
         const state = props.location.state;
         const newToken = state == undefined ? undefined :  (state as any).newToken as SharedToken;
         const newTokenToken = newToken == undefined ? undefined : newToken.token;
+        const mode = state == undefined ? undefined : (state as any).m as 'e' | 'd' | 'c';
         this.state = {
             cancelToken: API.aquireNewCancelToken(),
             name: '',
@@ -55,7 +56,7 @@ export default class Shares extends React.Component<IProps, IState>  {
             loaded: false,
             newTokenAdded: newTokenToken,
             popupMessage: newToken == undefined ? undefined : 
-                `Token ${newToken.customName} successfully created, link copied to the clipboard.`
+                `Token ${newToken.customName} successfully ${mode == 'c' ? 'created' : mode == 'd' ? 'duplicated' : mode == 'e' ? 'edited' : ''}, link copied to the clipboard.`
         }
 
         window.history.replaceState(null, '')
@@ -154,7 +155,7 @@ export default class Shares extends React.Component<IProps, IState>  {
             <div>
                 <ContentPanel background='light'>
                     {this.state.linkCopied === true &&
-                    <DismissableMessage style={'positive'}
+                        <DismissableMessage style={'positive'}
                             headerMessage={'Link copied to clipboard!'}
                             active
                             onClose={() => this.setState({linkCopied: undefined})} /> }
@@ -223,13 +224,13 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             </IconButton>
                                             </Tooltip>
                                             <Tooltip title='Delete share'>
-                                            <IconButton onClick={()=>this.setState({confirmDeletion: token})}><CustomIcon src={DeleteIcon} /></IconButton>
+                                                <IconButton onClick={()=>this.setState({confirmDeletion: token})}><CustomIcon src={DeleteIcon} /></IconButton>
                                             </Tooltip>
                                             <Tooltip title='Edit share'>
-                                            <IconButton><CustomIcon src={EditIcon} /></IconButton>
+                                                <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'e'}}}><CustomIcon src={EditIcon} /></IconButton>
                                             </Tooltip>
                                             <Tooltip title='Duplcate share (create a new link with a new name)'>
-                                            <IconButton><CustomIcon src={DuplicateIcon} /></IconButton>
+                                                <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'd'}}}><CustomIcon src={DuplicateIcon} /></IconButton>
                                             </Tooltip>
                                         </CardActions>
 
@@ -263,31 +264,3 @@ export default class Shares extends React.Component<IProps, IState>  {
         );
     }
 }
-
-
-// <AccordionDetails>
-// <Grid container spacing={3}>
-//     <Grid item xs={12}>
-        
-//     </Grid>
-//     <Grid item xs={12}>
-//         <h3>Repositories shared with this token:</h3>
-//     </Grid>
-//     <Grid item xs={12}>
-//         <List >
-//             {
-//                 this.state.repositories[index]
-//                     .map((r : SharedRepository) =>
-//                         <RepositoryCard key={`${r.repo}_${token.token}`}
-//                                         target='_blank'
-//                                         link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${token.token}`}
-//                                         name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
-//                                         downloadable={r.downloadAllowed}
-//                                         description={!!r.description ? r.description : "No description, website, or topics provided."}
-//                                         provider={r.provider}></RepositoryCard>
-//                     )
-//             }
-//         </List>
-//     </Grid>
-// </Grid>
-// </AccordionDetails>

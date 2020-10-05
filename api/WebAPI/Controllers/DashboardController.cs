@@ -1,4 +1,5 @@
 ﻿using Core.APIModels;
+using Core.Exceptions;
 using Core.Model.Bitbucket;
 using Core.Model.Github;
 using Core.Model.GitLab;
@@ -177,9 +178,12 @@ namespace WebAPI.Controllers
                 Repositories = (await ShareRepository.GetAsync(x.Token)).AccessibleRepositories.Select(
                     x => new SharedRepository()
                     {
+                        Owner = x.Owner,
+                        DownloadAllowed = x.DownloadAllowed,
                         Provider = x.Provider,
                         Repo = x.Repo,
-                        Path = x.Path
+                        Path = x.Path,
+                        Branches = x.Branches.Select(x=>new Branch() { Name = x }).ToArray()
                     }).ToArray()
             }).ToList();
             return await Task.WhenAll(tokensWithRepositories);
@@ -286,6 +290,11 @@ namespace WebAPI.Controllers
         [HttpPost("createtoken")]
         public async Task<ActionResult<Core.APIModels.SharedToken>> CreateToken([FromBody] CreateToken createToken)
         {
+            var existing = await ShareRepository.GetAsync(createToken.Token);
+            if (createToken.Token != null && existing == null)
+            {
+                throw new NotFoundException();
+            }
             if (createToken.Repositories.Length == 0)
             {
                 return new BadRequestResult();
@@ -395,7 +404,7 @@ namespace WebAPI.Controllers
             Buffer.BlockCopy(timeStamp, 0, tokenData, 12, 20);
             Buffer.BlockCopy(result, 0, tokenData, 32, 32);
 
-            var tokenStr = Base64UrlTextEncoder.Encode(tokenData);
+            var tokenStr = existing == null ? Base64UrlTextEncoder.Encode(tokenData) : existing.Token.Token;
             var token = new ShareGit.Models.SharedToken()
             {
                 Token = tokenStr,
@@ -411,9 +420,19 @@ namespace WebAPI.Controllers
                 AccessibleRepositories = await Task.WhenAll(accessibleRepositories)
             };
 
-            user.SharedTokens.Add(token);
-            await ShareRepository.CreateAsync(share);
-            await AccountRepository.UpdateAsync(user.Id, user);
+            if (existing != null)
+            {
+                user.SharedTokens.RemoveAll(x => x.Token == tokenStr);
+                user.SharedTokens.Add(token);
+                await ShareRepository.UpdateAsync(share.Token.Token, share);
+                await AccountRepository.UpdateAsync(user.Id, user);
+            }
+            else
+            {
+                user.SharedTokens.Add(token);
+                await ShareRepository.CreateAsync(share);
+                await AccountRepository.UpdateAsync(user.Id, user);
+            }
 
             return new Core.APIModels.SharedToken()
             {

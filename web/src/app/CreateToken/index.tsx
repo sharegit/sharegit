@@ -1,7 +1,7 @@
 import { Button } from '@material-ui/core';
 import ContentPanel from 'components/ContentPanel';
 import Dropdown from 'components/Dropdown';
-import API, { Branch, SharedRepository } from 'models/API';
+import API, { Branch, SharedRepository, SharedToken } from 'models/API';
 import { BaseState } from 'models/BaseState';
 import React from 'react';
 import "react-datepicker/dist/react-datepicker.css";
@@ -27,6 +27,9 @@ interface IState extends BaseState {
     errors: Dictionary<string>;
     formState: 0 | 1 | 2;
     creating?: boolean;
+    mode: 'd' | 'e' | 'c';
+    template?: SharedToken;
+    loading?: boolean;
 }
 
 const DEFAULT_EXPIRATION_VALUE: number = 60 * 24;
@@ -42,15 +45,35 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         defaultBranchSelection: 'master',
         customName: '',
         isExpiring: false,
-        formState: 0
+        formState: 0,
+        mode: 'c'
     }
     constructor(props: IProps) {
         super(props);
+        const state = props.location.state;
+        if (state != undefined){
+            const existingToken = (state as any).t as SharedToken;
+            const mode: 'd' | 'e' = (state as any).m as 'd' | 'e';
+            
+            this.state.template = existingToken;
+            switch(mode) {
+                case 'd':
+                    this.state.mode = 'd';
+                    break;
+                case 'e':
+                    this.state.mode = 'e';
+                    break;
+            }
+        }
+
+        window.history.replaceState(null, '')
     }
     async create() {
         try {
             console.log(this.state.stamp);
+            const token = this.state.template == undefined || this.state.mode != 'e' ? null : this.state.template.token;
             const newToken = await API.createToken({
+                Token: token,
                 Stamp: this.state.stamp,
                 Repositories: this.state.selectedRepositories,
                 CustomName: this.state.customName,
@@ -58,7 +81,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             }, this.state.cancelToken)
             
             navigator.clipboard.writeText(`${config.share_uri}/${newToken.token}`);
-            this.props.history.push('/', {newToken: newToken});
+            this.props.history.push('/', {newToken: newToken, m: this.state.mode});
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;
@@ -66,6 +89,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         }
     }
     async componentDidMount() {
+        this.state.loading = true;
+        this.setState(this.state);
         try {
             const myRepos = await API.getMyRepos(this.state.cancelToken)
                 myRepos.forEach(r=> {
@@ -75,6 +100,20 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 ])
             });
             this.state.repositories = [...myRepos];
+            switch(this.state.mode) {
+                case 'd':
+                case 'e':
+                    if (this.state.template == undefined)
+                        throw new Error('Editing and Duplicating requires a template to be also defined')
+
+                    this.state.customName = this.state.template.customName;
+                    this.state.isExpiring = this.state.template.expireDate > 0;
+                    this.state.expireDate = new Date(this.state.template.expireDate * 60 * 1000);
+                    this.state.template.repositories.forEach(x=>this.addRepositorySelection(x));
+                    this.state.template.repositories.forEach(x=>this.changeSelectedBranchesFor(x, x.branches.map(x=>x.name)));
+                    break;
+            }
+            this.state.loading = undefined;
             this.setState(this.state);
         } catch (e) {
             if (!API.wasCancelled(e)) {
@@ -256,7 +295,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             return [];
     }
     renderFormBasic() {
-        if(this.state.formState != 0 || this.state.creating === true)
+        if(this.state.formState != 0 || this.state.creating === true || this.state.loading === true)
             return null;
         
         return (<Basic
@@ -269,12 +308,13 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             
             expireDate={this.state.expireDate}
             expireDateChanged={this.changeExpirationDate.bind(this)}
+            customExpireDate={this.state.template != undefined}
 
             onNext={() => this.setState({formState: 1})}
         /> )
     }
     renderFormBranches() {
-        if(this.state.formState != 1 || this.state.creating === true)
+        if(this.state.formState != 1 || this.state.creating === true || this.state.loading === true)
             return null;
 
         return (<div>
@@ -301,7 +341,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         </div>)
     }
     renderFormRepoSelection() {
-        if(this.state.formState != 2 || this.state.creating === true)
+        if(this.state.formState != 2 || this.state.creating === true || this.state.loading === true)
             return null;
             
         return (<Selection
@@ -318,10 +358,24 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 onBack={() => this.setState({formState: 1})}
                 onSubmit={async () => await this.onSubmit()}
 
+                mode={this.state.mode}
                 errors={this.state.errors}
                 repositories={this.state.repositories}
                 selectedRepositories={this.state.selectedRepositories}
                 />)
+    }
+    renderHeader() {
+        if ((this.state.mode == 'e' || this.state.mode == 'd') && this.state.template == undefined)
+            throw new Error('Editing and duplicating requires a template!');
+
+        switch(this.state.mode) {
+            case 'e':
+                return `Editing existing link "${this.state.template!.customName}"`;
+            case 'd':
+                return `Duplicating existing link "${this.state.template!.customName}"`;
+            case 'c':
+                return 'Creating a new sharable link';
+        }
     }
     render() {
         return (
@@ -331,9 +385,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                             e.preventDefault();
                             e.stopPropagation();
                         }}>
-                    <h2>Create a new share token</h2>
+                    <h2>{this.renderHeader()}</h2>
                     
-                    {this.state.creating === true ? <Loading /> : null}
+                    {(this.state.creating === true || this.state.loading === true) ? <Loading /> : null}
                     {this.renderFormBasic()}
                     {this.renderFormBranches()}
                     {this.renderFormRepoSelection()}

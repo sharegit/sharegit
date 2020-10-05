@@ -15,6 +15,7 @@ interface IProps {
 
     expireDate?: Date;
     expireDateChanged: (newValue: Date) => void;
+    customExpireDate?: boolean;
 
     onNext: () => void;
 }
@@ -74,7 +75,7 @@ export default class Basic extends React.Component<IProps, IState> {
                                 })
                             }
                         }}
-                        defaultValue={60 * 24}
+                        defaultValue={this.props.customExpireDate === true ? 'X' : 60 * 24}
                         options={[
                             { key: '1-day', value: 60 * 24, display: '1 day' },
                             { key: '1-week', value: 60 * 24 * 7, display: '1 week' },
