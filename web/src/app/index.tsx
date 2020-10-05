@@ -106,7 +106,7 @@ export default class App extends React.Component<IProps, IState> {
   }
   render() {
     return (
-        <div id={styles.app}>
+        <Grid id={styles.app} container>
             <CookieConsent onConsented={this.initGoogleAnalyticsIfConsented.bind(this)} />
 
             <Header isLoggedIn={this.state.isLoggedIn} />
@@ -198,7 +198,7 @@ export default class App extends React.Component<IProps, IState> {
             </Grid>
             
             <Footer />
-        </div>
+        </Grid>
 
       )
     }
