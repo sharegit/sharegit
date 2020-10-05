@@ -7,6 +7,7 @@ using ShareGit.Settings;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShareGit
 {
@@ -118,7 +119,7 @@ namespace ShareGit
         public async Task<APIResponse<GithubContent>> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
             return await FetchAPI<GithubContent>(
-                $"/repos/{owner}/{repo}/contents/{uri}",
+                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));
@@ -129,7 +130,7 @@ namespace ShareGit
         public async Task<APIResponse<GithubContent[]>> GetDirectoryContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
             return await FetchAPI<GithubContent[]>(
-                $"/repos/{owner}/{repo}/contents/{uri}",
+                $"/repos/{owner}/{repo}/contents/{HttpUtility.UrlEncode(uri).Replace("+", "%20")}",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess),
                 ("ref", sha));

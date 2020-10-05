@@ -58,6 +58,10 @@ export default class FileViewer extends React.Component<IProps, IState> {
                 });
                 break;
             case '':
+            case 'exe':
+            case 'dll':
+            case 'pdb':
+            case 'psd':
                 console.log('Creating Binary driver')
                 this.state.viewDriver = new BinaryFileViewDriver({
                     filename: this.state.fileName,
