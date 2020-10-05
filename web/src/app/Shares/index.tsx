@@ -20,6 +20,10 @@ import DeleteIcon from 'assets/icons/delete_dark.svg';
 import OpenIcon from 'assets/icons/open.svg';
 import DuplicateIcon from 'assets/icons/duplicate.svg';
 import CopyIcon from 'assets/icons/copy.svg';
+import GithubMark from 'assets/icons/github-mark-dark.png'
+import GitlabMark from 'assets/icons/gitlab-mark.png'
+import BitbucketMark from 'assets/icons/bitbucket-mark.svg'
+import GetAppIcon from 'assets/icons/get-app.svg';
 
 
 interface IState extends BaseState {
@@ -150,6 +154,16 @@ export default class Shares extends React.Component<IProps, IState>  {
         
         return false;
     }
+    getRepoIcon(provider: string) {
+        switch(provider) {
+            case 'github':
+                return <CustomIcon src={GithubMark} />
+            case 'gitlab':
+                return <CustomIcon src={GitlabMark} />
+            case 'bitbucket':
+                return <CustomIcon src={BitbucketMark} />
+        }
+    }
     render() {
         return(
             <div>
@@ -206,11 +220,11 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             <ul className={`${style.small} ${style.repos}`}>
                                                 {
                                                     token.repositories.slice(0, 15).map((r: SharedRepository) => 
-                                                        <li key={`${r.provider}${r.owner}${r.repo}${r.path}`} className={style.repo}>{r.repo}, </li>
+                                                        <li key={`${r.provider}${r.owner}${r.repo}${r.path}`} className={style.repo}>{this.getRepoIcon(r.provider)}{r.repo}{r.path != undefined ? `/${r.path}` : ''}{r.downloadAllowed ? <CustomIcon src={GetAppIcon} /> : null}</li>
                                                     ) 
                                                 }
                                                 {token.repositories.length > 15 &&
-                                                        <li className={style.repo}>{token.repositories.length - 15} more ...</li>}
+                                                        <li className={style.repo}>... {token.repositories.length - 15} more ...</li>}
                                             </ul>
                                         </CardContent>
                                         <CardActions>
