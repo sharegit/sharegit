@@ -1,13 +1,33 @@
 
 .repositoryCard {
-    margin: 15px 5px 15px 5px;
-    padding: 5px !important;
+    position: relative;
+
     background-color: rgba(251, 251, 251, 0.911);
     -webkit-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35);
     -moz-box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35);
     box-shadow: 0px 3px 4px 0px rgba(0,0,0,0.35);
+
+    transition: transform .1s; 
+    width: 260px;
+    padding: 20px;
+    height: calc(100% - 40px);
 }
 
-.deselected {
-    background-color: red;
+.repositoryCard:hover {
+    transform: scale(1.05);
+    cursor: pointer;
+}
+
+.header {
+    display: inline;
+}
+
+.desc {
+    font-size: 0.8em;
+}
+
+.name {
+    text-transform: uppercase;
+    color: #000000;
+    text-decoration: underline;
 }

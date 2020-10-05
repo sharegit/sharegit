@@ -54,10 +54,11 @@ export default class SharedLanding extends React.Component<IProps, IState> {
         try {
             const tokenMeta = await API.getSharedTokenMeta(this.props.token, this.state.cancelToken);
             const sharedRepositories = await API.getSharedRepositories(this.props.token, this.state.cancelToken)
+
+            const repositories = sharedRepositories.repositories.sort((a, b)=>a.repo.localeCompare(b.repo));
             
             this.state.tokenValid = true;
-            this.state.repositories = sharedRepositories.repositories;
-            if(sharedRepositories.repositories.length > 0)
+            this.state.repositories = repositories;
             this.state.author = tokenMeta.author;
             this.state.authorBio = tokenMeta.authorBio;
             this.state.authorWebsite = tokenMeta.authorWebsite;
@@ -73,7 +74,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                 token: this.props.token,
                 customName: this.state.customName,
                 tokenExp: this.state.tokenExp,
-                repositories: sharedRepositories.repositories.map(x=>({
+                repositories: repositories.map(x=>({
                     name: x.repo,
                     owner: x.owner,
                     provider: x.provider,
@@ -99,7 +100,7 @@ export default class SharedLanding extends React.Component<IProps, IState> {
             <div id={styles.sharelandingcontainer}>
                 <ContentPanel background='light'>
                     <Grid direction='column' item container>
-
+                        <h2>{this.state.customName}</h2>
                         <div id={styles.landingHeader}>
                             <div id={styles.availableReposText}>
                                 <h3>Repositories shared with you</h3>
@@ -116,21 +117,19 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                         <div id={styles.tokenChecker}>
                             {this.renderTokenValidity()}
                         </div>
-                        <div className={styles.myclass}>
-                            <List >
-                                {
-                                    this.state.repositories
-                                        .map((r : SharedRepository) =>
-                                            <RepositoryCard key={r.repo}
-                                                            link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${this.props.token}`}
-                                                            name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
-                                                            downloadable={r.downloadAllowed}
-                                                            description={!!r.description ? r.description : "No description, website, or topics provided."}
-                                                            provider={r.provider}></RepositoryCard>
-                                        )
-                                }
-                            </List>
-                        </div>
+                        <Grid item container direction='row' justify='center' alignItems='stretch' className={styles.grid}>
+                            {
+                                this.state.repositories
+                                    .map((r : SharedRepository) =>
+                                        <RepositoryCard key={r.repo}
+                                                        link={`/${r.provider}/${r.id}/${r.owner}/${r.repo}/${getSharedPathType(r.path)}/${getPreferredSha(r.branches)}${getAdditionalPath(r.path)}?token=${this.props.token}`}
+                                                        name={`${r.repo}` + (!!r.path ? `/${r.path}` : '')}
+                                                        downloadable={r.downloadAllowed}
+                                                        description={!!r.description ? r.description : "No description, website, or topics provided."}
+                                                        provider={r.provider}></RepositoryCard>
+                                    )
+                            }
+                        </Grid>
                     </Grid>
                 </ContentPanel>
             </div>

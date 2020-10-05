@@ -14,6 +14,11 @@
             }
         }
     }
+    .grid {
+        >*{
+            margin: 10px;
+        }
+    }
 }
 
 #tokenChecker {
