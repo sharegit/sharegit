@@ -292,11 +292,7 @@ namespace WebAPI.Controllers
         [HttpPost("createtoken")]
         public async Task<ActionResult<Core.APIModels.SharedToken>> CreateToken([FromBody] CreateToken createToken)
         {
-            var existing = await ShareRepository.GetAsync(createToken.Token);
-            if (createToken.Token != null && existing == null)
-            {
-                throw new NotFoundException();
-            }
+
             if (createToken.Repositories.Length == 0)
             {
                 return new BadRequestResult();
@@ -312,6 +308,11 @@ namespace WebAPI.Controllers
             if (user.SharedTokens.Any(x => x.Stamp == createToken.Stamp))
             {
                 return new BadRequestResult();
+            }
+            var existing = await ShareRepository.GetAsync(createToken.Token);
+            if (createToken.Token != null && (existing == null || existing.Token.SharingUserId != user.Id))
+            {
+                throw new NotFoundException();
             }
 
             var github = user.GithubConnection;
