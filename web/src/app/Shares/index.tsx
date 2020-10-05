@@ -187,7 +187,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                         onChange={this.searched.bind(this)}
                         placeholder="Search repository, link title or provider"
                         inputProps={{ 'aria-label': 'search' }}/>
-                    <Grid item container justify='center' alignItems='center'>
+                    <Grid item container justify='center' alignItems='stretch'>
                         {
                             !this.state.loaded ? <Loading />
                         :   this.state.sharedTokens
