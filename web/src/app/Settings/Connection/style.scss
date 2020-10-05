@@ -1,3 +1,5 @@
+@use "/src/styles/style.scss" as globalStyles;
+
 #github {
     margin-top: 20px;
     span {
@@ -6,5 +8,13 @@
     li {
         list-style: none;
         margin-left: 20px;
+    }
+}
+.forbidDisconnect {
+    font-size: 0.9em;
+    font-style: italic;
+    a, a:link, a:visited, a:focus, a:hover, a:active{
+        color: globalStyles.$red;
+        text-decoration: underline;
     }
 }

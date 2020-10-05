@@ -114,15 +114,15 @@ export default class Connection extends React.Component<IProps, IState> {
                     {this.renderGithubInstallation()}
                     <BaseSettingsLayout header='Dangerzone' isdangerous>
                         {!!this.props.forbidDisconnect && 
-                            <span>
+                            <span className={style.forbidDisconnect}>
                                 You cannot disconnect this provider, please connect other services first or if you wish to delete your account, <Link to='/settings/dangerzone'>click here</Link>
                             </span>}
-                        <Button disabled={this.props.forbidDisconnect} onClick={ async () => {
-                            this.setState({confirmConnectionRemoval: true});
-                        }}>
-                           <CustomIcon src={DeleteIcon}></CustomIcon>
-                            Disconnect {this.getPrettyProvider()}
-                        </Button>
+                        {this.props.forbidDisconnect !== true &&
+                            <Button disabled={this.props.forbidDisconnect} onClick={ async () => {
+                                this.setState({confirmConnectionRemoval: true}); }}>
+                                <CustomIcon src={DeleteIcon}></CustomIcon>
+                                Disconnect {this.getPrettyProvider()}
+                            </Button>}
                         <ConfirmDialog
                             open={this.state.confirmConnectionRemoval}
                             onCancel={() => this.setState({confirmConnectionRemoval: false})}
