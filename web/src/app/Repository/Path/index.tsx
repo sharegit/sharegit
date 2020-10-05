@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react'
 import { Link } from 'react-router-dom'
 import { Breadcrumbs, Typography } from '@material-ui/core';
+import style from './style.scss';
 
 interface IState {
     restricted?: string;
@@ -72,7 +73,7 @@ export default class Path extends React.Component<IProps, IState> {
 
     render() {
         return (
-            <Breadcrumbs>
+            <Breadcrumbs className={style.path}>
                 {this.build()}
             </Breadcrumbs>
         )

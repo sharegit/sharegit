@@ -16,6 +16,7 @@ import CustomIcon from 'components/CustomIcon';
 import FirstPageIcon from 'assets/icons/first-page.svg';
 import GetAppIcon from 'assets/icons/get-app.svg';
 import HourglassIcon from 'assets/icons/hourglass.svg';
+import Loading from 'components/Loading';
 
 export interface IProps extends RouteComponentProps<any> {
     provider: 'github' | 'gitlab' | 'bitbucket';
@@ -36,6 +37,7 @@ interface IState extends BaseState {
     tokenMeta?: Token;
     repoMeta?: TokenRepo;
     startingDownload?: boolean;
+    loading: boolean;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -47,13 +49,14 @@ export default class Repository extends React.Component<IProps, IState> {
             sha: props.sha,
             objects: [],
             cancelToken: API.aquireNewCancelToken(),
-            tree: {}
+            tree: {},
+            loading: false
         }
     }
 
     async componentDidMount() {
         console.log(`This is repo ${this.props.repo} of user ${this.props.user}`);
-        
+        this.setState({loading: true});
         const query = new URLSearchParams(this.props.location.search);
         const tokenStr = query.get('token') as string;
 
@@ -136,6 +139,7 @@ export default class Repository extends React.Component<IProps, IState> {
                 objects: repoTree,
                 readme: readme
             });
+            this.setState({loading: false});
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 this.props.history.replace('/error');
@@ -150,6 +154,7 @@ export default class Repository extends React.Component<IProps, IState> {
             const blob = await API.getRepoBlob(this.state.tokenMeta.token, this.props.provider, this.props.id, this.props.user, this.props.repo, this.state.sha, uri, this.state.cancelToken)
             
             this.setState({blob: blob});
+            this.setState({loading: false});
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 this.props.history.replace('/error');
@@ -158,6 +163,7 @@ export default class Repository extends React.Component<IProps, IState> {
     }
 
     queryServer() {
+        this.setState({loading: true});
         const uri = this.props.uri == undefined ? '' : this.props.uri;
         console.log(uri);
         if (this.props.type == 'tree') {
@@ -254,7 +260,7 @@ export default class Repository extends React.Component<IProps, IState> {
                         :   null}
                             <div className="clear"></div>
                         </div>
-
+                        {this.state.loading ? <Loading /> : null}
                         {this.renderTree()}
                         {this.renderFileContents()}
                         {this.renderREADMEIfPresent()}
