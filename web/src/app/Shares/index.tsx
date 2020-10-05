@@ -9,13 +9,17 @@ import printDate from 'util/Date';
 import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
 import ConfirmDialog from 'components/ConfirmDialog';
 import ExpandIcon from 'assets/icons/expand.svg';
-import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid, Card, CardContent, CardActions, Typography, InputBase, TextField } from '@material-ui/core';
+import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid, Card, CardContent, CardActions, Typography, InputBase, TextField, Tooltip, IconButton } from '@material-ui/core';
 import CustomIcon from 'components/CustomIcon';
 import style from './style.scss';
 import Dictionary from 'util/Dictionary';
 import Loading from 'components/Loading';
 import DismissableMessage from 'components/DismissableMessage';
-
+import EditIcon from 'assets/icons/edit.svg';
+import DeleteIcon from 'assets/icons/delete_dark.svg';
+import OpenIcon from 'assets/icons/open.svg';
+import DuplicateIcon from 'assets/icons/duplicate.svg';
+import CopyIcon from 'assets/icons/copy.svg';
 
 
 interface IState extends BaseState {
@@ -29,6 +33,7 @@ interface IState extends BaseState {
 
     newTokenAdded?: string;
     popupMessage?: string;
+    linkCopied?: boolean;
 }
 
 export interface IProps  extends RouteComponentProps<any> {
@@ -148,6 +153,11 @@ export default class Shares extends React.Component<IProps, IState>  {
         return(
             <div>
                 <ContentPanel background='light'>
+                    {this.state.linkCopied === true &&
+                    <DismissableMessage style={'positive'}
+                            headerMessage={'Link copied to clipboard!'}
+                            active
+                            onClose={() => this.setState({linkCopied: undefined})} /> }
                     {this.state.popupMessage == undefined ? null :
                             <DismissableMessage style='positive'
                             headerMessage={this.state.popupMessage}
@@ -201,13 +211,26 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             </ul>
                                         </CardContent>
                                         <CardActions>
-                                            <Button onClick={() =>{
+                                            <Tooltip title='Copy link to clipboard'>
+                                            <IconButton onClick={() =>{
                                                 navigator.clipboard.writeText(`${config.share_uri}/${token.token}`);
-                                            }}>Copy link</Button>
-                                            <Button component={Link} target='__blank' to={`/share/${token.token}`}>
-                                                Open link
-                                            </Button>
-                                            <Button onClick={()=>this.setState({confirmDeletion: token})}>Delete token</Button>
+                                                this.setState({linkCopied: true});
+                                            }}><CustomIcon src={CopyIcon} /></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title='Open link in new tab'>
+                                            <IconButton component={Link} target='__blank' to={`/share/${token.token}`}>
+                                                <CustomIcon src={OpenIcon} />
+                                            </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title='Delete share'>
+                                            <IconButton onClick={()=>this.setState({confirmDeletion: token})}><CustomIcon src={DeleteIcon} /></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title='Edit share'>
+                                            <IconButton><CustomIcon src={EditIcon} /></IconButton>
+                                            </Tooltip>
+                                            <Tooltip title='Duplcate share (create a new link with a new name)'>
+                                            <IconButton><CustomIcon src={DuplicateIcon} /></IconButton>
+                                            </Tooltip>
                                         </CardActions>
 
                                     </Card>
