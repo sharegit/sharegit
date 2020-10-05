@@ -80,7 +80,7 @@ export default class PublicProfile extends React.Component<IProps, IState> {
 
             const re = /((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)/;
                 
-            if (!re.test(newValue.toLowerCase()))
+            if (newValue.length > 0 && !re.test(newValue.toLowerCase()))
                 state.errors.put(id, 'Please enter a valid URL');
             else
                 state.errors.remove(id);

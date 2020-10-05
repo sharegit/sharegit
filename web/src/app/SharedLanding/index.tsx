@@ -107,7 +107,9 @@ export default class SharedLanding extends React.Component<IProps, IState> {
                             </div>
                             <div id={styles.authorText}>
                                 <p> <b>Shared by:</b> <i>{this.state.author}</i> <br />
-                                <b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></p>
+                                {this.state.authorWebsite != undefined && this.state.authorWebsite.length > 0 &&
+                                    <span><b>Website:</b><a href={!!this.state.authorWebsite ? this.state.authorWebsite : ''}><i>{this.state.authorWebsite}</i></a></span>}
+                                </p>
                             </div>
                             <div className="clear"></div>
                         </div>
