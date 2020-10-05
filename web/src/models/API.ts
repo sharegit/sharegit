@@ -60,6 +60,7 @@ export interface DashboardResponse {
 export interface SharedToken {
     token: string;
     customName: string;
+    privateNote: string;
     expireDate: number;
     author: string;
     authorWebsite: string;

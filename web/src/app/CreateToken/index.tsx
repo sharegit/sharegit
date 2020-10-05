@@ -21,6 +21,7 @@ interface IState extends BaseState {
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
     customName: string;
+    privateNote: string;
     isExpiring: boolean;
     expireDate: Date;
     defaultBranchSelection?: string;
@@ -44,6 +45,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         expireDate: new Date(new Date().getTime() + DEFAULT_EXPIRATION_VALUE * 60 * 1000),
         defaultBranchSelection: 'master',
         customName: '',
+        privateNote: '',
         isExpiring: false,
         formState: 0,
         mode: 'c'
@@ -74,6 +76,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             const token = this.state.template == undefined || this.state.mode != 'e' ? null : this.state.template.token;
             const newToken = await API.createToken({
                 Token: token,
+                PrivateNote: this.state.privateNote,
                 Stamp: this.state.stamp,
                 Repositories: this.state.selectedRepositories,
                 CustomName: this.state.customName,
@@ -235,6 +238,18 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             return state;
         })
     }
+    changePrivateNote(id: string, newValue: string) {
+        this.setState(state => {
+            if (newValue.length < 250)
+                state.errors.remove(id);
+            else 
+                state.errors.put(id, `Private note cannot exceed 250 characters. Current length: ${newValue.length}`);
+
+            this.state.privateNote = newValue;
+
+            return state;
+        })
+    }
     changePath(r: SharedRepository, id: string, newValue: string) {
         this.setState(state => {
 
@@ -302,6 +317,10 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             customNameError={this.state.errors.get('customName')}
             customNameValue={this.state.customName}
             changeCustomName={this.changeCustomName.bind(this)}
+
+            privateNoteError={this.state.errors.get('privateNote')}
+            privateNoteValue={this.state.privateNote}
+            changeprivateNote={this.changePrivateNote.bind(this)}
 
             isExpiring={this.state.isExpiring}
             changeIsExpiring={(newValue) => this.setState({isExpiring: newValue})}

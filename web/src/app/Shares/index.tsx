@@ -194,6 +194,8 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             </Typography>
                                             {this.constructAnalytics(token.token)}
                                             <hr />
+                                            {token.privateNote != null && token.privateNote.length > 0 &&
+                                                <span className={style.small}>Note: {token.privateNote}</span>}
                                             { token. expireDate != 0 &&
                                                 <div className={style.small}>
                                                     {this.isTokenExpired(token) ? '(Expired at ' : '(Expires at '}

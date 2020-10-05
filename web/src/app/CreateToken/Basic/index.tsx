@@ -10,6 +10,10 @@ interface IProps {
     customNameValue: string;
     changeCustomName: (id: string, newValue: string) => void;
 
+    privateNoteError: string | undefined;
+    privateNoteValue: string;
+    changeprivateNote: (id: string, newValue: string) => void;
+
     isExpiring: boolean;
     changeIsExpiring: (newValue: boolean) => void;
 
@@ -45,6 +49,17 @@ export default class Basic extends React.Component<IProps, IState> {
                 onChanged={(id, newValue)=>this.props.changeCustomName(id, newValue)}
                 placeholder='My token for company X'
                 description='This name will be displayed to you as well as to the reciever as an easy name to remember when referring to this shared link in place of the random token.'
+            />,
+            <FormTextField  
+                key='privateNote'
+                id='privateNote'
+                type='field'
+                label='Note (private)'
+                error={this.props.privateNoteError}
+                value={this.props.privateNoteValue}
+                onChanged={(id, newValue)=>this.props.changeprivateNote(id, newValue)}
+                placeholder='My secret note...'
+                description='You will see this note in your dashboard. This is a note for you to attach to this shared link.'
             />,
             <FormControlLabel
                 key='isExpiring'

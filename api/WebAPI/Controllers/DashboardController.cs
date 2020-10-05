@@ -174,6 +174,7 @@ namespace WebAPI.Controllers
             {
                 Token = x.Token,
                 CustomName = x.CustomName,
+                PrivateNote = x.PrivateNote,
                 ExpireDate = x.ExpireDate,
                 Repositories = (await ShareRepository.GetAsync(x.Token)).AccessibleRepositories.Select(
                     x => new SharedRepository()
@@ -411,6 +412,7 @@ namespace WebAPI.Controllers
                 SharingUserId = user.Id,
                 Stamp = createToken.Stamp,
                 CustomName = createToken.CustomName,
+                PrivateNote = createToken.PrivateNote,
                 ExpireDate = createToken.ExpireDate,
             };
             var share = new Share()
@@ -438,6 +440,7 @@ namespace WebAPI.Controllers
             {
                 Token = share.Token.Token,
                 CustomName = share.Token.CustomName,
+                PrivateNote = share.Token.PrivateNote,
                 ExpireDate = share.Token.ExpireDate
             };
         }

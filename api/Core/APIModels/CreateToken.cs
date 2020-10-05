@@ -19,6 +19,7 @@ namespace Core.APIModels
         public string Stamp { get; set; }
         public Repository[] Repositories { get; set; }
         public string CustomName { get; set; }
+        public string PrivateNote { get; set; }
         // Expiration date in UTC minutes!
         public long ExpireDate { get; set; }
     }
@@ -28,6 +29,7 @@ namespace Core.APIModels
         {
             RuleFor(x => x.Stamp).NotEmpty().MaximumLength(50);
             RuleFor(x => x.CustomName).NotEmpty().MaximumLength(50);
+            RuleFor(x => x.PrivateNote).MaximumLength(250);
             RuleFor(x => x.Repositories).NotEmpty();
             RuleForEach(x => x.Repositories).NotNull().SetValidator(new CreateTokenRepositoryValidator());
             RuleFor(x => x.ExpireDate).Must(x => x == 0 || x > DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 60);

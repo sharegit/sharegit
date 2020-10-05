@@ -5,6 +5,10 @@
         public string Token { get; set; }
         public string CustomName { get; set; }
         /// <summary>
+        /// Private note ONLY for token creator
+        /// </summary>
+        public string PrivateNote { get; set; }
+        /// <summary>
         /// Expiration date in UTC minutes
         /// </summary>
         public long ExpireDate { get; set; }

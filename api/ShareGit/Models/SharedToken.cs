@@ -11,6 +11,7 @@ namespace ShareGit.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string SharingUserId { get; set; }
         public string CustomName { get; set; }
+        public string PrivateNote { get; set; }
         // Expiration date in UTC minutes!
         public long ExpireDate { get; set; }
     }
