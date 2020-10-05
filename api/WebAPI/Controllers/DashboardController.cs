@@ -179,6 +179,7 @@ namespace WebAPI.Controllers
                 Repositories = (await ShareRepository.GetAsync(x.Token)).AccessibleRepositories.Select(
                     x => new SharedRepository()
                     {
+                        Id = x.RepoId,
                         Owner = x.Owner,
                         DownloadAllowed = x.DownloadAllowed,
                         Provider = x.Provider,
