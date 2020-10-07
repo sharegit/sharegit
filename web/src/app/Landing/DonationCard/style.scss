@@ -5,4 +5,15 @@
     > * {
         margin: 50px;
     }
+
+    @media screen and (max-width: 540px) {
+        .piggy {
+            transform: scale(0.3);
+            margin: -100px;
+            margin-top: -50px;
+        }
+        .text {
+
+        }
+    }
 }

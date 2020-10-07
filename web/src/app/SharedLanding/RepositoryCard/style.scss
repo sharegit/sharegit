@@ -13,6 +13,11 @@
     height: calc(100% - 40px);
 }
 
+@media screen and (max-width: 540px) {
+    .repositoryCard {
+        width: 170px;
+    }
+}
 .repositoryCard:hover {
     transform: scale(1.05);
     cursor: pointer;

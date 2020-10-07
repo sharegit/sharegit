@@ -4,8 +4,10 @@
     #content, .menu {
         margin: 30px;
     }
-    #content {
-        width: globalStyles.$siteWidth - 200px - 120px;
-        width: globalStyles.$siteWidth - 200px - 120px;
+    @media screen and (min-width: 900px) {
+        #content {
+            width: globalStyles.$siteWidth - 200px - 120px;
+            width: globalStyles.$siteWidth - 200px - 120px;
+        }
     }
 }

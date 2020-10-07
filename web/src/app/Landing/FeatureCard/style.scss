@@ -17,4 +17,23 @@
         flex-direction: column;
         justify-content: left;
     }
+    @media screen and (max-width: 540px) {
+        .content {
+            width: 300px;
+        }
+    }
+}
+@media screen and (max-width: 540px) {
+    .featureCard {
+        margin: 10px;
+        width: 300px;
+        min-width: 300px;
+
+        .icon {
+            transform: scale(0.7)
+        }
+        .content {
+            width: 200px;
+        }
+    }
 }

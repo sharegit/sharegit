@@ -19,6 +19,11 @@
         font-weight: bold;
     }
 }
+@media screen and (max-width: 540px) {
+    .shareCard {
+        width: 300px;
+    }
+  }
 .shareCards {
     display: inline-block;
 }

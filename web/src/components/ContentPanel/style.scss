@@ -19,7 +19,18 @@
         display: block;
         width: 100%;
     }
+    
     &:first-child {
-        padding-top: 150px;
+        padding-top: 170px;
+    }
+    @media screen and (max-width: 540px) {
+        &:first-child {
+            padding-top: 220px;
+        }
+    }
+}
+@media screen and (max-width: 540px) {
+    .contentPanel {
+        padding: 5px;
     }
 }

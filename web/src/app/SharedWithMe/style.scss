@@ -71,6 +71,11 @@
       margin-bottom: 10px;
     }
   }
+  @media screen and (max-width: 540px) {
+    .sharedLink {
+        width: 300px;
+    }
+  }
   .sharedLink:hover {
     transform: scale(1.05);
     cursor: pointer;

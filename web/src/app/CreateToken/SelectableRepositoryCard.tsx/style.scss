@@ -22,6 +22,12 @@
     width: 260px;
 }
 
+@media screen and (max-width: 540px) {
+    .deselected {
+        width: 200px;
+    }
+}
+
 .deselected:hover {
     transform: scale(1.05);
     cursor: pointer;

@@ -27,7 +27,7 @@ export default class Landing extends React.Component<IProps, IState> {
         return (
             <div id={styles.landing} className='page'>
                 <ContentPanel background='gradient'>
-                    <Grid item md='auto'>
+                    <Grid item md='auto' className={styles.auth}>
                         <Authentication
                             id={styles.signUp}
                             history={this.props.history}
@@ -36,7 +36,7 @@ export default class Landing extends React.Component<IProps, IState> {
                             mode='signup'
                             />
                     </Grid>
-                    <Grid item md='auto'>
+                    <Grid item md='auto' className={styles.cta}>
                         <div id={styles.title}>
                             <h1><b>Share Your Repositories</b></h1>
                             <ul>
