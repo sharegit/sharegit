@@ -175,7 +175,7 @@ export default class Authentication extends React.Component<IProps, IState>  {
     }
     render() {
         return (
-            <Grid item container direction='column' justify='flex-start' alignItems='center' className={`${this.props.className} ${styles.authBox}`} id={this.props.id}>
+            <Grid item container justify='flex-start' alignItems='center' className={`${this.props.className} ${styles.authBox}`} id={this.props.id}>
                 <div>
                     <h2>
                         {this.getAuthText()}
