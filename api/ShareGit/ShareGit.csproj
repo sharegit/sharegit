@@ -9,7 +9,7 @@
     <PackageReference Include="Google.Apis.Analytics.v3" Version="1.49.0.1679" />
     <PackageReference Include="Google.Apis.AnalyticsReporting.v4" Version="1.49.0.2041" />
     <PackageReference Include="MailKit" Version="2.8.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.11.0" />
+    <PackageReference Include="MongoDB.Driver" Version="2.11.2" />
   </ItemGroup>
 
   <ItemGroup>
