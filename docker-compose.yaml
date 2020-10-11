@@ -4,8 +4,7 @@ services:
     image: mongo:4.4
     container_name: db
     volumes:
-      - ./mongodb/mongod.conf:/etc/mongod.conf:ro
-      - ./mongodb/init.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./infra/mongodb/init.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       - /am/data/sharegit/mongodbdata:/data/db
     environment:
       - MONGO_INITDB_DATABASE=sharegit
@@ -41,7 +40,7 @@ services:
       context: ./web
       dockerfile: Dockerfile
     volumes:
-      - ./nginx:/etc/nginx:ro
+      - ./infra/nginx:/etc/nginx:ro
       - /etc/letsencrypt/live/api.sharegit.com/fullchain.pem:/apps/sharegit/keys/ssl_api/cert.pem:ro
       - /etc/letsencrypt/live/api.sharegit.com/privkey.pem:/apps/sharegit/keys/ssl_api/certkey.pem:ro
       - /etc/letsencrypt/live/sharegit.com/fullchain.pem:/apps/sharegit/keys/ssl_web/cert.pem:ro
