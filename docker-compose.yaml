@@ -1,0 +1,62 @@
+version: '3'
+services:
+  db:
+    image: mongo:4.4
+    container_name: db
+    volumes:
+      - ./mongodb/mongod.conf:/etc/mongod.conf:ro
+      - ./mongodb/init.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - /am/data/sharegit/mongodbdata:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=sharegit
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=${sharegit_mongo_root_psw}
+
+  api:
+    container_name: api
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - SHARE_GIT_API_PRIV_KEY_LOC=/run/secrets/sharegit_key
+      - SHARE_GIT_GITHUB_APP_PRIV_KEY_LOC=/run/secrets/github_key
+      - SHARE_GIT_GOOGLE_ANALYTICS_KEY_LOC=/run/secrets/google_key
+      - SHARE_GIT_DB_USR=sharegit
+      - SHARE_GIT_DB_PSW=${sharegit_mongo_sharegit_psw}
+      - SHARE_GIT_GITHUB_APP_CLIENT_SECRET=${sharegit_github_app_client_secret}
+      - SHARE_GIT_GITLAB_APP_CLIENT_SECRET=${sharegit_gitlab_app_client_secret}
+      - SHARE_GIT_BITBUCKET_APP_CLIENT_SECRET=${sharegit_bitbucket_app_client_secret}
+      - SHARE_GIT_SMTP_PSW=${sharegit_smtp_psw}
+    depends_on:
+      - db
+    secrets:
+      - github_key
+      - google_key
+      - sharegit_key
+
+  web:
+    container_name: web
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    volumes:
+      - ./nginx:/etc/nginx:ro
+      - /etc/letsencrypt/live/api.sharegit.com/fullchain.pem:/apps/sharegit/keys/ssl_api/cert.pem:ro
+      - /etc/letsencrypt/live/api.sharegit.com/privkey.pem:/apps/sharegit/keys/ssl_api/certkey.pem:ro
+      - /etc/letsencrypt/live/sharegit.com/fullchain.pem:/apps/sharegit/keys/ssl_web/cert.pem:ro
+      - /etc/letsencrypt/live/sharegit.com/privkey.pem:/apps/sharegit/keys/ssl_web/certkey.pem:ro
+    ports:
+      - "81:80"
+      - "444:443"
+    depends_on:
+      - db
+      - api
+
+secrets:
+  sharegit_key:
+    file: /am/apps/sharegit/keys/share-api.pem
+  github_key:
+    file: /am/apps/sharegit/keys/share-github.pem
+  google_key:
+    file: /am/apps/sharegit/keys/sharegit-google-analytics.json

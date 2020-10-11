@@ -18,7 +18,7 @@ namespace WebAPI
                 {
                     webBuilder.UseStartup<Startup>();
                     webBuilder.UseKestrel();
-                    webBuilder.UseUrls("https://*:44801");
+                    webBuilder.UseUrls("http://*:44801");
                 });
     }
 }

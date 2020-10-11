@@ -59,8 +59,6 @@ namespace WebAPI
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
 
-            app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.SetupAuth();
