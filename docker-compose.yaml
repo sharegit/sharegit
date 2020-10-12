@@ -9,7 +9,7 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=sharegit
       - MONGO_INITDB_ROOT_USERNAME=root
-      - MONGO_INITDB_ROOT_PASSWORD=${sharegit_mongo_root_psw}
+      - MONGO_INITDB_ROOT_PASSWORD=${sharegit_mongo_main_psw}
 
   api:
     container_name: api
