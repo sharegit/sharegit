@@ -4,7 +4,7 @@ services:
     image: mongo:4.4
     container_name: db
     volumes:
-      - ./infra/mongodb/init.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./infra/mongodb/:/docker-entrypoint-initdb.d/:ro
       - /am/data/sharegit/mongodbdata:/data/db
     environment:
       - MONGO_INITDB_DATABASE=sharegit
