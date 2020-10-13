@@ -4,7 +4,7 @@ import style from './style.scss';
 interface IProps extends HTMLAttributes<HTMLDivElement> {
     src: string;
     alt?: string;
-    size?: 'small' | 'medium' | 'large' | 'auto';
+    size?: 'small' | 'medium' | 'large' | 'auto' | 'fill-w-100'| 'fill-w-80';
 }
 
 export default class CustomIcon extends React.Component<IProps> {
@@ -18,6 +18,8 @@ export default class CustomIcon extends React.Component<IProps> {
             case 'small': return style.small;
             case 'medium': return style.medium;
             case 'large': return style.large;
+            case 'fill-w-100': return style.fill_w_100;
+            case 'fill-w-80': return style.fill_w_80;
         }
     }
     render(){

@@ -3,6 +3,12 @@
 .img {
     margin-left: 0.3em;
     margin-right: 0.3em;
+    &.fill_w_100 {
+        width: 100%;
+    }
+    &.fill_w_80 {
+        width: 80%;
+    }
     &.auto {
         width: 1em;
         height: 1em;
