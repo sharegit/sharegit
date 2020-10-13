@@ -38,6 +38,7 @@ interface IState extends BaseState {
     repoMeta?: TokenRepo;
     startingDownload?: boolean;
     loading: boolean;
+    large: boolean;
 }
 
 export default class Repository extends React.Component<IProps, IState> {
@@ -50,7 +51,8 @@ export default class Repository extends React.Component<IProps, IState> {
             objects: [],
             cancelToken: API.aquireNewCancelToken(),
             tree: {},
-            loading: false
+            loading: false,
+            large: false
         }
     }
 
@@ -59,6 +61,7 @@ export default class Repository extends React.Component<IProps, IState> {
         this.setState({loading: true});
         const query = new URLSearchParams(this.props.location.search);
         const tokenStr = query.get('token') as string;
+        const large = query.get('large') as string;
 
         const tokens = new LocalStorageDictionary<Token>('alltokens');
         let existingToken = tokens.get(tokenStr)
@@ -100,7 +103,8 @@ export default class Repository extends React.Component<IProps, IState> {
             // Set token metadata
             this.setState({
                 tokenMeta: existingToken,
-                repoMeta: repoMeta
+                repoMeta: repoMeta,
+                large: !!large && large.length > 0
             }, () => {
                 // Finally query the server for content
                 this.queryServer();
@@ -128,7 +132,6 @@ export default class Repository extends React.Component<IProps, IState> {
 
                 return 0;
             });
-
             
             const readmeFile = repoTree.find(x => x.path.toUpperCase().endsWith("README.MD") || x.path.toUpperCase().endsWith("README"));
             
@@ -168,8 +171,10 @@ export default class Repository extends React.Component<IProps, IState> {
         console.log(uri);
         if (this.props.type == 'tree') {
             this.queryTree(uri);
-        } else if (this.props.type == 'blob') {
+        } else if (this.props.type == 'blob' && !this.state.large) {
             this.queryBlob(uri);
+        } else {
+            this.setState({loading: false});
         }
     }
 
@@ -272,6 +277,23 @@ export default class Repository extends React.Component<IProps, IState> {
     renderFileContents() {
         if (this.props.type == 'blob' && this.state.blob != undefined) {
             return <FileViewer key={this.state.blob.file} displayed={this.state.blob} />
+        } else if(this.state.large) {
+            return (<div>
+                    <p>File is too large to display...</p>
+                    {this.state.repoMeta != undefined && this.state.repoMeta.downloadable && 
+                        <div>
+                            <p>Please download the whole repository to view this file.</p>
+                            {this.state.startingDownload !== true ?
+                                <Button onClick={async () => {
+                                    this.startDownloading();
+                                }}>Download as zip <CustomIcon src={GetAppIcon} /></Button>
+                            :
+                                <Button disabled>Downloading as zip <CustomIcon src={HourglassIcon} /></Button>
+                                }
+                        </div>}
+                    {this.state.repoMeta != undefined && !this.state.repoMeta.downloadable && 
+                        <p>Please request download permission from the source of your link for this repository in order to view this file.</p>}
+                </div>)
         } else {
             return null;
         }
@@ -285,7 +307,7 @@ export default class Repository extends React.Component<IProps, IState> {
             return (
                 <div id={styles.tree}>
                     <List>
-                        {this.state.objects.map((r: TreeNode) => (this.state.tokenMeta != undefined && this.state.repoMeta != undefined) &&
+                        {this.state.objects.map((r: TreeNode) => (this.state.tokenMeta != undefined && this.state.repoMeta != undefined) && (() => {console.log(r.size); return true;})() &&
                             <RepoListElement
                                 token={this.state.tokenMeta.token}
                                 provider={this.props.provider}
@@ -298,7 +320,8 @@ export default class Repository extends React.Component<IProps, IState> {
                                 lastModifyDate={r.lastModifyDate}
                                 author={r.author}
                                 path={r.path}
-                                type={r.type}>
+                                type={r.type}
+                                large={r.size / 1024 / 1024 > 1}>
                             </RepoListElement>
                         )}
                     </List>

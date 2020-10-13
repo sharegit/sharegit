@@ -48,6 +48,7 @@ export interface TreeNode {
     author: string;
     lastModifyDate: string;
     lastModifyCommitMessage: string;
+    size: number;
 }
 export interface AuthResult {
     token: string;

@@ -196,7 +196,8 @@ namespace WebAPI.Controllers
                         {
                             Path = x.Path,
                             Sha = x.Sha,
-                            Type = x.Type
+                            Type = x.Type,
+                            Size = x.Size
                         }).ToArray();
                     }
                 case "gitlab":
@@ -216,7 +217,8 @@ namespace WebAPI.Controllers
                         {
                             Path = x.Path,
                             Sha = "missing",
-                            Type = x.Type
+                            Type = x.Type,
+                            //Size = x.Size
                         }).ToArray();
                     }
                 case "bitbucket":
@@ -243,7 +245,8 @@ namespace WebAPI.Controllers
                                 "commit_directory" => "tree",
                                 "commit_file" => "blob",
                                 _ => x.Type
-                            }
+                            },
+                            //Size = x.Size
                         }).ToArray();
                     }
                 default:

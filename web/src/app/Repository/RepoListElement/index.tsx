@@ -17,6 +17,7 @@ interface IProps {
     lastModifyDate: string;
     author: string;
     token: string;
+    large: boolean;
 }
 
 interface IState {
@@ -55,12 +56,20 @@ export default class RepoListElement extends React.Component<IProps, IState> {
                 return <CustomIcon src={FileIcon} />;
         }
     }
+    makeLink() {
+        if (!this.props.large) {
+            return `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}?token=${this.props.token}`
+        }
+        else {
+            return `/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}?token=${this.props.token}&large=true`
+        }
+    }
     renderSlot(path: string) {
         return (
             <ListItem
                 button
                 component={Link}
-                to={`/${this.props.provider}/${this.props.id}/${this.props.user}/${this.props.repo}/${this.state.type}/${this.props.sha}/${this.props.path}?token=${this.props.token}`}>
+                to={this.makeLink()}>
                 <ListItemIcon>
                     {this.typeToIcon(this.state.type)}
                 </ListItemIcon>
