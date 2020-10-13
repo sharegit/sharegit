@@ -40,39 +40,6 @@ namespace ShareGit
         }
 
         /// <summary>
-        /// https://docs.github.com/en/rest/reference/repos#get-a-repository
-        /// </summary>
-        public async Task<APIResponse<GithubRepository>> GetInstallationRepository(string owner, string repo, GithubAppAccess installationAccess)
-        {
-            return await FetchAPI<GithubRepository>(
-                $"/repos/{owner}/{repo}",
-                HttpMethod.Get,
-                new InstallationGithubAuth(installationAccess));
-        }
-
-        /// <summary>
-        /// https://docs.github.com/en/rest/reference/git#get-a-tree
-        /// </summary>
-        public async Task<APIResponse<GithubTree>> GetRepositoryTree(string owner, string repo, string sha, GithubAppAccess installationAccess, bool recursive)
-        {
-            return await FetchAPI<GithubTree>(
-                $"/repos/{owner}/{repo}/git/trees/{sha}",
-                HttpMethod.Get,
-                new InstallationGithubAuth(installationAccess),
-                ("recursive", recursive ? "true" : "false"));
-        }
-
-        /// <summary>
-        /// https://docs.github.com/en/rest/reference/repos#list-branches
-        /// </summary>
-        public async Task<APIResponse<GithubBranch[]>> GetBranches(string owner, string repo, GithubAppAccess installationAccess)
-        {
-            return await FetchAPI<GithubBranch[]>(
-                $"/repos/{owner}/{repo}/branches",
-                HttpMethod.Get,
-                new InstallationGithubAuth(installationAccess));
-        }
-        /// <summary>
         /// https://docs.github.com/en/rest/reference/repos#list-branches
         /// </summary>
         public async Task<APIResponse<GithubBranch[]>> GetBranches(string owner, string repo, GithubUserAccess userAccess)
@@ -81,36 +48,6 @@ namespace ShareGit
                 $"/repos/{owner}/{repo}/branches",
                 HttpMethod.Get,
                 new UserGithubAuth(userAccess));
-        }
-
-        /// <summary>
-        /// https://docs.github.com/en/rest/reference/repos#list-commits
-        /// </summary>
-        public async Task<APIResponse<GithubCommit[]>> GetCommits(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess, int page = 0, int per_page = 0)
-        {
-            return await FetchAPI<GithubCommit[]>(
-                $"/repos/{owner}/{repo}/commits",
-                HttpMethod.Get,
-                new InstallationGithubAuth(installationAccess),
-                ("sha", sha),
-                ("path", uri),
-                ("page", page.ToString()),
-                ("per_page", per_page.ToString()));
-        }
-
-        /// <summary>
-        /// https://docs.github.com/en/rest/reference/repos#list-commits
-        /// </summary>
-        public async Task<APIResponse<GithubCommit[]>> GetCommits(string owner, string repo, string sha, string uri, GithubUserAccess installationAccess, int page = 0, int per_page = 0)
-        {
-            return await FetchAPI<GithubCommit[]>(
-                $"/repos/{owner}/{repo}/commits",
-                HttpMethod.Get,
-                new UserGithubAuth(installationAccess),
-                ("sha", sha),
-                ("path", uri),
-                ("page", page.ToString()),
-                ("per_page", per_page.ToString()));
         }
 
         /// <summary>
