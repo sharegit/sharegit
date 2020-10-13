@@ -1,5 +1,5 @@
 {
-    "apiUrl": "https://localhost:44801",
+    "apiUrl": "http://localhost:44801",
     "isDev": true,
     "share_uri": "http://localhost:44800/share"
 }
