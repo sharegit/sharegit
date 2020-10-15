@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
             var providers = accessibleRepositories.GroupBy(x => x.Provider);
             List<SharedRepository> sharedRepositories = new List<SharedRepository>();
 
-            List<Task<Core.Model.APIResponse<Core.Model.Github.GithubRepositories>>> githubResponses = new List<Task<Core.Model.APIResponse<Core.Model.Github.GithubRepositories>>>();
+            var githubResponses = new List<Task<Core.Model.APIResponse<Core.Model.Github.PaginatedGithubResponse<Core.Model.Github.GithubRepository>>>>();
             Task<Core.Model.APIResponse<Core.Model.GitLab.GitlabProject[]>> gitlabResponse = null;
             Task<Core.Model.APIResponse<Core.Model.Bitbucket.PaginatedBitbucketResponse<BitbucketRepository>>> bitbucketResponse = null;
             foreach (var provider in providers)
@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
                 var repositoriesResponsesGH = await Task.WhenAll(githubResponses);
                 foreach (var repositoriesResponseGH in repositoriesResponsesGH)
                 {
-                    foreach (var rep in repositoriesResponseGH.Value.Repositories)
+                    foreach (var rep in repositoriesResponseGH.Value.Values)
                     {
                         var dbRepo = accessibleRepositories.FirstOrDefault(x =>
                             x.Repo == rep.Name

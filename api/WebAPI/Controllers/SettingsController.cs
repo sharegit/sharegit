@@ -150,7 +150,7 @@ namespace WebAPI.Controllers
             var orgs = orgsResponse.Value.ToDictionary(x => x.Organization.Login, x => x);
             return new GithubInstallations()
             {
-                Installations = installations.Value.Installations.Select(x =>
+                Installations = installations.Value.Values.Select(x =>
                 new GithubInstallations.GithubInstallation()
                 {
                     Login = x.Account.Login,
@@ -177,7 +177,7 @@ namespace WebAPI.Controllers
             };
 
             var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
-            foreach (var installation in installations.Value.Installations)
+            foreach (var installation in installations.Value.Values)
             {
                 var id = installation.Id;
                 await RepositoryServiceGH.RemoveUserInstalation(id);
@@ -269,7 +269,7 @@ namespace WebAPI.Controllers
                     };
 
                     var installations = await RepositoryServiceGH.GetUserInstallations(userAccess);
-                    foreach (var installation in installations.Value.Installations)
+                    foreach (var installation in installations.Value.Values)
                     {
                         var id = installation.Id;
                         await RepositoryServiceGH.RemoveUserInstalation(id);

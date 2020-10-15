@@ -19,10 +19,11 @@ namespace ShareGit
 
         /// <summary>
         /// https://docs.github.com/en/rest/reference/apps#list-repositories-accessible-to-the-user-access-token
+        /// Paginated response
         /// </summary>
-        public async Task<APIResponse<GithubRepositories>> GetRepositoriesAccessibleToUserInstallation(int installationId, GithubUserAccess userAccess)
+        public async Task<APIResponse<PaginatedGithubResponse<GithubRepository>>> GetRepositoriesAccessibleToUserInstallation(int installationId, GithubUserAccess userAccess)
         {
-            return await FetchAPI<GithubRepositories>(
+            return await FetchGithubAPIRecursively<GithubRepositories, GithubRepository>(
                 $"/user/installations/{installationId}/repositories",
                 HttpMethod.Get,
                 new UserGithubAuth(userAccess));
@@ -31,9 +32,9 @@ namespace ShareGit
         /// <summary>
         /// https://docs.github.com/en/rest/reference/apps#list-repositories-accessible-to-the-app-installation
         /// </summary>
-        public async Task<APIResponse<GithubRepositories>> GetInstallationRepositories(GithubAppAccess installationAccess)
+        public async Task<APIResponse<PaginatedGithubResponse<GithubRepository>>> GetInstallationRepositories(GithubAppAccess installationAccess)
         {
-            return await FetchAPI<GithubRepositories>(
+            return await FetchGithubAPIRecursively<GithubRepositories, GithubRepository>(
                 $"/installation/repositories",
                 HttpMethod.Get,
                 new InstallationGithubAuth(installationAccess));
@@ -44,6 +45,7 @@ namespace ShareGit
         /// </summary>
         public async Task<APIResponse<GithubBranch[]>> GetBranches(string owner, string repo, GithubUserAccess userAccess)
         {
+            // TODO: It should be paginated but the response does not contain a total_count, so ¯\_(ツ)_/¯
             return await FetchAPI<GithubBranch[]>(
                 $"/repos/{owner}/{repo}/branches",
                 HttpMethod.Get,
@@ -52,6 +54,7 @@ namespace ShareGit
 
         /// <summary>
         /// https://docs.github.com/en/rest/reference/repos#get-repository-content
+        /// This API has an upper limit of 1,000 files for a directory. If you need to retrieve more files, use the Git Trees API.
         /// </summary>
         public async Task<APIResponse<GithubContent>> GetContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
@@ -63,6 +66,7 @@ namespace ShareGit
         }
         /// <summary>
         /// https://docs.github.com/en/rest/reference/repos#get-repository-content
+        /// This API has an upper limit of 1,000 files for a directory. If you need to retrieve more files, use the Git Trees API.
         /// </summary>
         public async Task<APIResponse<GithubContent[]>> GetDirectoryContent(string owner, string repo, string sha, string uri, GithubAppAccess installationAccess)
         {
@@ -100,11 +104,11 @@ namespace ShareGit
             var installations = await GetUserInstallations(userAccessToken);
 
             var repos = new List<GithubRepository>();
-            foreach (var installation in installations.Value.Installations)
+            foreach (var installation in installations.Value.Values)
             {
                 var installationRepositories = await GetRepositoriesAccessibleToUserInstallation(installation.Id, userAccessToken);
 
-                foreach (var repo in installationRepositories.Value.Repositories)
+                foreach (var repo in installationRepositories.Value.Values)
                 {
                     // Only list repos where this user has push permission!
                     if(repo.Permissions.Push)
