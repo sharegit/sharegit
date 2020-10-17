@@ -240,7 +240,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     changePrivateNote(id: string, newValue: string) {
         this.setState(state => {
-            if (newValue.length < 250)
+            if (newValue.length <= 250)
                 state.errors.remove(id);
             else 
                 state.errors.put(id, `Private note cannot exceed 250 characters. Current length: ${newValue.length}`);
