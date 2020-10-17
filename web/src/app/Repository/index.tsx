@@ -208,7 +208,7 @@ export default class Repository extends React.Component<IProps, IState> {
                 <ContentPanel background='light'>
                     <Grid direction='column' item container>
                         <Link to={`/share/${this.state.tokenMeta.token}`}>
-                            <Button><CustomIcon src={FirstPageIcon} /> Browse other repositories shared under this link</Button>
+                            <Button><CustomIcon src={FirstPageIcon} /> <pre>  </pre> Browse other repositories shared under this link</Button>
                         </Link>
                         <div id={styles.repositoryHeader}>
                             <div id={styles.currentRepository}>
