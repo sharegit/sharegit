@@ -250,7 +250,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                                             <Tooltip title='Edit share'>
                                                 <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'e'}}}><CustomIcon src={EditIcon} /></IconButton>
                                             </Tooltip>
-                                            <Tooltip title='Duplcate share (create a new link with a new name)'>
+                                            <Tooltip title='Duplicate share (create a new link from this)'>
                                                 <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'd'}}}><CustomIcon src={DuplicateIcon} /></IconButton>
                                             </Tooltip>
                                         </CardActions>
