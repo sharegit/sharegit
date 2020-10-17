@@ -131,7 +131,7 @@ export default class Shares extends React.Component<IProps, IState>  {
             this.setState({
                 filter: newValue
             })
-        }, 500);
+        }, 250);
     }
     filter(token: SharedToken) {
         if (this.state.filter == '')
