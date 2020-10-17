@@ -111,7 +111,6 @@ export default class Basic extends React.Component<IProps, IState> {
                             minDate={new Date(new Date().getTime() + 60 * 24 * 60 *1000)}
                         />}
                     <p>Token will expire on: {this.props.expireDate != undefined ? printDate(this.props.expireDate) : ''}</p>
-                    <p>Please note that due to caching, if someone visits your link just at the right time, they will be able to access it for up to one hour.</p>
                 </div>
             )
         }

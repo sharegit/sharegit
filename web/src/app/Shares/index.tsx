@@ -274,7 +274,7 @@ export default class Shares extends React.Component<IProps, IState>  {
                             <div>
                                 <p>Deleting link: {this.state.confirmDeletion != undefined
                                                && (this.state.confirmDeletion!.customName != undefined ? this.state.confirmDeletion!.customName : this.state.confirmDeletion!.token)}</p>
-                                {'I understand this this action is irreversible and will result in the deletion of this link. No one with this link will be able to access any of the repositories contained within this link. This process could take up to 1 hour, due to caching.'}
+                                {'I understand this this action is irreversible and will result in the deletion of this link. No one with this link will be able to access any of the repositories contained within this link. This process could take up to 1 hour.'}
                             </div>}
                         cancelLabel='Cancel'
                         confirmLabel="Delete link!">
