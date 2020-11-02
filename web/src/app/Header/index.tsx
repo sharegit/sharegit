@@ -1,4 +1,4 @@
-import { Grid, Button } from '@material-ui/core';
+import { Grid, Button, Tooltip } from '@material-ui/core';
 import AddCircle from 'assets/icons/add-circle.svg';
 import ShareGitLogo from 'assets/icons/logo_light.svg';
 import CustomIcon from 'components/CustomIcon';
@@ -10,6 +10,7 @@ import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import NavMenuItem from './NavMenuItem';
 import style from './style.scss';
 import GlobalEvent from 'util/GlobalEvent';
+import printDate from 'util/Date';
 
 interface IProps {
     isLoggedIn: boolean;
@@ -91,7 +92,12 @@ export default class Header extends React.Component<IProps, IState> {
                                     </div>
                                     {x.expDate != undefined &&
                                         <div className={style.exp}>
-                                            Expires in {prettyRemainingTime(x.expDate)}
+                                            Expires in
+                                            <Tooltip title={printDate(x.expDate)}>
+                                                <span>
+                                                    {prettyRemainingTime(x.expDate)}
+                                                </span>
+                                            </Tooltip>
                                         </div>}
                                     <div className={style.repoList}>
                                         {x.repos}

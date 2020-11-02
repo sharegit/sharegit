@@ -39,17 +39,17 @@ export function prettyRemainingTime(time: Date | undefined) {
     const remaining = remainingTime(time);
     if (remaining == undefined)
         return '';
-        
-    if (remaining.days > 0)
-        return `${remaining.days} days`;
     
-    if (remaining.hours > 0)
-        return `${remaining.hours} hours`;
+    if (Math.abs(remaining.days) > 0)
+        return `${Math.abs(remaining.days)} days`;
+    
+    if (Math.abs(remaining.hours) > 0)
+        return `${Math.abs(remaining.hours)} hours`;
 
-    if (remaining.minutes > 0)
-        return `${remaining.minutes} minutes`;
+    if (Math.abs(remaining.minutes) > 0)
+        return `${Math.abs(remaining.minutes)} minutes`;
 
-    return 'seconds'
+    return 'couple of seconds'
 }
 
 export function prettyRemainingTimeOfToken(a: Token) {

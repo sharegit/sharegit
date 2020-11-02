@@ -8,12 +8,13 @@ import styles from './style.scss';
 import ContentPanel from 'components/ContentPanel';
 import LocalStorageDictionary from 'util/LocalStorageDictionary';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { Button, Grid, Card } from '@material-ui/core';
+import { Button, Grid, Card, Tooltip } from '@material-ui/core';
 import ConfirmDialog from 'components/ConfirmDialog';
 import CustomIcon from 'components/CustomIcon';
 import GetAppIcon from 'assets/icons/get-app.svg';
 import GlobalEvent from 'util/GlobalEvent';
 import { Link } from 'react-router-dom';
+import printDate from 'util/Date';
 
 export interface IProps extends RouteComponentProps<any> {
 }
@@ -72,7 +73,14 @@ export default class SharedWithMe extends React.Component<IProps, IState> {
         if (!!token.author) {
             return [<div key='author' className={styles.author}>{token.author}'s</div>,
                     <div key='name' className={styles.name}>{!!token.customName ? token.customName : token.token}</div>].concat( 
-                        token.tokenExp != undefined ? <div key='exp' className={styles.exp}>Expires in: {prettyRemainingTimeOfToken(token)}</div> : <span key='exp' />
+                        token.tokenExp != undefined ? <div key='exp' className={styles.exp}>
+                            {'Expires in '}
+                            <Tooltip title={printDate(token.tokenExp)}>
+                                <span>
+                                    {prettyRemainingTime(token.tokenExp)}
+                                </span>
+                            </Tooltip>
+                        </div> : <span key='exp' />
                     )
         } else {
             return token.token

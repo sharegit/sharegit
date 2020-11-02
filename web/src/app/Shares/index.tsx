@@ -6,7 +6,7 @@ import { RouteComponentProps, Link } from 'react-router-dom';
 import config from 'config';
 import RepositoryCard from 'app/SharedLanding/RepositoryCard';
 import printDate from 'util/Date';
-import { getSharedPathType, getAdditionalPath, getPreferredSha } from 'models/Tokens';
+import { getSharedPathType, getAdditionalPath, getPreferredSha, prettyRemainingTime } from 'models/Tokens';
 import ConfirmDialog from 'components/ConfirmDialog';
 import ExpandIcon from 'assets/icons/expand.svg';
 import { Button, Accordion, AccordionSummary, AccordionDetails, List, Grid, Card, CardContent, CardActions, Typography, InputBase, TextField, Tooltip, IconButton } from '@material-ui/core';
@@ -217,8 +217,12 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                 <span className={style.small}>Note: {token.privateNote}</span>}
                                             { token. expireDate != 0 &&
                                                 <div className={style.small}>
-                                                    {this.isTokenExpired(token) ? '(Expired at ' : '(Expires at '}
-                                                    {printDate(new Date(token.expireDate * 60 * 1000))}
+                                                    {this.isTokenExpired(token) ? 'Expired ' : 'Expires in '}
+                                                    <Tooltip title={printDate(new Date(token.expireDate * 60 * 1000))}>
+                                                        <span>
+                                                            {prettyRemainingTime(new Date(token.expireDate * 60 * 1000))}
+                                                        </span>
+                                                    </Tooltip>
                                                 </div> }
                                             
                                             <Typography className={style.header}>Repositories:</Typography>
