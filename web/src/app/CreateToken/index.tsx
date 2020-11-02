@@ -24,6 +24,7 @@ interface IState extends BaseState {
     privateNote: string;
     isExpiring: boolean;
     expireDate: Date;
+    expireIn: number | 'X';
     defaultBranchSelection?: string;
     errors: Dictionary<string>;
     formState: 0 | 1 | 2;
@@ -46,6 +47,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         defaultBranchSelection: 'master',
         customName: '',
         privateNote: '',
+        expireIn: 60*24,
         isExpiring: false,
         formState: 0,
         mode: 'c'
@@ -58,6 +60,8 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             const mode: 'd' | 'e' = (state as any).m as 'd' | 'e';
             
             this.state.template = existingToken;
+            if (existingToken.expireDate != 0)
+                this.state.expireIn = existingToken != undefined ? 'X' : this.state.expireIn;
             switch(mode) {
                 case 'd':
                     this.state.mode = 'd';
@@ -266,11 +270,14 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         })
     }
 
-    changeExpirationDate(date: Date) {
+    changeExpirationDate(date: Date, value: number | 'X') {
         date.setHours(23)
         date.setMinutes(59)
         date.setSeconds(59)
-        this.setState({expireDate: date})
+        this.setState({
+            expireDate: date,
+            expireIn: value
+        })
     }
 
 
@@ -325,9 +332,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             isExpiring={this.state.isExpiring}
             changeIsExpiring={(newValue) => this.setState({isExpiring: newValue})}
             
+            defaultExpire={this.state.expireIn}
             expireDate={this.state.expireDate}
             expireDateChanged={this.changeExpirationDate.bind(this)}
-            customExpireDate={this.state.template != undefined}
 
             onNext={() => this.setState({formState: 1})}
         /> )

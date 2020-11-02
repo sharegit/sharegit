@@ -17,9 +17,9 @@ interface IProps {
     isExpiring: boolean;
     changeIsExpiring: (newValue: boolean) => void;
 
+    defaultExpire: number | 'X';
     expireDate?: Date;
-    expireDateChanged: (newValue: Date) => void;
-    customExpireDate?: boolean;
+    expireDateChanged: (newValue: Date, value: number | 'X') => void;
 
     onNext: () => void;
 }
@@ -78,7 +78,7 @@ export default class Basic extends React.Component<IProps, IState> {
                             const newDate = data == 'X' ? 
                                 new Date(current.getTime() + 60 * 24 * 60 * 1000)
                             :   new Date(current.getTime() + (data as number) * 60 * 1000);
-                            this.props.expireDateChanged(newDate);
+                            this.props.expireDateChanged(newDate, data as number);
                             if (data == 'X') {
                                 this.setState({
                                     datePickerVisible: true,
@@ -90,7 +90,7 @@ export default class Basic extends React.Component<IProps, IState> {
                                 })
                             }
                         }}
-                        defaultValue={this.props.customExpireDate === true ? 'X' : 60 * 24}
+                        defaultValue={this.props.defaultExpire}
                         options={[
                             { key: '1-day', value: 60 * 24, display: '1 day' },
                             { key: '1-week', value: 60 * 24 * 7, display: '1 week' },
@@ -106,7 +106,7 @@ export default class Basic extends React.Component<IProps, IState> {
                             startDate={this.props.expireDate}
                             endDate={this.props.expireDate}
                             highlightDates={this.props.expireDate == undefined ? [] : [this.props.expireDate]}
-                            onChange={(newDate) => this.props.expireDateChanged(newDate as Date)}
+                            onChange={(newDate) => this.props.expireDateChanged(newDate as Date, 'X')}
                             onClickOutside={() => this.setState({datePickerOpen: false})}
                             minDate={new Date(new Date().getTime() + 60 * 24 * 60 *1000)}
                         />}
