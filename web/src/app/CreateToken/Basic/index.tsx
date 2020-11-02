@@ -116,7 +116,7 @@ export default class Basic extends React.Component<IProps, IState> {
         }
 
         fields.push(
-            <Button key='next' disabled={this.props.customNameValue.length == 0} onClick={() => this.props.onNext()}>
+            <Button key='next' disabled={!!this.props.customNameError || !!this.props.privateNoteError || this.props.customNameValue.length == 0} onClick={() => this.props.onNext()}>
                 Next
             </Button>
         )
