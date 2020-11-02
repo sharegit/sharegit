@@ -228,7 +228,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
     }
     changeCustomName(id: string, newValue: string) {
         this.setState(state => {
-            if (newValue.length > 0 && newValue.length < 50)
+            if (newValue.length > 0 && newValue.length <= 50)
                 state.errors.remove(id);
             else 
                 state.errors.put(id, `Custom Name cannot be empty or cannot exceed 50 characters. Current length: ${newValue.length}`);

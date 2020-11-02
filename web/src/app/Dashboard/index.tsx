@@ -67,7 +67,7 @@ export default class Dashboard extends React.Component<IProps, IState>  {
                 <li key={analytic.token}>{token.customName == undefined ? token.token : token.customName}: unique ({analytic.uniquePageViews}) | clicks ({analytic.pageViews})</li>
             )
         } else {
-            return null;
+        return null;
         }
     }
     render() {

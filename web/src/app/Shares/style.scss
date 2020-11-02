@@ -22,6 +22,9 @@
 @media screen and (max-width: 540px) {
     .shareCard {
         width: 300px;
+        button, a {
+            transform: scale(0.8);
+        }
     }
   }
 .shareCards {
