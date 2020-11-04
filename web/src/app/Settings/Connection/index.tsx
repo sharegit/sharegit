@@ -82,11 +82,11 @@ export default class Connection extends React.Component<IProps, IState> {
     getNewConnectionLink(): string {
         switch(this.props.provider) {
             case 'bitbucket':
-                return `https:bitbucket.org/site/oauth2/authorize?client_id=${config.bitbucket_auth.client_id}&response_type=code&state=${this.state.state}`;
+                return `https://bitbucket.org/site/oauth2/authorize?client_id=${config.bitbucket_auth.client_id}&response_type=code&state=${this.state.state}`;
             case 'github':
-                return `https:github.com/apps/sharegit/installations/new?state=${this.state.state}`;
+                return `https://github.com/apps/sharegit/installations/new?state=${this.state.state}`;
             case 'gitlab':
-                return `https:gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`;
+                return `https://gitlab.com/oauth/authorize?client_id=${config.gitlab_auth.client_id}&redirect_uri=${config.gitlab_auth.redirect_uri}&response_type=code&state=${this.state.state}&scope=read_user+read_repository+read_api`;
         }
     }
     async disconnect() {
