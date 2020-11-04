@@ -7,7 +7,11 @@
     @media screen and (min-width: 900px) {
         #content {
             width: globalStyles.$siteWidth - 200px - 120px;
-            width: globalStyles.$siteWidth - 200px - 120px;
+        }
+    }
+    @media screen and (max-width: 540px) {
+        #content {
+            width: 80%;
         }
     }
 }
