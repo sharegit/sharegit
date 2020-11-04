@@ -1,9 +1,10 @@
-import { Button, Card, Checkbox, FormControlLabel, GridListTile, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
+import { Button, Card, Checkbox, FormControlLabel, GridListTile, IconButton, Link, ListItemIcon, ListItemText, Tooltip, Typography } from '@material-ui/core';
 import GetAppIcon from 'assets/icons/get-app.svg';
 import BitbucketMark from 'assets/icons/bitbucket-mark.svg';
 import GithubMark from 'assets/icons/github-mark-dark.png';
 import GitlabMark from 'assets/icons/gitlab-mark.png';
 import CustomIcon from 'components/CustomIcon';
+import OpenIcon from 'assets/icons/open.svg';
 import Dropdown from 'components/Dropdown';
 import FormTextField from 'components/FormTextField';
 import { SharedRepository } from 'models/API';
@@ -49,13 +50,17 @@ export default class SelectableRepositoryCard extends React.Component<IProps, IS
                 component={Card}
                 onClick={() => { if (!this.props.selected) this.props.onClick();}} >
                 <div>
-                    <div className={styles.header}
-                        onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.header}>
                         {this.getProviderIcon()}
-                        <a className={styles.name} href={this.props.link} target="_blank">
+                        <span className={styles.name}>
                             {truncate(this.props.baseRespo.repo, 20)}
-                        </a>
+                        </span>
                         {this.props.downloadable ? <CustomIcon src={GetAppIcon} /> : null}
+                        <Tooltip className={styles.visitOriginal} title='Open original repository' onClick={(e) => e.stopPropagation()}>
+                        <IconButton component={Link} target='__blank' href={this.props.link}>
+                            <CustomIcon src={OpenIcon} />
+                        </IconButton>
+                        </Tooltip>
                     </div>
                 </div>
                 <span className={styles.desc}>{!!this.props.baseRespo.description ? this.props.baseRespo.description : "No description, website, or topics provided."}</span>
