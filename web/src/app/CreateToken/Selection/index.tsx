@@ -19,7 +19,7 @@ interface IProps {
     onBack: () => void;
     onSubmit: () => void;
 
-    mode: 'e' | 'd' | 'c';
+    mode: 'edit' | 'duplicate' | 'create';
     errors: Dictionary<string>;
     repositories: SharedRepository[];
     selectedRepositories: SharedRepository[];
@@ -70,11 +70,11 @@ export default class Selection extends React.Component<IProps> {
     }
     getCreateLabel() {
         switch(this.props.mode) {
-            case 'e':
+            case 'edit':
                 return 'Edit';
-            case 'd':
+            case 'duplicate':
                 return 'Duplicate';
-            case 'c':
+            case 'create':
                 return 'Create';
         }
     }

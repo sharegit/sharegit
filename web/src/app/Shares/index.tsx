@@ -252,10 +252,10 @@ export default class Shares extends React.Component<IProps, IState>  {
                                                 <IconButton onClick={()=>this.setState({confirmDeletion: token})}><CustomIcon src={DeleteIcon} /></IconButton>
                                             </Tooltip>
                                             <Tooltip title='Edit share'>
-                                                <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'e'}}}><CustomIcon src={EditIcon} /></IconButton>
+                                                <IconButton component={Link} to={{pathname: `/edit/${token.token}`, state: {t: token}}}><CustomIcon src={EditIcon} /></IconButton>
                                             </Tooltip>
                                             <Tooltip title='Duplicate share (create a new link from this)'>
-                                                <IconButton component={Link} to={{pathname: '/create', state: {t: token, m: 'd'}}}><CustomIcon src={DuplicateIcon} /></IconButton>
+                                                <IconButton component={Link} to={{pathname: `/duplicate/${token.token}`, state: {t: token}}}><CustomIcon src={DuplicateIcon} /></IconButton>
                                             </Tooltip>
                                         </CardActions>
 

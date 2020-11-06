@@ -13,7 +13,9 @@ import style from './style.scss';
 import config from 'config';
 import Loading from 'components/Loading';
 
-interface IProps extends RouteComponentProps {
+export interface IProps extends RouteComponentProps<any> {
+    token?: string;
+    mode: 'edit' | 'duplicate' | 'create';
 }
 
 interface IState extends BaseState {
@@ -29,7 +31,6 @@ interface IState extends BaseState {
     errors: Dictionary<string>;
     formState: 0 | 1 | 2;
     creating?: boolean;
-    mode: 'd' | 'e' | 'c';
     template?: SharedToken;
     loading?: boolean;
 }
@@ -49,35 +50,24 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         privateNote: '',
         expireIn: 60*24,
         isExpiring: false,
-        formState: 0,
-        mode: 'c'
+        formState: 0
     }
     constructor(props: IProps) {
         super(props);
+        
         const state = props.location.state;
         if (state != undefined){
             const existingToken = (state as any).t as SharedToken;
-            const mode: 'd' | 'e' = (state as any).m as 'd' | 'e';
-            
+
             this.state.template = existingToken;
             if (existingToken.expireDate != 0)
                 this.state.expireIn = existingToken != undefined ? 'X' : this.state.expireIn;
-            switch(mode) {
-                case 'd':
-                    this.state.mode = 'd';
-                    break;
-                case 'e':
-                    this.state.mode = 'e';
-                    break;
-            }
         }
-
-        window.history.replaceState(null, '')
     }
     async create() {
         try {
             console.log(this.state.stamp);
-            const token = this.state.template == undefined || this.state.mode != 'e' ? null : this.state.template.token;
+            const token = this.state.template == undefined || this.props.mode != 'edit' ? null : this.state.template.token;
             const newToken = await API.createToken({
                 Token: token,
                 PrivateNote: this.state.privateNote,
@@ -88,7 +78,7 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
             }, this.state.cancelToken)
             
             navigator.clipboard.writeText(`${config.share_uri}/${newToken.token}`);
-            this.props.history.push('/', {newToken: newToken, m: this.state.mode});
+            this.props.history.push('/', {newToken: newToken, m: this.props.mode});
         } catch (e) {
             if (!API.wasCancelled(e)) {
                 throw e;
@@ -99,6 +89,14 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
         this.state.loading = true;
         this.setState(this.state);
         try {
+            // If the editing or duplicating token data got lost fetch it!
+            if (!!this.props.token && this.state.template == undefined) {
+                const existingToken = await API.getSharedTokenMeta(this.props.token, this.state.cancelToken);
+
+                this.state.template = existingToken;
+                if (existingToken.expireDate != 0)
+                    this.state.expireIn = existingToken != undefined ? 'X' : this.state.expireIn;
+            }
             const myRepos = await API.getMyRepos(this.state.cancelToken)
                 myRepos.forEach(r=> {
                     r.branches = r.branches.flatMap(b=>[
@@ -107,9 +105,9 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 ])
             });
             this.state.repositories = [...myRepos];
-            switch(this.state.mode) {
-                case 'd':
-                case 'e':
+            switch(this.props.mode) {
+                case 'duplicate':
+                case 'edit':
                     if (this.state.template == undefined)
                         throw new Error('Editing and Duplicating requires a template to be also defined')
 
@@ -384,22 +382,22 @@ export default class NewTokenCreation extends React.Component<IProps, IState> {
                 onBack={() => this.setState({formState: 1})}
                 onSubmit={async () => await this.onSubmit()}
 
-                mode={this.state.mode}
+                mode={this.props.mode}
                 errors={this.state.errors}
                 repositories={this.state.repositories}
                 selectedRepositories={this.state.selectedRepositories}
                 />)
     }
     renderHeader() {
-        if ((this.state.mode == 'e' || this.state.mode == 'd') && this.state.template == undefined)
+        if ((this.props.mode == 'edit' || this.props.mode == 'duplicate') && this.state.template == undefined)
             throw new Error('Editing and duplicating requires a template!');
 
-        switch(this.state.mode) {
-            case 'e':
+        switch(this.props.mode) {
+            case 'edit':
                 return `Editing existing link "${this.state.template!.customName}"`;
-            case 'd':
+            case 'duplicate':
                 return `Duplicating existing link "${this.state.template!.customName}"`;
-            case 'c':
+            case 'create':
                 return 'Creating a new sharable link';
         }
     }

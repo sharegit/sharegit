@@ -18,7 +18,7 @@ import ConfirmAccountDeletion, { IProps as IConfirmAccountDeletionProps } from '
 import SharedLanding, { IProps as ISharedLandingProps } from './SharedLanding';
 import SharedWithMe, { IProps as ISharedWithMeProps } from './SharedWithMe';
 import styles from './style.scss';
-import NewTokenCreation from './CreateToken';
+import NewTokenCreation, {IProps as INewTokenCreationProps} from './CreateToken';
 import ContentPanel from 'components/ContentPanel';
 import Footer from './Footer';
 import Shares from './Shares';
@@ -184,8 +184,19 @@ export default class App extends React.Component<IProps, IState> {
                     {...props.match.params}/>
                 )} />
 
-                <Route path="/create" component={NewTokenCreation} />
-
+                <Route path="/create" component={NewTokenCreation} mode='create' />
+                <Route path="/edit/:token" exact component={(props: INewTokenCreationProps) => (
+                  <NewTokenCreation 
+                  {...props}
+                  {...props.match.params}
+                  mode='edit'/>
+                  )} />
+                <Route path="/duplicate/:token" exact component={(props: INewTokenCreationProps) => (
+                  <NewTokenCreation 
+                  {...props}
+                  {...props.match.params}
+                  mode='duplicate'/>
+                  )} />
 
                 <Route path='/legal' component={(props: RouteComponentProps<any>) => 
                   <Legal {...props} />
